@@ -13,4 +13,7 @@ export default defineConfig({
       "@routes": path.resolve(__dirname, "./src/routes"),
     },
   },
+  // server: {
+  //   port: 3001, // Adicione esta linha para definir a porta
+  // },
 });
