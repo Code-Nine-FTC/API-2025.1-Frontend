@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.14.0",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
+    "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.7",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.8.1",
