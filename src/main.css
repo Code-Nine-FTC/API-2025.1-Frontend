@@ -12,3 +12,18 @@
 --red-deletebutton: #A9080B;
 --blue-editbutton: #0069BF;
  }
+
+/* .content-div {
+  height: 100vh;
+  max-width: auto;
+} */
+
+.image-link:hover{
+  filter: 
+    invert(27%),
+    sepia(83%),
+    saturate(7475%),
+    hue-rotate(250deg),
+    brightness(91%),
+    contrast(101%);
+}
