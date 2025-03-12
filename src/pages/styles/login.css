@@ -1,0 +1,80 @@
+.login-page {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: url('src/assets/background-login-hd.png') no-repeat center center;
+    background-size: 100%;
+
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    
+  }
+  
+  .login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #00000092;
+    width: 100%;
+    max-width: 360px;
+  }
+  .login-box img {
+    width: 250px;
+    height: auto;
+    margin-bottom: 16px;
+  }
+  
+  .login-title {
+    font-size: 24px;
+   
+  }
+  
+  .login-button {
+    margin-top: 8px;
+    background-color: #5751D4;
+  }
+  
+  .login-button:hover {
+    background-color: #5751D4;
+  }
+  
+  input {
+    background-color: #f5f5f5 !important;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+
+.MuiFilledInput-root {
+  background-color: #f5f5f5 !important;
+  border-radius: 5px !important;
+}
+
+.MuiInputLabel-root {
+  color: #808082 !important;
+}
+
+.MuiFilledInput-root::before {
+  border-bottom: 2px solid #5751D4 !important; 
+}
+
+.MuiFilledInput-root::after {
+  border-bottom: 2px solid #4A3CBF !important;
+}
+
+.MuiFilledInput-root:hover::before {
+  border-bottom: 2px solid #6A5ACD !important;
+}
