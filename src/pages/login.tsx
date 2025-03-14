@@ -22,6 +22,8 @@ export default function LoginPage() {
       navigate("/teste"); 
     } else {
       setError("O email ou senha estão incorretos"); 
+      setEmail("");
+      setPassword("");
     }
   };
 
@@ -39,6 +41,7 @@ export default function LoginPage() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)} 
+          onFocus={() => setError("")}
         />
 
         <TextField
@@ -49,6 +52,7 @@ export default function LoginPage() {
           variant="filled"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onFocus={() => setError("")}
         />
 
         {error && <p style={{ color: "red" }}>{error}</p>}
