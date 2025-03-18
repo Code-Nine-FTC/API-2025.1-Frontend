@@ -3,42 +3,29 @@ import { Box, TextField, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./styles/login.css";
-import {links} from "../api/api"
+import {links} from "../services/api"
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault(); 
+    
+    const response = await links.fakeLogin(email, password);
+      if (response.success){
+        navigate("/teste");
+      }else{
+        setError("O email ou senha estão incorretos")
+        setEmail("")
+        setPassword("")
+      }
 
-    const fakeUser = {
-      email: "admin@email.com",
-      password: "123456",
-    };
 
-    event.preventDefault();
-
-    // try {
-    //   const response = await links.loginAuthenticate(email, password);
-    //   console.log("Login Bem sucedido: ", response);
-
-    //   // Armazenando o token ou qualquer dado de autenticação (opcional)
-    //   // Você pode armazenar o token no localStorage, cookies ou contexto global
-    //   localStorage.setItem("authToken", response.token); // Exemplo de como armazenar um token no localStorage
-
-    //   // Redirecionando para a página principal após login bem-sucedido
-    //   navigate("/dashboard"); // Redireciona para a página desejada após o login
-
-    if (email === fakeUser.email && password === fakeUser.password) {
-      navigate("/teste"); 
-    } else {
-      setError("O email ou senha estão incorretos"); 
-      setEmail("");
-      setPassword("");
-    }
+    
   };
 
   return (
