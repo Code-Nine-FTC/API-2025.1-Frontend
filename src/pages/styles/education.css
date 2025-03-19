@@ -31,11 +31,10 @@ html, body {
   margin-top: 30px;
 }
 
-/* Ajuste geral da barra de pesquisa */
 .search-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Garante espaçamento entre os elementos */
+  justify-content: space-between;
   width: 80%;
   max-width: 800px;
   height: 50px;
@@ -43,20 +42,18 @@ html, body {
   overflow: hidden;
   border: 2px solid #ccc;
   background-color: #fff;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
 }
 
-/* Ajuste do campo de entrada */
 .search-input {
   flex: 1;
   padding: 12px;
   font-size: 16px;
   border: none;
   outline: none;
-  color: #333; /* Cor do texto */
+  color: #333;
 }
 
-/* Ajuste do botão de pesquisa */
 .search-button {
   background-color: #635bff;
   padding: 12px 20px;
@@ -65,16 +62,15 @@ html, body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: white; /* Cor do ícone ou texto */
+  color: white;
   font-size: 16px;
-  transition: background-color 0.3s ease; /* Animação suave ao passar o mouse */
+  transition: background-color 0.3s ease;
 }
 
 .search-button:hover {
-  background-color: #4a46c5; /* Cor ao passar o mouse */
+  background-color: #4a46c5;
 }
 
-/* Ícone de pesquisa */
 .search-icon {
   color: white;
   font-size: 20px;
@@ -93,7 +89,7 @@ html, body {
   display: flex;
   max-width: 900px;
   width: 85%;
-  height: 250px; /* Definindo altura fixa para os cards */
+  height: 250px;
   border-radius: 15px;
   box-shadow: 0px 6px 15px rgba(21, 21, 21, 0.15);
   overflow: hidden;
@@ -102,7 +98,7 @@ html, body {
 }
 
 .image-container {
-  width: 30%; /* Agora a imagem ocupa 30% do card */
+  width: 30%;
   height: 100%;
 }
 
@@ -292,14 +288,13 @@ html, body {
   }
 }
 
-/* Responsividade para telas menores */
 @media (max-width: 576px) {
   .info-card {
     width: 100%;
   }
 
   .search-bar {
-    flex-direction: row; /* Mantém os elementos na mesma linha */
+    flex-direction: row; 
     align-items: center;
     height: auto;
     padding: 10px;
@@ -307,14 +302,14 @@ html, body {
 
   .search-input {
     flex: 1;
-    width: 100%; /* Ocupa todo o espaço disponível */
-    margin-bottom: 0; /* Remove o espaçamento inferior */
+    width: 100%;
+    margin-bottom: 0;
   }
 
   .search-button {
-    background: none; /* Remove o fundo roxo */
-    border: none; /* Remove a borda */
-    padding: 0; /* Remove o padding */
+    background: none;
+    border: none;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -322,8 +317,8 @@ html, body {
   }
 
   .search-icon {
-    color: #635bff; /* Mantém a lupa roxa */
-    font-size: 24px; /* Aumenta o tamanho da lupa para melhor visibilidade */
+    color: #635bff;
+    font-size: 24px;
   }
 
   .header {
