@@ -5,6 +5,7 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import SearchBar from "../components/searchbar";
 import { educationCards } from "../data/educationData";
+import { DefaultLayout } from "@components/layout/layoutNotLogged";
 
 const Education: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -29,6 +30,7 @@ const Education: React.FC = () => {
   const displayedCards = educationCards.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
+    <DefaultLayout>
     <div className="education-container">
       <div className="header"></div>
 
@@ -69,6 +71,7 @@ const Education: React.FC = () => {
         </Box>
       </Modal>
     </div>
+  </DefaultLayout>
   );
 };
 
