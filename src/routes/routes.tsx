@@ -3,6 +3,7 @@ import Home from "@pages/Home";
 import About from "@pages/About";
 import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
+import RegisterStations from "@pages/RegisterStation";
 
 export default function AppRoutes() {
   return (
@@ -11,6 +12,7 @@ export default function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/registrarestacao" element={<RegisterStations />} />
       </Routes>
   );
 }
