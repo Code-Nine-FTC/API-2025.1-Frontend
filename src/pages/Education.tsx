@@ -5,7 +5,6 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import SearchBar from "../components/searchbar";
 import { educationCards } from "../data/educationData";
-import { DefaultLayout } from "@components/layout/layoutNotLogged";
 
 const Education: React.FC = () => {
   const [page, setPage] = useState(1);
