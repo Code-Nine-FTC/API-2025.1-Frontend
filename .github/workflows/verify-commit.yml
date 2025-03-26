@@ -1,6 +1,6 @@
 name: Check Commit Message  
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   commit-message-check: 
@@ -14,7 +14,7 @@ jobs:
         run: |
           echo "Verificando mensagens de commit..."
           commits=$(git log --format=%s -n 10 --no-merges)
-          regex="^(feat|fix|docs|style|refactor|test|chore|build): .+"
+          regex="^(feat|fix|docs|style|refactor|test|chore|build): .+|^Merge .+"
       
           echo "$commits" | while IFS= read -r commit; do
             echo "🔍 Commit encontrado: '$commit'"
