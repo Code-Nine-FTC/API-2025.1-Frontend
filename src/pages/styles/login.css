@@ -4,12 +4,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh; /* Altura total da tela */
-  width: 100vw;  /* Largura total da tela */
+  height: 100vh;
   background: url('src/assets/background-login-hd.png') no-repeat center center;
-  background-size: cover; /* Garante que a imagem cubra toda a tela */
-  background-attachment: fixed; /* Mantém a imagem fixa ao rolar */
+  background-size: cover;
 }
+
 .container {
   display: flex;
   flex-direction: column;
