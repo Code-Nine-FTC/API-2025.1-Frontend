@@ -1,29 +1,30 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "http://127.0.0.1:5000",
 });
 
 const links = {
- fakeLogin: async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-  const fakeUser = {
-    email: "admin@email.com",
-    password: "123456",
-  };
+  login: async (email: string, password: string): Promise<{ success: boolean; token?: string; error?: string }> => {
+    try {
+      const formData = new URLSearchParams();
+      formData.append("username", email);
+      formData.append("password", password);
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (email === fakeUser.email && password === fakeUser.password) {
-        resolve({ success: true });
-      } else {
-        resolve({ success: false, error: "O email ou senha estão incorretos" });
+      const response = await api.post("/auth/login", formData, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      return { success: true, token: response.data.access_token };
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        return { success: false, error: "O email ou senha estão incorretos" };
       }
-    });
-  });
-}
-
-
-
+      return { success: false, error: "Erro ao conectar ao servidor" };
+    }
+  },
 };
 
 export { links };

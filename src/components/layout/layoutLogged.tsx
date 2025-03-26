@@ -7,7 +7,7 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export function LoggedtLayout({ children }: LayoutProps) {
+export function LoggedLayout({ children }: LayoutProps) {
   return (
     <Box >
         <Sidebar />
