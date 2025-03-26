@@ -15,6 +15,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onChange, 
   onSearchClick 
 }) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && onSearchClick) {
+      event.preventDefault();
+      onSearchClick();
+    }
+  };
+
   return (
     <div className="search-bar-container">
       <div className="search-bar">
@@ -24,8 +31,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder} 
           value={value}
           onChange={onChange} 
+          onKeyDown={handleKeyDown}
         />
-        <button className="search-button" onClick={onSearchClick}>
+        <button type="button" className="search-button" onClick={onSearchClick}>
           <SearchIcon className="search-icon" />
         </button>
       </div>
