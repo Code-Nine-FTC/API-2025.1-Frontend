@@ -20,6 +20,7 @@ interface StationFormProps {
   onSubmit: (form: FormFields) => void;
   title?: string;
   submitLabel?: string;
+  readOnly?: boolean;
 }
 
 export const StationForm: React.FC<StationFormProps> = ({
@@ -27,6 +28,7 @@ export const StationForm: React.FC<StationFormProps> = ({
   onSubmit,
   title = "Cadastro de Estação",
   submitLabel = "Salvar",
+  readOnly = false,
 }) => {
   const [form, setForm] = useState<FormFields>({
     name: "",
@@ -68,6 +70,8 @@ export const StationForm: React.FC<StationFormProps> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly) return;
+
     const { name, value } = e.target;
     let maskedValue = value;
 
@@ -100,6 +104,7 @@ export const StationForm: React.FC<StationFormProps> = ({
           value={form[name]}
           onChange={handleChange}
           className="input-field"
+          readOnly={readOnly}
         />
       </div>
     </div>
@@ -107,7 +112,9 @@ export const StationForm: React.FC<StationFormProps> = ({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    if (!readOnly) {
+      onSubmit(form);
+    }
   };
 
   return (
@@ -137,16 +144,18 @@ export const StationForm: React.FC<StationFormProps> = ({
             {renderInput("Longitude", "longitude", "input-coord")}
           </div>
 
-          <Box mt={3} textAlign="center">
-            <Button
-              variant="contained"
-              type="submit"
-              className="estacao-btn"
-              style={{ backgroundColor: "#5f5cd9", color: "white" }}
-            >
-              {submitLabel}
-            </Button>
-          </Box>
+          {!readOnly && (
+            <Box mt={3} textAlign="center">
+              <Button
+                variant="contained"
+                type="submit"
+                className="estacao-btn"
+                style={{ backgroundColor: "#5f5cd9", color: "white" }}
+              >
+                {submitLabel}
+              </Button>
+            </Box>
+          )}
         </form>
       </Paper>
     </Box>
