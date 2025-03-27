@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
           </Button>
           <Button 
             sx={{ color: location.pathname === "/educacional" ? "purple" : "black", fontWeight: "bold" }} 
-            onClick={() => navigate("/education")}
+            onClick={() => navigate("/educacao")}
           >
             Educacional
           </Button>
