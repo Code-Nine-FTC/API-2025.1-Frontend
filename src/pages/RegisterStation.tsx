@@ -1,25 +1,30 @@
 import { StationForm } from "@components/StationForm";
 import { LoggedLayout } from "@components/layout/layoutLogged";
-import axios from "axios";
+import { links } from "../services/api";
 
 const CadastrarEstacoes = () => {
   const handleCreate = async (form: any) => {
     try {
-      await axios.post("https://sua-api.com/weather_stations", {
+      const response = await links.registerStation({
         name: form.name,
         uid: form.uid,
-        address: {
-          zip: form.zip,
-          street: form.street,
-          number: form.number,
-          neighborhood: form.neighborhood,
-          city: form.city,
-          state: form.state,
-        },
-        latitude: form.latitude,
-        longitude: form.longitude,
+        latitude: parseFloat(form.latitude),
+        longitude: parseFloat(form.longitude),
+        address: [
+          form.zip,
+          form.street,
+          form.number,
+          form.neighborhood,
+          form.city,
+          form.state,
+        ],
       });
-      alert("Estação cadastrada com sucesso!");
+
+      if (response.success) {
+        alert("Estação cadastrada com sucesso!");
+      } else {
+        alert(response.error || "Erro ao cadastrar estação");
+      }
     } catch (err) {
       alert("Erro ao cadastrar estação");
     }

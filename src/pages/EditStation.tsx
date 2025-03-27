@@ -1,6 +1,6 @@
 import { StationForm } from "@components/StationForm";
 import { LoggedLayout } from "@components/layout/layoutLogged";
-import axios from "axios";
+import { links } from "../services/api";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -10,33 +10,53 @@ const EditarEstacoes = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(`https://sua-api.com/weather_stations/${id}`);
-      const data = res.data;
-      setStation({
-        ...data,
-        ...data.address,
-      });
+      try {
+        const res = await links.editStation(id as string, {
+          name: "",
+          uid: "",
+          latitude: 0,
+          longitude: 0,
+          address: [],
+        });
+        const data = res.data;
+        setStation({
+          ...data,
+          zip: data.address[0] || "",
+          street: data.address[1] || "",
+          number: data.address[2] || "",
+          neighborhood: data.address[3] || "",
+          city: data.address[4] || "",
+          state: data.address[5] || "",
+        });
+      } catch (error) {
+        alert("Erro ao carregar estação");
+      }
     };
     fetchData();
   }, [id]);
 
   const handleUpdate = async (form: any) => {
     try {
-      await axios.put(`https://sua-api.com/weather_stations/${id}`, {
+      const response = await links.editStation(id as string, {
         name: form.name,
         uid: form.uid,
-        address: {
-          zip: form.zip,
-          street: form.street,
-          number: form.number,
-          neighborhood: form.neighborhood,
-          city: form.city,
-          state: form.state,
-        },
-        latitude: form.latitude,
-        longitude: form.longitude,
+        latitude: parseFloat(form.latitude),
+        longitude: parseFloat(form.longitude),
+        address: [
+          form.zip,
+          form.street,
+          form.number,
+          form.neighborhood,
+          form.city,
+          form.state,
+        ],
       });
-      alert("Estação atualizada com sucesso!");
+
+      if (response.success) {
+        alert("Estação atualizada com sucesso!");
+      } else {
+        alert(response.error || "Erro ao atualizar estação");
+      }
     } catch (err) {
       alert("Erro ao atualizar estação");
     }

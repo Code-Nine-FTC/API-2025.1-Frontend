@@ -25,6 +25,24 @@ const links = {
       return { success: false, error: "Erro ao conectar ao servidor" };
     }
   },
+
+  registerStation: async (station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
+    try {
+      const response = await api.post("/stations", station);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao registrar estação" };
+    }
+  },
+
+  editStation: async (id: string, station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
+    try {
+      const response = await api.put(`/stations/${id}`, station);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao editar estação" };
+    }
+  },
 };
 
 export { links };
