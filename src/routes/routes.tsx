@@ -5,11 +5,13 @@ import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
 import EditStations from "@pages/EditStation";
+import Education from "@pages/Education";
 
 export default function AppRoutes() {
   return (
       <Routes>
         <Route path="/about" element={<About />} />
+        <Route path="/educacao" element={<Education />} />
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
