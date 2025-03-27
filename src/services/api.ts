@@ -43,6 +43,24 @@ const links = {
       return { success: false, error: error.response?.data?.message || "Erro ao editar estação" };
     }
   },
+
+  deleteStation: async (id: string) => {
+    try {
+      const response = await api.delete(`/stations/${id}`);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao deletar estação" };
+    }
+  },
+
+  getStation: async (id: string) => {
+    try {
+      const response = await api.get(`/stations/${id}`);
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao buscar estação" };
+    }
+  },
 };
 
 export { links };

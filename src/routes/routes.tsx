@@ -4,7 +4,7 @@ import About from "@pages/About";
 import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
-import EditStations from "@pages/EditStation";
+import ViewStations from "@pages/ViewStation";
 
 export default function AppRoutes() {
   return (
@@ -13,7 +13,7 @@ export default function AppRoutes() {
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
-        <Route path="/editarestacao" element={<EditStations />} />
+        <Route path="/visualizar-estacao" element={<ViewStations />} />
       </Routes>
   );
 }
