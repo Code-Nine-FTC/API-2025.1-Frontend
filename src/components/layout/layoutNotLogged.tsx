@@ -7,11 +7,12 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-export function DefaultLayout({ children }: LayoutProps) {
+export default function DefaultLayout({ children }: LayoutProps) {
   return (
-    <Box >
+    <Box sx={{backgroundColor:"#f3eeee"}}>
         <Navbar />   
-        <Box flex={1}>
+        <Box flex={1}
+          sx={{backgroundColor: "#f3eeee", minHeight: "100vh"}}>
           {children}
         </Box>
     </Box>
