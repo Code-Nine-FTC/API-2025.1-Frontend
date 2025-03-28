@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: `http://${import.meta.env.VITE_API_ROUTE}`,
+  baseURL: `http://127.0.0.1:5000`,
 });
 
 const links = {
@@ -17,14 +17,25 @@ const links = {
         },
       });
 
-      return { success: true, token: response.data.access_token };
+      const { access_token, token_type } = response.data;
+
+      if (!access_token || !token_type) {
+        throw new Error("Resposta inválida do servidor: faltando access_token ou token_type");
+      }
+      const fullToken = `${token_type} ${access_token}`;
+      localStorage.setItem("token", fullToken);
+
+      return { success: true, token: fullToken };
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
+        console.error("Erro de autenticação:", error.response.data);
         return { success: false, error: "O email ou senha estão incorretos" };
       }
+
+      console.error("Erro ao conectar ao servidor:", error.message);
       return { success: false, error: "Erro ao conectar ao servidor" };
     }
-  },
+  }
 };
 
 export { links };
