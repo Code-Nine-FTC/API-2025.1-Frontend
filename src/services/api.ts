@@ -35,7 +35,48 @@ const links = {
       console.error("Erro ao conectar ao servidor:", error.message);
       return { success: false, error: "Erro ao conectar ao servidor" };
     }
-  }
+  },
+
+  listAlerts: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get("/alert/list", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+    }
+  },
+
+  filterAlerts: async (filters: { station?: string; startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get("/alert/filter", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: filters,
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas filtrados" };
+    }
+  },
 };
 
 export { links };
