@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: `http://${import.meta.env.VITE_API_ROUTE}`,
+  baseURL: `http://127.0.0.1:5000`,
 });
 
 const links = {
@@ -17,32 +17,59 @@ const links = {
         },
       });
 
-      return { success: true, token: response.data.access_token };
+      const { access_token, token_type } = response.data;
+
+      if (!access_token || !token_type) {
+        throw new Error("Resposta inválida do servidor: faltando access_token ou token_type");
+      }
+      const fullToken = `${token_type} ${access_token}`;
+      localStorage.setItem("token", fullToken);
+
+      return { success: true, token: fullToken };
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
+        console.error("Erro de autenticação:", error.response.data);
         return { success: false, error: "O email ou senha estão incorretos" };
       }
+
+      console.error("Erro ao conectar ao servidor:", error.message);
       return { success: false, error: "Erro ao conectar ao servidor" };
     }
   },
 
-  registerStation: async (station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
+  createStation: async (form: {
+    name: string;
+    uid: string;
+    latitude: string;
+    longitude: string;
+  }) => {
     try {
-      const response = await api.post("/stations", station);
-      return { success: true, data: response.data };
-    } catch (error: any) {
-      return { success: false, error: error.response?.data?.message || "Erro ao registrar estação" };
-    }
-  },
+      const token = localStorage.getItem("token");
 
-  editStation: async (id: string, station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
-    try {
-      const response = await api.put(`/stations/${id}`, station);
-      return { success: true, data: response.data };
-    } catch (error: any) {
-      return { success: false, error: error.response?.data?.message || "Erro ao editar estação" };
-    }
-  },
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/stations",
+        {
+          name: form.name,
+          uid: form.uid,
+          latitude: parseFloat(form.latitude),
+          longitude: parseFloat(form.longitude),
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao cadastrar estação:", error);
+      throw error;
+    }
+  },
 };
 
 export { links };
