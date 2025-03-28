@@ -35,7 +35,41 @@ const links = {
       console.error("Erro ao conectar ao servidor:", error.message);
       return { success: false, error: "Erro ao conectar ao servidor" };
     }
-  }
+  },
+
+  createStation: async (form: {
+    name: string;
+    uid: string;
+    latitude: string;
+    longitude: string;
+  }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/stations",
+        {
+          name: form.name,
+          uid: form.uid,
+          latitude: parseFloat(form.latitude),
+          longitude: parseFloat(form.longitude),
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao cadastrar estação:", error);
+      throw error;
+    }
+  },
 };
 
 export { links };
