@@ -84,31 +84,22 @@ const links = {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      return { success: true, data: response.data };
-    } catch (error: any) {
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
-    }
-  },
-
-  filterAlerts: async (filters: { station?: string; startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: any; error?: string }> => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Usuário não autenticado");
+      
+      if (response.data && Array.isArray(response.data.data)) {
+        const alerts = response.data.data.map((item: any) => ({
+          id: item.id,
+          measure_value: item.measure_value,
+          type_alert_name: item.type_alert_name,
+          station_name: item.station_name,
+          create_date: item.create_date,
+        }));
+        return { success: true, data: alerts };
       }
 
-      const response = await api.get("/alert/filter", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: filters,
-      });
-
-      return { success: true, data: response.data };
+      throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas filtrados" };
+      console.error("Erro ao buscar alertas:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
     }
   },
 };
