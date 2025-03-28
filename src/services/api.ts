@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:5000",
-
   baseURL: `http://${import.meta.env.VITE_API_ROUTE}`,
+});
 
 const links = {
   login: async (email: string, password: string): Promise<{ success: boolean; token?: string; error?: string }> => {
