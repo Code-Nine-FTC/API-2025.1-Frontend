@@ -1,11 +1,11 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography, Box } from "@mui/material";
 import { StationForm } from "@components/StationForm";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { links } from "../services/api";
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 
-const ViewStation = () => {
+const ViewStation: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [station, setStation] = useState<any>(null);
@@ -13,24 +13,29 @@ const ViewStation = () => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStation = async () => {
       try {
-        const res = await links.getStation(id as string);
-        const data = res.data;
-        setStation({
-          ...data,
-          zip: data.address[0] || "",
-          street: data.address[1] || "",
-          number: data.address[2] || "",
-          neighborhood: data.address[3] || "",
-          city: data.address[4] || "",
-          state: data.address[5] || "",
-        });
+        const response = await links.getStation(id as string);
+        if (response.success) {
+          const data = response.data;
+          setStation({
+            ...data,
+            zip: data.address[0] || "",
+            street: data.address[1] || "",
+            number: data.address[2] || "",
+            neighborhood: data.address[3] || "",
+            city: data.address[4] || "",
+            state: data.address[5] || "",
+          });
+        } else {
+          alert(response.error || "Erro ao carregar estação");
+        }
       } catch (error) {
         alert("Erro ao carregar estação");
       }
     };
-    fetchData();
+  
+    fetchStation();
   }, [id]);
 
   const handleUpdate = async (form: any) => {
@@ -53,10 +58,11 @@ const ViewStation = () => {
       if (response.success) {
         alert("Estação atualizada com sucesso!");
         setIsEditing(false);
+        setStation(form);
       } else {
         alert(response.error || "Erro ao atualizar estação");
       }
-    } catch (err) {
+    } catch (error) {
       alert("Erro ao atualizar estação");
     }
   };
@@ -70,15 +76,18 @@ const ViewStation = () => {
       } else {
         alert(response.error || "Erro ao deletar estação");
       }
-    } catch (err) {
+    } catch (error) {
       alert("Erro ao deletar estação");
     }
   };
 
   return (
     <LoggedLayout>
-      {station && (
-        <>
+      {station ? (
+        <Box className="view-station-wrapper">
+          <Typography variant="h4" align="center" gutterBottom>
+            {isEditing ? "Editar Estação" : "Visualizar Estação"}
+          </Typography>
           <StationForm
             initialValues={station}
             onSubmit={handleUpdate}
@@ -86,7 +95,7 @@ const ViewStation = () => {
             submitLabel="Salvar Alterações"
             readOnly={!isEditing}
           />
-          <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+          <Box mt={3} display="flex" justifyContent="center">
             {!isEditing && (
               <Button
                 variant="contained"
@@ -104,8 +113,12 @@ const ViewStation = () => {
             >
               Deletar
             </Button>
-          </div>
-        </>
+          </Box>
+        </Box>
+      ) : (
+        <Typography variant="h6" align="center">
+          Carregando estação...
+        </Typography>
       )}
 
       <Dialog open={showDeletePopup} onClose={() => setShowDeletePopup(false)}>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: `http://${import.meta.env.VITE_API_ROUTE}`,
+  baseURL: `http://127.0.0.1:5000`,
 });
 
 const links = {
@@ -17,7 +17,15 @@ const links = {
         },
       });
 
-      return { success: true, token: response.data.access_token };
+      const { access_token } = response.data;
+
+      if (!access_token) {
+        throw new Error("Token de acesso não recebido");
+      }
+
+      localStorage.setItem("token", access_token);
+
+      return { success: true, token: access_token };
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
         return { success: false, error: "O email ou senha estão incorretos" };
@@ -28,7 +36,18 @@ const links = {
 
   registerStation: async (station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
     try {
-      const response = await api.post("/stations", station);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post("/stations", station, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       return { success: true, data: response.data };
     } catch (error: any) {
       return { success: false, error: error.response?.data?.message || "Erro ao registrar estação" };
@@ -37,16 +56,58 @@ const links = {
 
   editStation: async (id: string, station: { name: string; uid: string; latitude: number; longitude: number; address: string[] }) => {
     try {
-      const response = await api.put(`/stations/${id}`, station);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(`/stations/${id}`, station, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       return { success: true, data: response.data };
     } catch (error: any) {
       return { success: false, error: error.response?.data?.message || "Erro ao editar estação" };
     }
   },
 
+  disableStation: async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(`/stations/disable/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao desativar estação" };
+    }
+  },
+
   deleteStation: async (id: string) => {
     try {
-      const response = await api.delete(`/stations/${id}`);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.delete(`/stations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       return { success: true, data: response.data };
     } catch (error: any) {
       return { success: false, error: error.response?.data?.message || "Erro ao deletar estação" };
@@ -55,7 +116,18 @@ const links = {
 
   getStation: async (id: string) => {
     try {
-      const response = await api.get(`/stations/${id}`);
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+  
+      const response = await api.get(`/stations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       return { success: true, data: response.data };
     } catch (error: any) {
       return { success: false, error: error.response?.data?.message || "Erro ao buscar estação" };

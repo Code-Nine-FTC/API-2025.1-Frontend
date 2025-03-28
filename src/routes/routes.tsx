@@ -13,7 +13,7 @@ export default function AppRoutes() {
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
-        <Route path="/visualizar-estacao" element={<ViewStations />} />
+        <Route path="/visualizarestacao" element={<ViewStations />} />
       </Routes>
   );
 }
