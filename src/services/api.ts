@@ -37,6 +37,40 @@ const links = {
     }
   },
 
+  createStation: async (form: {
+    name: string;
+    uid: string;
+    latitude: string;
+    longitude: string;
+  }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/stations",
+        {
+          name: form.name,
+          uid: form.uid,
+          latitude: parseFloat(form.latitude),
+          longitude: parseFloat(form.longitude),
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error("Erro ao cadastrar estação:", error.message || error);
+      throw error;
+    }
+  },
+
   listAlerts: async (): Promise<{ success: boolean; data?: Array<{ id: number; measure_value: string; type_alert_name: string; station_name: string; create_date: string }>; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
