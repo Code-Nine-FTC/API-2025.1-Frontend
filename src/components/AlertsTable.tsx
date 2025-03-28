@@ -26,8 +26,14 @@ const AlertsTable: React.FC = () => {
       try {
         const response = await links.listAlerts();
         if (response.success) {
-          setAlerts(response.data);
-          setFilteredAlerts(response.data);
+          const alertsData = response.data?.map((item: any) => ({
+            id: item.id,
+            station: item.station_name,
+            startDate: item.create_date,
+            endDate: item.create_date,
+          })) || [];
+          setAlerts(alertsData);
+          setFilteredAlerts(alertsData);
         } else {
           setError(response.error || "Erro ao carregar os alertas.");
         }

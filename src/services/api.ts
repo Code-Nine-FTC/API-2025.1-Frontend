@@ -37,7 +37,7 @@ const links = {
     }
   },
 
-  listAlerts: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+  listAlerts: async (): Promise<{ success: boolean; data?: Array<{ id: number; measure_value: string; type_alert_name: string; station_name: string; create_date: string }>; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -45,7 +45,7 @@ const links = {
         throw new Error("Usuário não autenticado");
       }
 
-      const response = await api.get("/alert/list", {
+      const response = await api.get("/alert/all", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
