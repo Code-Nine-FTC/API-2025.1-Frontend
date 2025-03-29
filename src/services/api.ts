@@ -114,6 +114,66 @@ const api = axios.create({
         return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
       }
     },
+
+  disableStation: async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(`/stations/disable/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao desativar estação" };
+    }
+  },
+
+  deleteStation: async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.delete(`/stations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao deletar estação" };
+    }
+  },
+
+  getStation: async (id: string) => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+  
+      const response = await api.get(`/stations/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message || "Erro ao buscar estação" };
+    }
+  },
   
     listParameterTypes: async (name?: string, measure_unit?: string): Promise<{ success: boolean; data?: Array<{ id: number; name: string; measure_unit: string }>; error?: string }> => {
       try {

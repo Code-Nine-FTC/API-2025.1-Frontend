@@ -8,6 +8,8 @@ import RegisterAlertType from "@pages/RegisterAlertType";
 import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
 import RegisterParameterType from "@pages/RegisterParameterType";
+import ViewStations from "@pages/ViewStation";
+import EditStation from "@pages/EditStation";
 
 export default function AppRoutes() {
   return (
@@ -20,6 +22,7 @@ export default function AppRoutes() {
         <Route path="/registraralerta" element={<RegisterAlertType />} />
 		<Route path="/registrartipoparametro" element={<RegisterParameterType />} />
 
+        <Route path="/editarestacao" element={<EditStation />} />
       </Routes>
   );
 }
