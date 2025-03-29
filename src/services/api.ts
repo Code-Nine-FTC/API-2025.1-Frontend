@@ -119,6 +119,8 @@ const links = {
       }
 
       const params = new URLSearchParams();
+      console.log("filtros", filters)
+      console.log(params)
 
       if (filters) {
         if (filters.uid) params.append("uid", filters.uid);

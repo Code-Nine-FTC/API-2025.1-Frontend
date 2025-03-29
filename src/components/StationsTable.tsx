@@ -24,6 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/pt-br';
 import { Grid } from '@mui/material';
+import dayjs, { Dayjs } from "dayjs";
 
 interface Station {
     id: number;
@@ -46,8 +47,8 @@ const StationTable: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [uidFilter, setUidFilter] = useState("");
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -59,9 +60,8 @@ const StationTable: React.FC = () => {
         const filters = {
           name: nameFilter || undefined,
           uid: uidFilter || undefined,
-          start_date: startDate ? startDate.toISOString().split('T')[0] : undefined,
-          end_date: endDate ? endDate.toISOString().split('T')[0] : undefined,
-          page: page,
+          start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
+          end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
           limit: limit
         };
         
@@ -81,7 +81,6 @@ const StationTable: React.FC = () => {
 
     fetchStations();
 
-    setLoading(true);
   }, [page, limit]);
 
   const handleSearch = () => {
@@ -90,8 +89,8 @@ const StationTable: React.FC = () => {
       const filters = {
         name: nameFilter || undefined,
         uid: uidFilter || undefined,
-        start_date: startDate ? startDate.toISOString().split('T')[0] : undefined,
-        end_date: endDate ? endDate.toISOString().split('T')[0] : undefined,
+        start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
+        end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
         page: 1, 
         limit: limit
       };
@@ -207,6 +206,21 @@ const StationTable: React.FC = () => {
         
         {/* Advanced Filters */}
         <Collapse in={showFilters}>
+        <Box sx={{ mt: 2, p: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+          <Typography variant="subtitle2">Debug Information:</Typography>
+          <pre style={{ fontSize: '12px', overflow: 'auto' }}>
+            {JSON.stringify({
+              currentFilters: {
+                name: nameFilter || undefined,
+                uid: uidFilter || undefined,
+                start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
+                end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
+                page: page,
+                limit: limit
+              }
+            }, null, 2)}
+          </pre>
+        </Box>
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Filtros avançados</Typography>
             <Grid container spacing={2}>
@@ -274,29 +288,6 @@ const StationTable: React.FC = () => {
           />
         )}
       />
-      
-      {/* Pagination Controls */}
-      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-        <Typography variant="body2">
-          Página {page} de {Math.ceil(stations.length / limit)}
-        </Typography>
-        <Button 
-          disabled={page === 1} 
-          onClick={() => setPage(p => Math.max(1, p - 1))}
-          variant="outlined"
-          size="small"
-        >
-          Anterior
-        </Button>
-        <Button 
-          disabled={page >= Math.ceil(stations.length / limit)} 
-          onClick={() => setPage(p => p + 1)}
-          variant="outlined"
-          size="small"
-        >
-          Próxima
-        </Button>
-      </Box>
     </Box>
   );
 };
