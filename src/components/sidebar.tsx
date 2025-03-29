@@ -22,6 +22,7 @@ import TecsusLogo from "../assets/tecsus_logo.svg";
 import StationLogo from "../assets/station_logo.svg";
 import LogoutLogo from '../assets/logout_logo.svg';
 import { Link } from "react-router-dom";
+import { useAuth } from "../services/authContext"
 
 const drawerWidth = 260;
 
@@ -43,6 +44,7 @@ const Sidebar = (props: Props) => {
   const [selected, setSelected] = useState("Home");
   const [userName, setUserName] = useState("Pedro");
 
+  const { logout } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -119,9 +121,9 @@ const Sidebar = (props: Props) => {
           {userName}
         </Typography>
         <ListItemIcon sx={{ ml: 9}}>
-          <Link to="/login" className="image-link">
+          <Box onClick={logout} className="image-link">
             <img src={LogoutLogo} alt="Logout Logo" width="60%"/>
-          </Link>
+          </Box>
         </ListItemIcon>
       </Box>
     </Box>

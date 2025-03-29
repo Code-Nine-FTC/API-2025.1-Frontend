@@ -10,6 +10,7 @@ import AlertList from "@pages/AlertList";
 import StationListPage from "@pages/StationList";
 import RegisterAlertType from "@pages/RegisterAlertType";
 import ParameterTypeList from "@pages/ParameterTypeList";
+import { ProtectedRoute } from "../services/authContext"
 
 export default function AppRoutes() {
   return (
@@ -18,13 +19,24 @@ export default function AppRoutes() {
         <Route path="/educacao" element={<Education />} />
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/registrarestacao" element={<RegisterStations />} />
+
+        <Route path="/registrarestacao" element={
+          <ProtectedRoute>
+            <RegisterStations />
+          </ProtectedRoute>
+        } />
         <Route path="/listarestacao" element={<StationListPage />} />
-        {/* <Route path="/editarestacao/:id" element={<EditStations />} /> */}
-        <Route path="/registrartipoalerta" element={<RegisterAlertType />} />
-        <Route path="/listartipoalerta" element={<ParameterTypeList />} />
-        
+        <Route path="/registrartipoalerta" element={
+          <ProtectedRoute>
+            <RegisterAlertType />
+          </ProtectedRoute>
+        } />
+        <Route path="/listartipoalerta" element={
+          <ProtectedRoute>
+            <ParameterTypeList />
+          </ProtectedRoute>
+        } />
         <Route path="/alerts" element={<AlertList />} />
-      </Routes>
+        </Routes>
   );
 }
