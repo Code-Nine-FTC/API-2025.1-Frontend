@@ -4,6 +4,7 @@ import { links } from "../services/api";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { LoggedLayout } from "@components/layout/layoutLogged";
+import { Modal, Box, Typography, CircularProgress, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
 interface Alert {
   id: number;
@@ -21,11 +22,12 @@ const AlertList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [typeAlertName, setTypeAlertName] = useState("");
   const [stationName, setStationName] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const navigate = useNavigate();
 
   // Extrai os tipos de alerta únicos da listagem de alertas
   const alertTypes = Array.from(new Set(alerts.map((alert) => alert.typeAlertName)));
-
   const stations = Array.from(new Set(alerts.map((alert) => alert.station)));
 
   const fetchAlerts = async (filters?: { [key: string]: string }) => {
@@ -45,20 +47,19 @@ const AlertList: React.FC = () => {
             endDate: item.create_date,
           })) || [];
         setAlerts(alertsData);
-        if (filters) {
-          const filtered = alertsData.filter((alert) => {
-            const matchesType = filters.type_alert_name
-              ? alert.typeAlertName === filters.type_alert_name
-              : true;
-            const matchesStation = filters.station_name
-              ? alert.station === filters.station_name
-              : true;
-            return matchesType && matchesStation;
-          });
-          setFilteredAlerts(filtered);
-        } else {
-          setFilteredAlerts(alertsData);
-        }
+
+        // Aplica os filtros diretamente nos dados retornados
+        const filtered = alertsData.filter((alert) => {
+          const matchesType = filters?.type_alert_name
+            ? alert.typeAlertName === filters.type_alert_name
+            : true;
+          const matchesStation = filters?.station_name
+            ? alert.station === filters.station_name
+            : true;
+          return matchesType && matchesStation;
+        });
+
+        setFilteredAlerts(filtered);
       } else {
         setError(response.error || "Erro ao carregar os alertas.");
       }
@@ -81,6 +82,16 @@ const AlertList: React.FC = () => {
     fetchAlerts(filters);
   };
 
+  const handleOpenModal = (alert: Alert) => {
+    setSelectedAlert(alert);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedAlert(null);
+    setModalOpen(false);
+  };
+
   const columns = [
     { label: "ID", key: "id" as keyof Alert },
     { label: "Estação", key: "station" as keyof Alert },
@@ -94,48 +105,95 @@ const AlertList: React.FC = () => {
     <LoggedLayout>
       <div className="alerts-container">
         <h1 className="alerts-title">Alertas</h1>
-        <div className="data-table-header">
-          <select
-            value={typeAlertName}
-            onChange={(e) => setTypeAlertName(e.target.value)}
-            className="data-table-select"
+        <div className="data-table-header" style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
+          <FormControl fullWidth>
+            <InputLabel>Tipo de Alerta</InputLabel>
+            <Select
+              value={typeAlertName}
+              onChange={(e) => setTypeAlertName(e.target.value)}
+              label="Tipo de Alerta"
+            >
+              <MenuItem value="">
+                <em>Selecione o Tipo de Alerta</em>
+              </MenuItem>
+              {alertTypes.map((type, index) => (
+                <MenuItem key={index} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel>Estação</InputLabel>
+            <Select
+              value={stationName}
+              onChange={(e) => setStationName(e.target.value)}
+              label="Estação"
+            >
+              <MenuItem value="">
+                <em>Selecione a Estação</em>
+              </MenuItem>
+              {stations.map((station, index) => (
+                <MenuItem key={index} value={station}>
+                  {station}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="contained"
+            onClick={handleSearch}
+            style={{ backgroundColor: "#5f5cd9", color: "white", height: "56px" }}
           >
-            <option value="">Selecione o Tipo de Alerta</option>
-            {alertTypes.map((type, index) => (
-              <option key={index} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          <select
-            value={stationName}
-            onChange={(e) => setStationName(e.target.value)}
-            className="data-table-select"
-          >
-            <option value="">Selecione a Estação</option>
-            {stations.map((station, index) => (
-              <option key={index} value={station}>
-                {station}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleSearch} className="data-table-button">
             Buscar
-          </button>
+          </Button>
         </div>
         <DataTable<Alert>
           data={filteredAlerts}
           columns={columns}
           loading={loading}
           error={error}
-          title="Lista de Alertas"
           renderActions={(row) => (
             <SearchIcon
               style={{ color: "#ccc", cursor: "pointer" }}
-              onClick={() => navigate(`/alert-details/${row.id}`)}
+              onClick={() => handleOpenModal(row)}
             />
           )}
         />
+        <Modal open={modalOpen} onClose={handleCloseModal}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "90%",
+              maxWidth: "500px",
+              bgcolor: "#333", // Fundo escuro
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+              color: "white", // Texto branco
+              border: "2px solid #5f5cd9", // Borda roxa
+            }}
+          >
+            {selectedAlert ? (
+              <div>
+                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px", color: "white" }}>
+                  Detalhes do Alerta
+                </Typography>
+                <Typography sx={{ color: "white" }}><strong>ID:</strong> {selectedAlert.id}</Typography>
+                <Typography sx={{ color: "white" }}><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
+                <Typography sx={{ color: "white" }}><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
+                <Typography sx={{ color: "white" }}><strong>Estação:</strong> {selectedAlert.station}</Typography>
+                <Typography sx={{ color: "white" }}><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
+                <Typography sx={{ color: "white" }}><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
+              </div>
+            ) : (
+              <CircularProgress />
+            )}
+          </Box>
+        </Modal>
       </div>
     </LoggedLayout>
   );
