@@ -7,6 +7,8 @@ import { LoggedLayout } from "@components/layout/layoutLogged";
 
 interface Alert {
   id: number;
+  measureValue: string;
+  typeAlertName: string;
   station: string;
   startDate: string;
   endDate: string;
@@ -30,6 +32,8 @@ const AlertList: React.FC = () => {
           const alertsData =
             response.data?.map((item: any) => ({
               id: item.id,
+              measureValue: item.measure_value,
+              typeAlertName: item.type_alert_name,
               station: item.station_name,
               startDate: item.create_date,
               endDate: item.create_date,
@@ -49,15 +53,18 @@ const AlertList: React.FC = () => {
     fetchUserAlerts();
   }, []);
 
-  const handleSearch = () => {
-    if (!search.trim()) {
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
       setFilteredAlerts(alerts);
       return;
     }
 
     const filtered = alerts.filter((alert) =>
-      alert.station.toLowerCase().includes(search.toLowerCase())
+      Object.values(alert).some((value) =>
+        value.toString().toLowerCase().includes(query.toLowerCase())
+      )
     );
+
     setFilteredAlerts(filtered);
   };
 
@@ -68,6 +75,8 @@ const AlertList: React.FC = () => {
   const columns = [
     { label: "ID", key: "id" as keyof Alert },
     { label: "Estação", key: "station" as keyof Alert },
+    { label: "Valor da Medida", key: "measureValue" as keyof Alert },
+    { label: "Tipo de Alerta", key: "typeAlertName" as keyof Alert },
     { label: "Data Inicial", key: "startDate" as keyof Alert },
     { label: "Data Final", key: "endDate" as keyof Alert },
   ];
@@ -84,7 +93,7 @@ const AlertList: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="data-table-search"
           />
-          <button onClick={handleSearch} className="data-table-button">
+          <button onClick={() => handleSearch(search)} className="data-table-button">
             Buscar
           </button>
           <button onClick={handleAddAlert} className="data-table-button">
