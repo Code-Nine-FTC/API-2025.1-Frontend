@@ -149,7 +149,51 @@ const api = axios.create({
         return { success: false, error: error.response?.data?.detail || "Erro ao buscar tipos de parâmetros" };
       }
     },
+	createParameterType: async (form: {
+		name: string;
+		measure_unit: string;
+		qnt_decimals: number;
+		offset?: number;
+		factor?: number;
+	  }): Promise<{ success: boolean; data?: any; error?: string }> => {
+		try {
+		  const token = localStorage.getItem("token");
+	
+		  if (!token) {
+			throw new Error("Usuário não autenticado");
+		  }
+	
+		  const payload: any = {
+			name: form.name,
+			measure_unit: form.measure_unit,
+			qnt_decimals: form.qnt_decimals
+		  };
+	
+		  // Adiciona campos opcionais apenas se existirem
+		  if (form.offset !== undefined) payload.offset = form.offset;
+		  if (form.factor !== undefined) payload.factor = form.factor;
+	
+		  const response = await api.post("/parameter_types/", payload, {
+			headers: {
+			  Authorization: `Bearer ${token}`,
+			},
+		  });
+	
+		  return { 
+			success: true, 
+			data: response.data 
+		  };
+		} catch (error: any) {
+		  console.error("Erro ao criar tipo de parâmetro:", error.message || error);
+		  return { 
+			success: false, 
+			error: error.response?.data?.detail || "Erro ao criar tipo de parâmetro" 
+		  };
+		}
+	  },
   };
+
+  
   
   export { links };
   export default api;

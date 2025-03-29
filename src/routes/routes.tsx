@@ -7,6 +7,7 @@ import RegisterAlertType from "@pages/RegisterAlertType";
 
 import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
+import RegisterParameterType from "@pages/RegisterParameterType";
 
 export default function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
         <Route path="/registraralerta" element={<RegisterAlertType />} />
+		<Route path="/registrartipoparametro" element={<RegisterParameterType />} />
 
       </Routes>
   );
