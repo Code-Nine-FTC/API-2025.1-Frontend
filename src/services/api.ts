@@ -106,6 +106,42 @@ const links = {
     }
   },
 
+  listParameterTypes: async (name?: string, measure_unit?: string): Promise<{ success: boolean; data?: Array<{ id: number; name: string; measure_unit: string }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const params: Record<string, string> = {};
+      if (name) params.name = name;
+      if (measure_unit) params.measure_unit = measure_unit;
+
+      const response = await api.get("/parameter_types/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params,
+      });
+
+      if (response.data && Array.isArray(response.data)) {
+        const parameterTypes = response.data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          measure_unit: item.measure_unit,
+        }));
+        return { success: true, data: parameterTypes };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error("Erro ao buscar tipos de parâmetros:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar tipos de parâmetros" };
+    }
+  },
+
+
   getAllAlertTypes: async (): Promise<{ success: boolean; data?: Array<{ id: number; parameter_id: number; name: string; value: number; math_signal: string; status: string; is_active: boolean; create_date: number; last_update: string }>; error?: string }> => {
     try {
       const token = localStorage.getItem("token");

@@ -18,7 +18,7 @@ export default function LoginPage() {
       const response = await links.login(email, password);
       if (response.success) {
         localStorage.setItem("access_token", response.token || "");
-        navigate("/teste");
+        navigate("/registrarestacao", { replace: true });
       } else {
         setError(response.error || "Erro ao fazer login");
         setEmail("");
