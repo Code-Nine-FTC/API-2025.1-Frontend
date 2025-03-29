@@ -170,6 +170,47 @@ const links = {
     }
   },
 
+  createAlertType: async (alertTypeData: { 
+    parameter_id: number; 
+    name: string; 
+    value: number; 
+    math_signal: string; 
+    status: string; 
+  }): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/alert_type",
+        {
+          parameter_id: alertTypeData.parameter_id,
+          name: alertTypeData.name,
+          value: alertTypeData.value,
+          math_signal: alertTypeData.math_signal,
+          status: alertTypeData.status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        return { success: true };
+      }
+
+      throw new Error("Erro ao criar o tipo de alerta");
+    } catch (error: any) {
+      console.error("Erro ao criar o tipo de alerta:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao criar o tipo de alerta" };
+    }
+  },
+
   getFilteredAlerts: async (filters?: {
     type_alert_name?: string;
     station_name?: string;
@@ -274,6 +315,56 @@ const links = {
     } catch (error: any) {
       console.error("Erro ao deletar o alerta:", error.message || error);
       return { success: false, error: error.response?.data?.detail || "Erro ao deletar o alerta" };
+    }
+  },
+
+  getFilteredStations: async (filters?: {
+    uid?: string;
+    name?: string;
+    start_date?: string;
+    end_date?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ success: boolean; data?: Array<{ id: number; name_station: string }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const params = new URLSearchParams();
+
+      if (filters) {
+        if (filters.uid) params.append("uid", filters.uid);
+        if (filters.name) params.append("name", filters.name);
+        if (filters.start_date) params.append("start_date", filters.start_date);
+        if (filters.end_date) params.append("end_date", filters.end_date);
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+      }
+
+      const response = await api.get("/stations/filters", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: params,
+      });
+
+      console.log("Resposta do backend:", response);
+
+      if (response.data && Array.isArray(response.data.data)) {
+        const stations = response.data.data.map((station: any) => ({
+          id: station.id,
+          name_station: station.name_station,
+        }));
+        return { success: true, data: stations };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error("Erro ao buscar estações filtradas:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações filtradas" };
     }
   },
 };
