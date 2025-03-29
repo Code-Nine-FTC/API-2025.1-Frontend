@@ -103,7 +103,14 @@ const links = {
     }
   },
   
-  listStations: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+  listStations: async (filters?: {
+      uid?: string;
+      name?: string;
+      start_date?: string;
+      end_date?: string;
+      page?: number;
+      limit?: number;
+    }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -111,10 +118,22 @@ const links = {
         throw new Error("Usuário não autenticado");
       }
 
+      const params = new URLSearchParams();
+
+      if (filters) {
+        if (filters.uid) params.append("uid", filters.uid);
+        if (filters.name) params.append("name", filters.name);
+        if (filters.start_date) params.append("start_date", filters.start_date);
+        if (filters.end_date) params.append("end_date", filters.end_date);
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+      }
+
       const response = await api.get("/stations/stations", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: params,
       });
 
       return { success: true, data: response.data };
