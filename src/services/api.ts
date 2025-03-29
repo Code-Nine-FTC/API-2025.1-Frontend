@@ -68,8 +68,60 @@ const links = {
     } catch (error) {
       console.error("Erro ao cadastrar estação:", error);
       throw error;
-    }
-  },
+    }
+  },
+
+  createAlert: async (form: {
+    measure_id: string;
+    type_alert_id: string;
+  }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/alert/",
+        {
+          measure_id: form.measure_id,
+          type_alert_id: form.type_alert_id,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao cadastrar alerta:", error);
+      throw error;
+    }
+  },
+
+
+  getAllAlertTypes: async (): Promise<{ success: boolean; data?: Array<{ id: number; parameter_id: number; name: string; value: number; math_signal: string; status: string; is_active: boolean; create_date: number; last_update: string }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get(`/alert_type/`, { 
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data.data };
+    } catch (error: any) {
+      console.error("Erro ao buscar tipos de alerta:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar tipos de alerta" };
+    }
+  },
 };
 
 export { links };
