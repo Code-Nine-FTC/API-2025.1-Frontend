@@ -7,6 +7,7 @@ import RegisterStations from "@pages/RegisterStation";
 import EditStations from "@pages/EditStation";
 import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
+import ViewStations from "@pages/ViewStation";
 
 export default function AppRoutes() {
   return (
@@ -17,7 +18,6 @@ export default function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
         <Route path="/editarestacao" element={<EditStations />} />
-        <Route path="/alerts" element={<AlertList />} />
       </Routes>
   );
 }
