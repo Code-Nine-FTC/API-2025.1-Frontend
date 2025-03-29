@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, Typography, Paper, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText, SelectChangeEvent } from "@mui/material";
 import "../pages/styles/registerstation.css";
-import { links } from "../services/api"; // Certifique-se de que o arquivo de API está importado corretamente
+import { links } from "../services/api"; 
 
 interface FormFields {
   name: string;
@@ -13,7 +13,7 @@ interface FormFields {
     state: string;
     country: string;
   };
-  parameter_types: string[]; // Array para armazenar os IDs dos parâmetros selecionados
+  parameter_types: string[];
 }
 
 interface StationFormProps {
@@ -37,16 +37,15 @@ export const StationForm: React.FC<StationFormProps> = ({
     address: {
       city: "",
       state: "",
-      country: "", // Valor padrão para o país
+      country: "", 
     },
-    parameter_types: [], // Inicializado como um array vazio
+    parameter_types: [], 
     ...initialValues,
   });
 
   const [parameterTypes, setParameterTypes] = useState<Array<{ id: string; name: string }>>([]);
 
   useEffect(() => {
-    // Busca os tipos de parâmetros do backend
     const fetchParameterTypes = async () => {
       try {
         const response = await links.listParameterTypes();
@@ -86,7 +85,7 @@ export const StationForm: React.FC<StationFormProps> = ({
   const handleParameterChange = (event: SelectChangeEvent<string[]>) => {
     setForm({
       ...form,
-      parameter_types: event.target.value as string[], // Atualiza o array de IDs dos parâmetros
+      parameter_types: event.target.value as string[],
     });
   };
 
