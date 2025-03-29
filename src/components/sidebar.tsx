@@ -28,7 +28,7 @@ const drawerWidth = 260;
 const menuItems = [
   { text: "Home", icon: <HomeIcon sx={{fontSize: 40}}/>, route: "/" },
   { text: "Educação", icon: <SchoolIcon sx={{fontSize: 40}} />, route: "/educacao"  },
-  { text: "Estações", icon: <img src={StationLogo}/>, route: "/estacoes" },
+  { text: "Estações", icon: <img src={StationLogo}/>, route: "/listarestacao" },
   { text: "Dashboard", icon: <BarChartIcon sx={{fontSize: 40}} />, route: "/dashboard"  },
   { text: "Alertas", icon: <NotificationsActiveIcon sx={{fontSize: 40}} />, route: "/alertas"  },
 ];

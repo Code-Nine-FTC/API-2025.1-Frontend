@@ -70,7 +70,7 @@ const links = {
       throw error;
     }
   },
-  }
+
   listAlerts: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
@@ -111,6 +111,27 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas filtrados" };
     }
   },
+
+  listStations: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get("/stations/stations", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+    }
+  },  
+};
 
 export { links };
 export default api;
