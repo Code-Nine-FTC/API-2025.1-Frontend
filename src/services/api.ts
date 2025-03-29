@@ -417,6 +417,38 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao listar tipos de parâmetro" };
     }
   },
+
+  getParametersByStation: async (parameterTypeId: number): Promise<{ success: boolean; data?: Array<{ id: number; name_station: string }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      // Faz a requisição ao endpoint com o ID do parâmetro na URL e na query string
+      const response = await api.get(`/stations/parameters/${parameterTypeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          type_paramter_id: parameterTypeId, // Adiciona o parâmetro na query string
+        },
+      });
+
+      console.log("Resposta do backend:", response);
+
+      // Verifica se a resposta contém a propriedade `data` com um array
+      if (response.data && Array.isArray(response.data.data)) {
+        return { success: true, data: response.data.data };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error("Erro ao buscar estações por parâmetro:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações por parâmetro" };
+    }
+  },
 };
 
 export { links };

@@ -35,29 +35,49 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     ...initialValues,
   });
 
+  const [parameters, setParameters] = useState<Array<{ value: string; label: string }>>([]);
   const [stations, setStations] = useState<Array<{ value: string; label: string }>>([]);
 
-  // Buscar estações do backend
+  // Busca os parâmetros ao carregar o componente
   useEffect(() => {
-    const fetchStations = async () => {
+    const fetchParameters = async () => {
       try {
-        const response = await links.getFilteredStations();
+        const response = await links.listParameterTypes();
         if (response.success && response.data) {
-          const stationOptions = response.data.map((station: { id: number; name_station: string }) => ({
-            value: station.id.toString(), // ID da estação como valor
-            label: station.name_station, // Nome da estação como label
+          const parameterOptions = response.data.map((parameter: { id: number; name: string }) => ({
+            value: parameter.id.toString(),
+            label: parameter.name,
           }));
-          setStations(stationOptions);
+          setParameters(parameterOptions);
         } else {
-          console.error("Erro ao buscar estações:", response.error);
+          console.error("Erro ao buscar parâmetros:", response.error);
         }
       } catch (error) {
-        console.error("Erro ao buscar estações:", error);
+        console.error("Erro ao buscar parâmetros:", error);
       }
     };
 
-    fetchStations();
+    fetchParameters();
   }, []);
+
+  // Busca as estações associadas ao parâmetro selecionado
+  const fetchStationsByParameter = async (parameterId: number) => {
+    try {
+      const response = await links.getParametersByStation(parameterId);
+      console.log("Resposta da API para estações associadas ao parâmetro:", response);
+      if (response.success && response.data) {
+        const stationOptions = response.data.map((station: { id: number; name_station: string }) => ({
+          value: station.id.toString(),
+          label: station.name_station,
+        }));
+        setStations(stationOptions);
+      } else {
+        console.error("Erro ao buscar estações:", response.error);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar estações:", error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -68,6 +88,11 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     }
 
     setForm({ ...form, [name]: maskedValue } as FormFields);
+
+    // Se o parâmetro for alterado, busca as estações associadas
+    if (name === "parameter_id" && maskedValue) {
+      fetchStationsByParameter(maskedValue as number);
+    }
   };
 
   const renderInput = (label: string, name: keyof FormFields, className = "") => (
@@ -98,7 +123,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           <option value="">Selecione</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label} {/* Renderiza apenas o nome da estação */}
+              {option.label}
             </option>
           ))}
         </select>
@@ -124,13 +149,8 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {title}
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderSelect("ID do Parâmetro", "parameter_id", [
-            { value: "1", label: "Parâmetro 1" },
-            { value: "2", label: "Parâmetro 2" },
-            { value: "3", label: "Parâmetro 3" },
-          ])}
-
-          {renderSelect("Estações", "station_id", stations)} {/* Exibe apenas os nomes das estações */}
+          {renderSelect("ID do Parâmetro", "parameter_id", parameters)}
+          {renderSelect("Estações", "station_id", stations)}
           {renderInput("Nome", "name")}
           {renderInput("Valor", "value")}
           {renderSelect("Sinal Matemático", "math_signal", [

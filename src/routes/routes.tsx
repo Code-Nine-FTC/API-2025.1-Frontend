@@ -15,9 +15,9 @@ import { ProtectedRoute } from "../services/authContext"
 export default function AppRoutes() {
   return (
       <Routes>
+        <Route path="*" element={<About />} />
         <Route path="/about" element={<About />} />
         <Route path="/educacao" element={<Education />} />
-        <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/registrarestacao" element={

@@ -104,7 +104,17 @@ const AlertList: React.FC = () => {
   return (
     <LoggedLayout>
       <div className="alerts-container">
-        <h1 className="alerts-title">Alertas</h1>
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: "20px",
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#5f5cd9",
+          }}
+        >
+          Alertas
+        </Typography>
         <div className="data-table-header" style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
           <FormControl fullWidth>
             <InputLabel>Tipo de Alerta</InputLabel>
