@@ -108,7 +108,6 @@ const Sidebar = (props: Props) => {
         ))}
       </List>
 
-      {/* Usuário */}
       <Box sx={{ p: 2, backgroundColor: "#D0D0D0", borderRadius: 2, mx: 1, mb: 2, display: "flex", alignItems: "center" }}>
         <Link to="/perfil" className="image-link">
           <ListItemIcon>
