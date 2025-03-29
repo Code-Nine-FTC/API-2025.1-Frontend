@@ -1,3 +1,4 @@
+import { AlertTypeResponse, AlertTypeUpdate } from "@pages/EditAlertType";
 import axios from "axios";
 
 const api = axios.create({
@@ -28,7 +29,7 @@ const links = {
         throw new Error("Resposta inválida do servidor: faltando access_token ou token_type");
       }
 
-      const fullToken = `${token_type} ${access_token}`;
+      const fullToken = `Bearer ${access_token}`;
       localStorage.setItem("token", fullToken);
       console.log("Token enviado:", fullToken);
 
@@ -70,7 +71,7 @@ const links = {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
           },
         }
       );
@@ -114,7 +115,7 @@ const links = {
 
       const response = await api.get("/stations/stations", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
         params: params,
       });
@@ -156,7 +157,7 @@ const links = {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
           },
         }
       );
@@ -195,7 +196,7 @@ const links = {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
           },
         }
       );
@@ -239,7 +240,7 @@ const links = {
 
       const response = await api.get("/alert/all", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
         params: params.toString() ? params : undefined,
       });
@@ -272,7 +273,7 @@ const links = {
 
       const response = await api.get(`/alert/${alertId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
       });
 
@@ -301,7 +302,7 @@ const links = {
 
       const response = await api.delete(`/alert/${alertId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
       });
 
@@ -346,7 +347,7 @@ const links = {
 
       const response = await api.get("/stations/filters", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
         params: params,
       });
@@ -392,7 +393,7 @@ const links = {
 
       const response = await api.get("/parameter_types", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
         params: params,
       });
@@ -429,7 +430,7 @@ const links = {
       // Faz a requisição ao endpoint com o ID do parâmetro na URL e na query string
       const response = await api.get(`/stations/parameters/${parameterTypeId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token,
         },
         params: {
           type_paramter_id: parameterTypeId, // Adiciona o parâmetro na query string
@@ -449,7 +450,69 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações por parâmetro" };
     }
   },
-};
+
+  
+  getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeResponse; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/alert_type/${id}`, {
+        headers: { Authorization: token }
+      });
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Erro ao buscar tipo de alerta:", error);
+      return { success: false, error: "Erro ao buscar tipo de alerta" };
+    }
+  },
+
+  updateAlertType: async (id: number, data: AlertTypeUpdate): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      await api.patch(`/alert_type/${id}`, data, {
+        headers: { Authorization: token }
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao atualizar tipo de alerta:", error);
+      return { success: false, error: "Erro ao atualizar tipo de alerta" };
+    }
+  },
+
+  listAlertTypes: async (filters?: { [key: string]: string }): Promise<{ 
+    success: boolean; 
+    data?: Array<AlertTypeResponse>; 
+    error?: string 
+  }> => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get("/alert_type", {
+        headers: { Authorization: token },
+        params: filters,
+      });
+
+      console.log("Resposta da API (listAlertTypes):", response.data);
+
+      const alertTypes = Array.isArray(response.data.data)
+        ? response.data.data.map((item: any) => ({
+            id: item.id,
+            parameter_id: item.parameter_id,
+            name: item.name,
+            value: item.value,
+            math_signal: item.math_signal,
+            status: item.status,
+            is_active: item.is_active,
+            create_date: item.create_date,
+            last_update: item.last_update,
+          }))
+        : [];
+
+      return { success: true, data: alertTypes };
+    } catch (error: any) {
+      console.error("Erro ao buscar alertas:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+    }
+  },
+}
 
 export { links };
 export default api;

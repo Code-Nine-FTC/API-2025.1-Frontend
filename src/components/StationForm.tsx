@@ -47,19 +47,19 @@ export const StationForm: React.FC<StationFormProps> = ({
 
   const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
 
-  // useEffect(() => {
-  //   // Simula a busca de parâmetros disponíveis (você pode substituir por uma chamada à API)
-  //   const fetchParameters = async () => {
-  //     try {
-  //       const response = await links.getParameters(); // Substitua por sua rota de API
-  //       setAvailableParameters(response.data || []);
-  //     } catch (error) {
-  //       console.error("Erro ao buscar parâmetros:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    //Simula a busca de parâmetros disponíveis (você pode substituir por uma chamada à API)
+    const fetchParameters = async () => {
+      try {
+        const response = await links.listParameterTypes(); //Substitua por sua rota de API
+        setAvailableParameters(response.data || []);
+      } catch (error) {
+        console.error("Erro ao buscar parâmetros:", error);
+      }
+    };
 
-  //   fetchParameters();
-  // }, []);
+    fetchParameters();
+  }, []);
 
   useEffect(() => {
     if (initialValues.zip) {
@@ -169,6 +169,9 @@ export const StationForm: React.FC<StationFormProps> = ({
       const result = await links.createStation(stationData); // Chama a API diretamente
       if (result.success) {
         alert("Estação criada com sucesso!");
+        if (onSubmit) {
+          onSubmit(form);
+        }
         setForm({
           name: "",
           uid: "",

@@ -31,12 +31,22 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     value: 0,
     math_signal: "",
     status: "",
-    station_id: undefined,
     ...initialValues,
   });
 
   const [parameters, setParameters] = useState<Array<{ value: string; label: string }>>([]);
   const [stations, setStations] = useState<Array<{ value: string; label: string }>>([]);
+
+  useEffect(() => {
+  setForm({
+    parameter_id: 0,
+    name: "",
+    value: 0,
+    math_signal: "",
+    status: "",
+    ...initialValues,
+  });
+}, [initialValues]);
 
   // Busca os parâmetros ao carregar o componente
   useEffect(() => {

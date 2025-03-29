@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import About from "@pages/About";
-import ResponsiveDrawer from "@components/sidebar";
+//import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
 // import EditStations from "@pages/EditStation";
@@ -9,8 +9,10 @@ import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
 import StationListPage from "@pages/StationList";
 import RegisterAlertType from "@pages/RegisterAlertType";
-import ParameterTypeList from "@pages/ParameterTypeList";
+//import ParameterTypeList from "@pages/ParameterTypeList";
 import { ProtectedRoute } from "../services/authContext"
+import { EditAlertType } from "@pages/EditAlertType";
+import AlertTypeList from "@pages/AlertTypeList";
 
 export default function AppRoutes() {
   return (
@@ -33,10 +35,16 @@ export default function AppRoutes() {
         } />
         <Route path="/listartipoalerta" element={
           <ProtectedRoute>
-            <ParameterTypeList />
+            <AlertTypeList />
           </ProtectedRoute>
         } />
         <Route path="/alerts" element={<AlertList />} />
+		<Route path="/editaralerta/:id" element={
+		  <ProtectedRoute>	
+			<EditAlertType />
+		  </ProtectedRoute>
+		} />
+		
         </Routes>
   );
 }
