@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../components/DataTable";
 import { links } from "../services/api";
-import { Modal, Box, Typography, CircularProgress } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 
 interface Alert {
@@ -11,6 +11,7 @@ interface Alert {
   typeAlertName: string;
   station: string;
   startDate: string;
+  endDate: string;
 }
 
 const AlertList: React.FC = () => {
@@ -20,9 +21,12 @@ const AlertList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [typeAlertName, setTypeAlertName] = useState("");
   const [stationName, setStationName] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
-  const [modalLoading, setModalLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Extrai os tipos de alerta únicos da listagem de alertas
+  const alertTypes = Array.from(new Set(alerts.map((alert) => alert.typeAlertName)));
+
+  const stations = Array.from(new Set(alerts.map((alert) => alert.station)));
 
   const fetchAlerts = async (filters?: { [key: string]: string }) => {
     setLoading(true);
@@ -41,7 +45,20 @@ const AlertList: React.FC = () => {
             endDate: item.create_date,
           })) || [];
         setAlerts(alertsData);
-        setFilteredAlerts(alertsData);
+        if (filters) {
+          const filtered = alertsData.filter((alert) => {
+            const matchesType = filters.type_alert_name
+              ? alert.typeAlertName === filters.type_alert_name
+              : true;
+            const matchesStation = filters.station_name
+              ? alert.station === filters.station_name
+              : true;
+            return matchesType && matchesStation;
+          });
+          setFilteredAlerts(filtered);
+        } else {
+          setFilteredAlerts(alertsData);
+        }
       } else {
         setError(response.error || "Erro ao carregar os alertas.");
       }
@@ -49,49 +66,6 @@ const AlertList: React.FC = () => {
       setError("Erro ao carregar os alertas.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchAlertDetails = (alertId: number) => {
-    setModalLoading(true);
-    setError(null);
-
-    try {
-      // Busca o alerta diretamente na lista de alertas já carregados
-      const alert = alerts.find((item) => item.id === alertId);
-
-      if (alert) {
-        setSelectedAlert(alert);
-        setModalOpen(true);
-      } else {
-        setError("Alerta não encontrado.");
-      }
-    } catch (err) {
-      console.error("Erro ao buscar os detalhes do alerta:", err);
-      setError("Erro ao carregar os detalhes do alerta.");
-    } finally {
-      setModalLoading(false);
-    }
-  };
-
-  const handleDeleteAlert = async (alertId: number) => {
-    const confirmDelete = window.confirm("Tem certeza de que deseja excluir este alerta?");
-    if (!confirmDelete) return;
-
-    try {
-      const response = await links.deleteAlert(alertId);
-      if (response.success) {
-        setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== alertId));
-        setFilteredAlerts((prevFilteredAlerts) =>
-          prevFilteredAlerts.filter((alert) => alert.id !== alertId)
-        );
-        alert("Alerta excluído com sucesso!");
-      } else {
-        alert(response.error || "Erro ao excluir o alerta.");
-      }
-    } catch (err) {
-      console.error("Erro ao excluir o alerta:", err);
-      alert("Erro ao excluir o alerta.");
     }
   };
 
@@ -113,11 +87,8 @@ const AlertList: React.FC = () => {
     { label: "Valor da Medida", key: "measureValue" as keyof Alert },
     { label: "Tipo de Alerta", key: "typeAlertName" as keyof Alert },
     { label: "Data Inicial", key: "startDate" as keyof Alert },
+    { label: "Data Final", key: "endDate" as keyof Alert },
   ];
-
-  const isUserLoggedIn = () => {
-    return true;
-  };
 
   return (
     <LoggedLayout>
@@ -130,7 +101,7 @@ const AlertList: React.FC = () => {
             className="data-table-select"
           >
             <option value="">Selecione o Tipo de Alerta</option>
-            {Array.from(new Set(alerts.map((alert) => alert.typeAlertName))).map((type, index) => (
+            {alertTypes.map((type, index) => (
               <option key={index} value={type}>
                 {type}
               </option>
@@ -142,7 +113,7 @@ const AlertList: React.FC = () => {
             className="data-table-select"
           >
             <option value="">Selecione a Estação</option>
-            {Array.from(new Set(alerts.map((alert) => alert.station))).map((station, index) => (
+            {stations.map((station, index) => (
               <option key={index} value={station}>
                 {station}
               </option>
@@ -159,61 +130,12 @@ const AlertList: React.FC = () => {
           error={error}
           title="Lista de Alertas"
           renderActions={(row) => (
-            <div style={{ display: "flex", gap: "8px" }}>
-              <SearchIcon
-                style={{ color: "#ccc", cursor: "pointer" }}
-                onClick={() => fetchAlertDetails(row.id)}
-              />
-              {isUserLoggedIn() && (
-                <button
-                  style={{
-                    backgroundColor: "red",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    padding: "4px 8px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleDeleteAlert(row.id)}
-                >
-                  Excluir
-                </button>
-              )}
-            </div>
+            <SearchIcon
+              style={{ color: "#ccc", cursor: "pointer" }}
+              onClick={() => navigate(`/alert-details/${row.id}`)}
+            />
           )}
         />
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            {modalLoading ? (
-              <CircularProgress />
-            ) : selectedAlert ? (
-              <div>
-                <Typography variant="h6" component="h2">
-                  Detalhes do Alerta
-                </Typography>
-                <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
-                <Typography><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
-                <Typography><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
-                <Typography><strong>Estação:</strong> {selectedAlert.station}</Typography>
-                <Typography><strong>Data de Criação:</strong> {selectedAlert.startDate}</Typography>
-              </div>
-            ) : (
-              <Typography>Erro ao carregar os detalhes do alerta.</Typography>
-            )}
-          </Box>
-        </Modal>
       </div>
     </LoggedLayout>
   );

@@ -367,6 +367,56 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações filtradas" };
     }
   },
+
+  listParameterTypes: async (filters?: {
+    name?: string;
+    measure_unit?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ success: boolean; data?: Array<{ id: number; name: string; measure_unit: string; qnt_decimals: number; offset?: number; factor?: number }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const params = new URLSearchParams();
+
+      if (filters) {
+        if (filters.name) params.append("name", filters.name);
+        if (filters.measure_unit) params.append("measure_unit", filters.measure_unit);
+        if (filters.page) params.append("page", filters.page.toString());
+        if (filters.limit) params.append("limit", filters.limit.toString());
+      }
+
+      const response = await api.get("/parameter_types", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: params,
+      });
+
+      console.log("Resposta do backend:", response);
+
+      if (response.data && Array.isArray(response.data.data)) {
+        const parameterTypes = response.data.data.map((parameterType: any) => ({
+          id: parameterType.id,
+          name: parameterType.name,
+          measure_unit: parameterType.measure_unit,
+          qnt_decimals: parameterType.qnt_decimals,
+          offset: parameterType.offset,
+          factor: parameterType.factor,
+        }));
+        return { success: true, data: parameterTypes };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error("Erro ao listar tipos de parâmetro:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao listar tipos de parâmetro" };
+    }
+  },
 };
 
 export { links };

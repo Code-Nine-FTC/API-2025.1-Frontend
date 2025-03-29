@@ -9,6 +9,7 @@ import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
 import StationListPage from "@pages/StationList";
 import RegisterAlertType from "@pages/RegisterAlertType";
+import ParameterTypeList from "@pages/ParameterTypeList";
 
 export default function AppRoutes() {
   return (
@@ -21,6 +22,7 @@ export default function AppRoutes() {
         <Route path="/listarestacao" element={<StationListPage />} />
         {/* <Route path="/editarestacao/:id" element={<EditStations />} /> */}
         <Route path="/registrartipoalerta" element={<RegisterAlertType />} />
+        <Route path="/listartipoalerta" element={<ParameterTypeList />} />
         
         <Route path="/alerts" element={<AlertList />} />
       </Routes>
