@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import About from "@pages/About";
+import Home from "@pages/Home";
 import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
@@ -10,14 +11,15 @@ import AlertList from "@pages/AlertList";
 
 export default function AppRoutes() {
   return (
-      <Routes>
-        <Route path="/about" element={<About />} />
-        <Route path="/educacao" element={<Education />} />
-        <Route path="/teste" element={<ResponsiveDrawer />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/registrarestacao" element={<RegisterStations />} />
-        <Route path="/editarestacao" element={<EditStations />} />
-        <Route path="/alerts" element={<AlertList />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/educacao" element={<Education />} />
+      <Route path="/teste" element={<ResponsiveDrawer />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/cadastrarestacao" element={<RegisterStations />} />
+      <Route path="/editarestacao" element={<EditStations />} />
+      <Route path="/alerts" element={<AlertList />} />
+    </Routes>
   );
 }
