@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Typography, Paper } from "@mui/material";
+import { Box, Button, Typography, Paper, MenuItem, Select, InputLabel, FormControl, SelectChangeEvent } from "@mui/material";
 import "../pages/styles/registerstation.css";
+import { links } from "../services/api";
 
 interface FormFields {
   name: string;
@@ -13,11 +14,12 @@ interface FormFields {
   state: string;
   latitude: string;
   longitude: string;
+  parameter_types: Array<{ type: string; unit: string }>;
 }
 
 interface StationFormProps {
   initialValues?: Partial<FormFields>;
-  onSubmit: (form: FormFields) => void;
+  onSubmit?: (form: FormFields) => void;
   title?: string;
   submitLabel?: string;
 }
@@ -39,8 +41,25 @@ export const StationForm: React.FC<StationFormProps> = ({
     state: "",
     latitude: "",
     longitude: "",
+    parameter_types: [],
     ...initialValues,
   });
+
+  const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
+
+  // useEffect(() => {
+  //   // Simula a busca de parâmetros disponíveis (você pode substituir por uma chamada à API)
+  //   const fetchParameters = async () => {
+  //     try {
+  //       const response = await links.getParameters(); // Substitua por sua rota de API
+  //       setAvailableParameters(response.data || []);
+  //     } catch (error) {
+  //       console.error("Erro ao buscar parâmetros:", error);
+  //     }
+  //   };
+
+  //   fetchParameters();
+  // }, []);
 
   useEffect(() => {
     if (initialValues.zip) {
@@ -67,7 +86,7 @@ export const StationForm: React.FC<StationFormProps> = ({
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     let maskedValue = value;
 
@@ -90,6 +109,11 @@ export const StationForm: React.FC<StationFormProps> = ({
     }
   };
 
+  const handleParameterChange = (event: SelectChangeEvent<number[]>) => {
+    const selectedIds = event.target.value as number[];
+    setForm({ ...form, parameter_types: selectedIds.map((id) => ({ type: id.toString(), unit: "" })) });
+  };
+
   const renderInput = (label: string, name: keyof FormFields, className = "") => (
     <div className={`input-group-wrapper ${className}`}>
       <div className="input-group">
@@ -97,7 +121,7 @@ export const StationForm: React.FC<StationFormProps> = ({
         <input
           type="text"
           name={name}
-          value={form[name]}
+          value={typeof form[name] === "string" ? form[name] : ""}
           onChange={handleChange}
           className="input-field"
         />
@@ -105,9 +129,66 @@ export const StationForm: React.FC<StationFormProps> = ({
     </div>
   );
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const renderSelect = (label: string, name: keyof FormFields, options: Array<{ id: number; name: string }>) => (
+    <FormControl className="input-group-wrapper">
+      <InputLabel>{label}</InputLabel>
+      <Select
+        multiple
+        value={form.parameter_types.map((param) => parseInt(param.type))}
+        onChange={handleParameterChange}
+        renderValue={(selected) => selected.map((id) => options.find((opt) => opt.id === id)?.name).join(", ")}
+      >
+        {options.map((option) => (
+          <MenuItem key={option.id} value={option.id}>
+            {option.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+
+    const parameterTypeIds = form.parameter_types.map((param) => parseInt(param.type));
+
+    const stationData = {
+      name: form.name,
+      uid: form.uid,
+      latitude: parseFloat(form.latitude),
+      longitude: parseFloat(form.longitude),
+      address: {
+        city: form.city,
+        state: form.state,
+        country: "Brasil", // Define um valor fixo para o país
+      },
+      parameter_types: parameterTypeIds, // Envia apenas os IDs dos parâmetros
+    };
+
+    try {
+      const result = await links.createStation(stationData); // Chama a API diretamente
+      if (result.success) {
+        alert("Estação criada com sucesso!");
+        setForm({
+          name: "",
+          uid: "",
+          zip: "",
+          street: "",
+          number: "",
+          neighborhood: "",
+          city: "",
+          state: "",
+          latitude: "",
+          longitude: "",
+          parameter_types: [],
+        });
+      } else {
+        alert(`Erro ao criar estação: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Erro ao criar estação:", error);
+      alert("Erro ao criar estação.");
+    }
   };
 
   return (
@@ -135,6 +216,10 @@ export const StationForm: React.FC<StationFormProps> = ({
           <div className="row">
             {renderInput("Latitude", "latitude", "input-coord")}
             {renderInput("Longitude", "longitude", "input-coord")}
+          </div>
+
+          <div className="row">
+            {renderSelect("Parâmetros disponíveis", "parameter_types", availableParameters)}
           </div>
 
           <Box mt={3} textAlign="center">
