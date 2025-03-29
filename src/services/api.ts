@@ -65,11 +65,43 @@ const links = {
         }
       );
       return response.data;
-    } catch (error) {
-      console.error("Erro ao cadastrar estação:", error);
+    } catch (error: any) {
+      console.error("Erro ao cadastrar estação:", error.message || error);
       throw error;
-    }
-  },
+    }
+  },
+
+  listAlerts: async (): Promise<{ success: boolean; data?: Array<{ id: number; measure_value: string; type_alert_name: string; station_name: string; create_date: string }>; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get("/alert/all", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.data && Array.isArray(response.data.data)) {
+        const alerts = response.data.data.map((item: any) => ({
+          id: item.id,
+          measure_value: item.measure_value,
+          type_alert_name: item.type_alert_name,
+          station_name: item.station_name,
+          create_date: item.create_date,
+        }));
+        return { success: true, data: alerts };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error("Erro ao buscar alertas:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+    }
+  },
 };
 
 export { links };
