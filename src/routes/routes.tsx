@@ -4,7 +4,7 @@ import About from "@pages/About";
 import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
-import RegisterAlert from "@pages/RegisterAlert";
+import RegisterAlertType from "@pages/RegisterAlertType";
 
 import Education from "@pages/Education";
 
@@ -17,7 +17,7 @@ export default function AppRoutes() {
         <Route path="/teste" element={<ResponsiveDrawer />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registrarestacao" element={<RegisterStations />} />
-        <Route path="/registraralerta" element={<RegisterAlert />} />
+        <Route path="/registraralerta" element={<RegisterAlertType />} />
 
       </Routes>
   );

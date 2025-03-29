@@ -71,10 +71,12 @@ const links = {
     }
   },
 
-  createAlert: async (form: {
-    measure_id: string;
-    type_alert_id: string;
-  }) => {
+  createAlertType: async (form: {
+    name: string;
+    value: number;
+    math_signal: string;
+    status: string;
+  }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -83,24 +85,26 @@ const links = {
       }
 
       const response = await api.post(
-        "/alert/",
+        "/alert_type/",
         {
-          measure_id: form.measure_id,
-          type_alert_id: form.type_alert_id,
+          name: form.name,
+          value: form.value,
+          math_signal: form.math_signal,
+          status: form.status,
         },
         {
           headers: {
-            Authorization: token,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      return response.data;
-    } catch (error) {
-      console.error("Erro ao cadastrar alerta:", error);
-      throw error;
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Erro ao criar tipo de alerta:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao criar tipo de alerta" };
     }
   },
-
 
   getAllAlertTypes: async (): Promise<{ success: boolean; data?: Array<{ id: number; parameter_id: number; name: string; value: number; math_signal: string; status: string; is_active: boolean; create_date: number; last_update: string }>; error?: string }> => {
     try {
