@@ -89,7 +89,17 @@ const CombinedList: React.FC = () => {
     return (
         <DefaultLayout>
             <Box className="alerts-container">
-                <h1 className="alerts-title">Estações</h1>
+            <Typography
+                    variant="h4"
+                    sx={{
+                        marginBottom: "20px",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        color: "#5f5cd9",
+                    }}
+                >
+                    Estações
+                </Typography>
                 <StationTable />
             </Box>
             <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>

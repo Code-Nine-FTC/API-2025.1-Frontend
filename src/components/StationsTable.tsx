@@ -223,7 +223,6 @@ const StationTable: React.FC = () => {
         columns={columns}
         loading={loading}
         error={error}
-        title="Estações"
         renderActions={(row) => (
           <SearchIcon
             style={{ color: "#ccc", cursor: "pointer" }}

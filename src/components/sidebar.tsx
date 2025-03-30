@@ -38,7 +38,7 @@ const menuItems = [
   {
     text: "Tipo de Parâmetro",
     icon: <TuneIcon sx={{ fontSize: 40 }} />,
-    relatedRoutes: ["/registrarparametro", "/listarparametro"],
+    relatedRoutes: [ "/listartipoparametro", "/registrarparametro"],
     routePrefix: "/editarparametrotipo/",
   },
   { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
