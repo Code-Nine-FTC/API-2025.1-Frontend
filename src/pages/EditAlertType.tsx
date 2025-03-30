@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { links } from "../services/api";
 import { AlertTypeForm } from "@components/AlertTypeForm";
@@ -34,7 +34,8 @@ interface FormFields {
   station_id?: number;
 }
 
-export const EditAlertType: React.FC = () => {
+export const EditAlertType = () => {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +65,7 @@ export const EditAlertType: React.FC = () => {
             math_signal: data.math_signal || "",
             status: data.status || "",
           });
+          navigate("/listartipoalerta");
         } else {
           setError("Tipo de alerta não encontrado");
         }

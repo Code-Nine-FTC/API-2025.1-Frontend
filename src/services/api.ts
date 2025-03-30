@@ -549,7 +549,49 @@ const links = {
       console.error("Erro ao criar tipo de parâmetro:", error.message || error);
       return { success: false, error: error.response?.data?.detail || "Erro ao criar tipo de parâmetro" };
     }
-  }
+  },
+  updateParameterType: async (
+    parameterTypeId: number,
+    data: {
+      name?: string;
+      measure_unit?: string;
+      qnt_decimals?: number;
+      offset?: number;
+      factor?: number;
+      json?: Record<string, any>;
+      is_active?: boolean;
+    }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(
+        `/parameter_types/${parameterTypeId}/update`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        return { success: true };
+      }
+
+      throw new Error("Erro ao atualizar o tipo de parâmetro");
+    } catch (error: any) {
+      console.error("Erro ao atualizar o tipo de parâmetro:", error.message || error);
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao atualizar o tipo de parâmetro",
+      };
+    }
+  },
 }
 
 export { links };

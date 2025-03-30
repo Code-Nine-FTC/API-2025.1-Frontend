@@ -46,6 +46,7 @@ const ParameterTypeList: React.FC = () => {
           })) || [];
         setParameterTypes(parameterTypesData);
         setFilteredParameterTypes(parameterTypesData);
+        navigate("/listartipoparametro");
       } else {
         setError(response.error || "Erro ao carregar os tipos de parâmetros.");
       }

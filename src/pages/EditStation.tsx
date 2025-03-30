@@ -1,10 +1,11 @@
 import { StationForm } from "@components/StationForm";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const EditarEstacoes = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [station, setStation] = useState<any>(null);
 
@@ -37,6 +38,7 @@ const EditarEstacoes = () => {
         longitude: form.longitude,
       });
       alert("Estação atualizada com sucesso!");
+      navigate("/listarestacoes");
     } catch (err) {
       alert("Erro ao atualizar estação");
     }

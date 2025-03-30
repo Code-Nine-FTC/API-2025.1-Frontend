@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { links } from "../services/api";
-import { Box, Button, CircularProgress, TextField, Alert, Paper, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Alert, Paper, Typography } from "@mui/material";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import "../pages/styles/registerstation.css";
 
-const RegisterParameterType: React.FC = () => {
+const RegisterParameterType = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     measureUnit: "",
@@ -48,6 +50,7 @@ const RegisterParameterType: React.FC = () => {
           offset: undefined,
           factor: undefined,
         });
+        navigate("/listartipoparametro");
       } else {
         setErrorMessage(response.error || "Erro ao cadastrar tipo de parâmetro.");
       }
