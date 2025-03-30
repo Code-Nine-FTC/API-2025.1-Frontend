@@ -5,7 +5,6 @@ import About from "@pages/About";
 //import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
 import RegisterStations from "@pages/RegisterStation";
-// import EditStations from "@pages/EditStation";
 import Education from "@pages/Education";
 import AlertList from "@pages/AlertList";
 import StationListPage from "@pages/StationList";
@@ -17,6 +16,7 @@ import AlertTypeList from "@pages/AlertTypeList";
 import RegisterParameterType from "@pages/RegisterParameterType";
 import ParameterTypeList from "@pages/ParameterTypeList";
 import EditParameterType from "@pages/EditParameterType";
+import ViewStations from "@pages/ViewStation";
 
 export default function AppRoutes() {
   return (
@@ -26,6 +26,7 @@ export default function AppRoutes() {
         <Route path="/educacao" element={<Education />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/listagem-combinada" element={<CombinedList />} />
+        <Route path="/visualizarestacao/:id" element={<ViewStations />} />
         <Route path="/registrarestacao" element={
           <ProtectedRoute>
             <RegisterStations />

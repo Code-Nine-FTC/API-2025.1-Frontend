@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Typography, Paper, MenuItem, Select, InputLabel, FormControl, SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  Paper,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  SelectChangeEvent,
+} from "@mui/material";
 import "../pages/styles/registerstation.css";
 import { links } from "../services/api";
 
@@ -22,6 +32,8 @@ interface StationFormProps {
   onSubmit?: (form: FormFields) => void;
   title?: string;
   submitLabel?: string;
+  readOnly?: boolean;
+  withCardLayout?: boolean;
 }
 
 export const StationForm: React.FC<StationFormProps> = ({
@@ -29,6 +41,8 @@ export const StationForm: React.FC<StationFormProps> = ({
   onSubmit,
   title = "Cadastro de Estação",
   submitLabel = "Salvar",
+  readOnly = false,
+  withCardLayout = true,
 }) => {
   const [form, setForm] = useState<FormFields>({
     name: "",
@@ -48,10 +62,9 @@ export const StationForm: React.FC<StationFormProps> = ({
   const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
 
   useEffect(() => {
-    //Simula a busca de parâmetros disponíveis (você pode substituir por uma chamada à API)
     const fetchParameters = async () => {
       try {
-        const response = await links.listParameterTypes(); //Substitua por sua rota de API
+        const response = await links.listParameterTypes();
         setAvailableParameters(response.data || []);
       } catch (error) {
         console.error("Erro ao buscar parâmetros:", error);
@@ -87,6 +100,8 @@ export const StationForm: React.FC<StationFormProps> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (readOnly) return;
+
     const { name, value } = e.target;
     let maskedValue = value;
 
@@ -110,8 +125,13 @@ export const StationForm: React.FC<StationFormProps> = ({
   };
 
   const handleParameterChange = (event: SelectChangeEvent<number[]>) => {
+    if (readOnly) return;
+
     const selectedIds = event.target.value as number[];
-    setForm({ ...form, parameter_types: selectedIds.map((id) => ({ type: id.toString(), unit: "" })) });
+    setForm({
+      ...form,
+      parameter_types: selectedIds.map((id) => ({ type: id.toString(), unit: "" })),
+    });
   };
 
   const renderInput = (label: string, name: keyof FormFields, className = "") => (
@@ -124,19 +144,26 @@ export const StationForm: React.FC<StationFormProps> = ({
           value={typeof form[name] === "string" ? form[name] : ""}
           onChange={handleChange}
           className="input-field"
+          disabled={readOnly}
         />
       </div>
     </div>
   );
 
-  const renderSelect = (label: string, name: keyof FormFields, options: Array<{ id: number; name: string }>) => (
-    <FormControl className="input-group-wrapper">
+  const renderSelect = (
+    label: string,
+    name: keyof FormFields,
+    options: Array<{ id: number; name: string }>
+  ) => (
+    <FormControl className="input-group-wrapper" disabled={readOnly}>
       <InputLabel>{label}</InputLabel>
       <Select
         multiple
         value={form.parameter_types.map((param) => parseInt(param.type))}
         onChange={handleParameterChange}
-        renderValue={(selected) => selected.map((id) => options.find((opt) => opt.id === id)?.name).join(", ")}
+        renderValue={(selected) =>
+          selected.map((id) => options.find((opt) => opt.id === id)?.name).join(", ")
+        }
       >
         {options.map((option) => (
           <MenuItem key={option.id} value={option.id}>
@@ -149,6 +176,7 @@ export const StationForm: React.FC<StationFormProps> = ({
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (readOnly) return;
 
     const parameterTypeIds = form.parameter_types.map((param) => parseInt(param.type));
 
@@ -160,18 +188,16 @@ export const StationForm: React.FC<StationFormProps> = ({
       address: {
         city: form.city,
         state: form.state,
-        country: "Brasil", // Define um valor fixo para o país
+        country: "Brasil",
       },
-      parameter_types: parameterTypeIds, // Envia apenas os IDs dos parâmetros
+      parameter_types: parameterTypeIds,
     };
 
     try {
-      const result = await links.createStation(stationData); // Chama a API diretamente
+      const result = await links.createStation(stationData);
       if (result.success) {
         alert("Estação criada com sucesso!");
-        if (onSubmit) {
-          onSubmit(form);
-        }
+        onSubmit?.(form);
         setForm({
           name: "",
           uid: "",
@@ -194,37 +220,34 @@ export const StationForm: React.FC<StationFormProps> = ({
     }
   };
 
-  return (
-    <Box className="estacao-wrapper">
-      <Paper className="estacao-card">
+  const content = (
+    <>
+      {title && (
         <Typography variant="h4" align="center" className="estacao-title">
           {title}
         </Typography>
-        <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderInput("Nome da estação", "name")}
-          {renderInput("UID", "uid")}
-
-          <div className="row">
-            {renderInput("Código Postal", "zip", "input-small")}
-            {renderInput("Rua", "street", "input-medium")}
-            {renderInput("Número", "number", "input-tiny")}
-          </div>
-
-          <div className="row">
-            {renderInput("Bairro", "neighborhood", "input-bairro")}
-            {renderInput("Cidade", "city", "input-cidade")}
-            {renderInput("Estado", "state", "input-tiny")}
-          </div>
-
-          <div className="row">
-            {renderInput("Latitude", "latitude", "input-coord")}
-            {renderInput("Longitude", "longitude", "input-coord")}
-          </div>
-
-          <div className="row">
-            {renderSelect("Parâmetros disponíveis", "parameter_types", availableParameters)}
-          </div>
-
+      )}
+      <form className="estacao-form" onSubmit={handleFormSubmit}>
+        {renderInput("Nome da estação", "name")}
+        {renderInput("UID", "uid")}
+        <div className="row">
+          {renderInput("Código Postal", "zip", "input-small")}
+          {renderInput("Rua", "street", "input-medium")}
+          {renderInput("Número", "number", "input-tiny")}
+        </div>
+        <div className="row">
+          {renderInput("Bairro", "neighborhood", "input-bairro")}
+          {renderInput("Cidade", "city", "input-cidade")}
+          {renderInput("Estado", "state", "input-tiny")}
+        </div>
+        <div className="row">
+          {renderInput("Latitude", "latitude", "input-coord")}
+          {renderInput("Longitude", "longitude", "input-coord")}
+        </div>
+        <div className="row">
+          {renderSelect("Parâmetros disponíveis", "parameter_types", availableParameters)}
+        </div>
+        {!readOnly && (
           <Box mt={3} textAlign="center">
             <Button
               variant="contained"
@@ -235,8 +258,14 @@ export const StationForm: React.FC<StationFormProps> = ({
               {submitLabel}
             </Button>
           </Box>
-        </form>
-      </Paper>
+        )}
+      </form>
+    </>
+  );
+
+  return withCardLayout === false ? content : (
+    <Box className="estacao-wrapper">
+      <Paper className="estacao-card">{content}</Paper>
     </Box>
   );
 };
