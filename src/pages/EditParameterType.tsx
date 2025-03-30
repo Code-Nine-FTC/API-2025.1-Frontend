@@ -35,7 +35,6 @@ const EditParameterType = () => {
             factor: 0,
             is_active: true,
           });
-          navigate("/listartipoparametro");
         } else {
           setErrorMessage("Erro ao carregar os dados do tipo de parâmetro.");
         }

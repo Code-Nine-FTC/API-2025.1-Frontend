@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Typography } from "@mui/material";
 import { links } from "../services/api";
 import { AlertTypeForm } from "@components/AlertTypeForm";
+import { LoggedLayout } from "@components/layout/layoutLogged";
 
 export interface AlertTypeResponse {
   id: number;
@@ -65,7 +66,7 @@ export const EditAlertType = () => {
             math_signal: data.math_signal || "",
             status: data.status || "",
           });
-          navigate("/listartipoalerta");
+          
         } else {
           setError("Tipo de alerta não encontrado");
         }
@@ -76,7 +77,7 @@ export const EditAlertType = () => {
         setLoading(false);
       }
     };
-
+    
     fetchAlertType();
   }, [id]);
 
@@ -96,6 +97,7 @@ export const EditAlertType = () => {
 
       if (response.success) {
         alert("Tipo de alerta atualizado com sucesso!");
+        navigate("/listartipoalerta");
       } else {
         throw new Error(response.error);
       }
@@ -114,11 +116,13 @@ export const EditAlertType = () => {
   }
 
   return (
+    <LoggedLayout>
     <AlertTypeForm
       initialValues={initialValues}
       onSubmit={handleUpdate}
       title="Editar Tipo de Alerta"
       submitLabel="Atualizar"
     />
+    </LoggedLayout>
   );
 };

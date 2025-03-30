@@ -15,14 +15,12 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import SensorsIcon from "@mui/icons-material/Sensors";
-import SchoolIcon from "@mui/icons-material/School";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import TuneIcon from "@mui/icons-material/Tune";
 import TecsusLogo from "../assets/tecsus_logo.svg";
-import StationLogo from "../assets/station_logo.svg";
 import LogoutLogo from "../assets/logout_logo.svg";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../services/authContext";
@@ -30,12 +28,22 @@ import { useAuth } from "../services/authContext";
 const drawerWidth = 260;
 
 const menuItems = [
-  { text: "Home", icon: <HomeIcon sx={{ fontSize: 40 }} />, route: "/" },
   { text: "Dashboard", icon: <BarChartIcon sx={{ fontSize: 40 }} />, route: "/dashboard" },
-  { text: "Estações", icon: <SensorsIcon sx={{ width: 40, height: 40 }} />, route: "/listarestacao" },
-  { text: "Tipo de Parâmetro", icon: <TuneIcon sx={{ fontSize: 40 }} />, route: "/listartipoparametro" },
+  {
+    text: "Estações",
+    icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
+    relatedRoutes: ["/listarestacao", "/registrarestacao"],
+    routePrefix: "/editarestacao/",
+  },
+  {
+    text: "Tipo de Parâmetro",
+    icon: <TuneIcon sx={{ fontSize: 40 }} />,
+    relatedRoutes: ["/registrarparametro", "/listarparametro"],
+    routePrefix: "/editarparametrotipo/",
+  },
   { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
-  { text: "Tipo de Alertas", icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, route: "/listartipoalerta" },
+  { text: "Tipo de Alertas", icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, relatedRoutes:[ "/listartipoalerta", "/registrartipoalerta"],
+  routePrefix: "/editartipoalerta/", },
 ];
 
 interface Props {
@@ -64,55 +72,48 @@ const Sidebar = (props: Props) => {
 
       {/* Menu */}
       <List sx={{ flexGrow: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              component={Link}
-              to={item.route}
-              onClick={() => console.log(`Navegando para: ${item.route}`)} // Adicione este log
-              sx={{
-                borderRadius: (theme) => theme.shape.borderRadius,
-                backgroundColor: location.pathname === item.route ? "#C1BEBE" : "transparent",
-                color: location.pathname === item.route ? "var(--purple-maincolor)" : "black",
-                "&:hover": {
-                  backgroundColor: "#959595",
-                  color: "black",
-                },
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  color: location.pathname === item.route ? "var(--purple-maincolor)" : "gray",
-                }}
-              >
-                {item.text === "Estações" ? (
-                  <img
-                    src={StationLogo}
-                    alt="Station Logo"
-                    className={location.pathname === item.route ? "image-link" : ""}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      filter:
-                        location.pathname === item.route
-                          ? "brightness(0) saturate(100%) invert(29%) sepia(98%) saturate(747%) hue-rotate(223deg) brightness(91%) contrast(101%)"
-                          : "grayscale(100%)",
+        {menuItems.map((item) => {
+          // Verifica se a rota atual está incluída no array relatedRoutes ou começa com o routePrefix
+          const isActive =
+            (item.relatedRoutes && item.relatedRoutes.includes(location.pathname)) ||
+            (item.routePrefix && location.pathname.startsWith(item.routePrefix)) ||
+            location.pathname === item.route;
+
+          return (
+            <ListItem key={item.text} disablePadding>
+              {item.route || item.relatedRoutes ? (
+                <ListItemButton
+                  component={Link}
+                  to={item.route || item.relatedRoutes?.[0] || ""}
+                  sx={{
+                    borderRadius: (theme) => theme.shape.borderRadius,
+                    backgroundColor: isActive ? "#C1BEBE" : "transparent",
+                    color: isActive ? "var(--purple-maincolor)" : "black",
+                    "&:hover": {
+                      backgroundColor: "#959595",
+                      color: "black",
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: isActive ? "var(--purple-maincolor)" : "gray",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    sx={{
+                      Typography: "h6",
+                      textDecoration: "none",
                     }}
                   />
-                ) : (
-                  item.icon
-                )}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                sx={{
-                  Typography: "h6",
-                  textDecoration: "none",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
+                </ListItemButton>
+              ) : null}
+            </ListItem>
+          );
+        })}
       </List>
 
       {/* Usuário */}
