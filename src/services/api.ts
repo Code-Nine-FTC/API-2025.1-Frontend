@@ -695,7 +695,7 @@ const links = {
     }
   },
 
-  getUser: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+  getUser: async (): Promise<{ success: boolean; data?: { name: string; email: string; last_update: string }; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {

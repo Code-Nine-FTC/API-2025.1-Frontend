@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress, Paper } from "@mui/material";
-import { useAuth } from "../services/authContext";
 import { links } from "../services/api";
 
 const Profile: React.FC = () => {
