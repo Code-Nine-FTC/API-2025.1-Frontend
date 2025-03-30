@@ -15,6 +15,7 @@ import { EditAlertType } from "@pages/EditAlertType";
 import AlertTypeList from "@pages/AlertTypeList";
 import RegisterParameterType from "@pages/RegisterParameterType";
 import ParameterTypeList from "@pages/ParameterTypeList";
+import EditParameterType from "@pages/EditParameterType";
 
 export default function AppRoutes() {
   return (
@@ -40,12 +41,13 @@ export default function AppRoutes() {
             <AlertTypeList />
           </ProtectedRoute>
         } />
-        <Route path="/alerts" element={<AlertList />} />
+        <Route path="/listalerts" element={<AlertList />} />
         <Route path="/editaralerta/:id" element={
           <ProtectedRoute>	
           <EditAlertType />
           </ProtectedRoute>
         } />
+
         <Route path="/registrarparametro" element={
           <ProtectedRoute>
             <RegisterParameterType />
@@ -56,6 +58,10 @@ export default function AppRoutes() {
             <ParameterTypeList />
           </ProtectedRoute>
         } />
+        <Route path="/editarparametrotipo/:parameterTypeId" element={
+          <ProtectedRoute>
+            <EditParameterType />
+          </ProtectedRoute>} />
       </Routes>
   );
 }

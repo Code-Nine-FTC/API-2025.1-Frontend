@@ -3,37 +3,36 @@ import DataTable from "./DataTable";
 import { links } from "../services/api";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  IconButton, 
+import {
+  Box,
+  Button,
+  TextField,
+  IconButton,
   Typography,
   Collapse,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Paper
+  Paper,
+  Grid,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import 'dayjs/locale/pt-br';
-import { Grid } from '@mui/material';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import "dayjs/locale/pt-br";
 import dayjs, { Dayjs } from "dayjs";
 
 interface Station {
-    id: number;
-    name: string;
-    uid: string;
-    address: string[];
-    latitude: Number;
-    longitude: Number;
-    last_update: string;
+  id: number;
+  name: string;
+  uid: string;
+  address: string[];
+  latitude: Number;
+  longitude: Number;
+  last_update: string;
 }
 
 const StationTable: React.FC = () => {
@@ -41,16 +40,13 @@ const StationTable: React.FC = () => {
   const [filteredStations, setFilteredStations] = useState<Station[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const navigate = useNavigate();
-  
-  const [showFilters, setShowFilters] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [uidFilter, setUidFilter] = useState("");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [showFilters, setShowFilters] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStations = async () => {
@@ -60,11 +56,11 @@ const StationTable: React.FC = () => {
         const filters = {
           name: nameFilter || undefined,
           uid: uidFilter || undefined,
-          start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
-          end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
-          limit: limit
+          start_date: startDate ? startDate.format("YYYY-MM-DD") : undefined,
+          end_date: endDate ? endDate.format("YYYY-MM-DD") : undefined,
+          limit: limit,
         };
-        
+
         const response = await links.listStations(filters);
         if (response.success) {
           setStations(response.data);
@@ -80,38 +76,10 @@ const StationTable: React.FC = () => {
     };
 
     fetchStations();
-
-  }, [page, limit]);
+  }, [nameFilter, uidFilter, startDate, endDate, limit]);
 
   const handleSearch = () => {
-    const fetchWithFilters = async () => {
-      setLoading(true);
-      const filters = {
-        name: nameFilter || undefined,
-        uid: uidFilter || undefined,
-        start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
-        end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
-        page: 1, 
-        limit: limit
-      };
-      
-      try {
-        const response = await links.listStations(filters);
-        if (response.success) {
-          setStations(response.data);
-          setFilteredStations(response.data);
-          setPage(1);
-        } else {
-          setError(response.error || "Erro ao buscar estações.");
-        }
-      } catch (err) {
-        setError("Erro ao buscar estações.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchWithFilters();
+    setShowFilters(false);
   };
 
   const clearFilters = () => {
@@ -119,27 +87,7 @@ const StationTable: React.FC = () => {
     setUidFilter("");
     setStartDate(null);
     setEndDate(null);
-    setPage(1);
-    
-    const fetchAllStations = async () => {
-      setLoading(true);
-
-      try {
-        const response = await links.listStations({ page: 1, limit });
-        if (response.success) {
-          setStations(response.data);
-          setFilteredStations(response.data);
-        } else {
-          setError(response.error || "Erro ao carregar as estações.");
-        }
-      } catch (err) {
-        setError("Erro ao carregar as estações.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllStations();
+    setLimit(10);
   };
 
   const columns = [
@@ -148,11 +96,12 @@ const StationTable: React.FC = () => {
     { label: "Endereço", key: "address" as keyof Station },
     { label: "Latitude", key: "latitude" as keyof Station },
     { label: "Longitude", key: "longitude" as keyof Station },
-    { label: "Última atualzição", key: "last_update" as keyof Station },
+    { label: "Última atualização", key: "last_update" as keyof Station },
   ];
 
   return (
-    <Box sx={{ width: '100%', mb: 4 }}>
+    <Box sx={{ width: "100%", mb: 4 }}>
+      {/* Filtros dentro da caixa branca */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={6} md={4}>
@@ -166,25 +115,26 @@ const StationTable: React.FC = () => {
             />
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleSearch}
-                sx={{ flexGrow: 1 }}
-                className="data-table-button"
-              >
-                Buscar
-              </Button>
-              <IconButton 
-                color="primary" 
+            <TextField
+              fullWidth
+              label="UID da estação"
+              value={uidFilter}
+              onChange={(e) => setUidFilter(e.target.value)}
+              variant="outlined"
+              size="small"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <IconButton
+                color="primary"
                 onClick={() => setShowFilters(!showFilters)}
                 aria-label="toggle filters"
               >
                 <FilterListIcon />
               </IconButton>
-              <IconButton 
-                color="secondary" 
+              <IconButton
+                color="secondary"
                 onClick={clearFilters}
                 aria-label="clear filters"
               >
@@ -192,65 +142,39 @@ const StationTable: React.FC = () => {
               </IconButton>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              variant="contained" 
-              color="success" 
-              onClick={() => navigate("/registrarestacao")}
-              startIcon={<SearchIcon />}
-            >
-              Cadastrar
-            </Button>
-          </Grid>
         </Grid>
-        
-        {/* Advanced Filters */}
+
+        {/* Filtros avançados */}
         <Collapse in={showFilters}>
-        <Box sx={{ mt: 2, p: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
-          <Typography variant="subtitle2">Debug Information:</Typography>
-          <pre style={{ fontSize: '12px', overflow: 'auto' }}>
-            {JSON.stringify({
-              currentFilters: {
-                name: nameFilter || undefined,
-                uid: uidFilter || undefined,
-                start_date: startDate ? startDate.format('YYYY-MM-DD') : undefined,
-                end_date: endDate ? endDate.format('YYYY-MM-DD') : undefined,
-                page: page,
-                limit: limit
-              }
-            }, null, 2)}
-          </pre>
-        </Box>
           <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>Filtros avançados</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={3}>
-                <TextField
-                  fullWidth
-                  label="UID da estação"
-                  value={uidFilter}
-                  onChange={(e) => setUidFilter(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale="pt-br"
+                >
                   <DatePicker
                     label="Data inicial"
                     value={startDate}
                     onChange={(date) => setStartDate(date)}
-                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                    slotProps={{
+                      textField: { size: "small", fullWidth: true },
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale="pt-br"
+                >
                   <DatePicker
                     label="Data final"
                     value={endDate}
                     onChange={(date) => setEndDate(date)}
-                    slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                    slotProps={{
+                      textField: { size: "small", fullWidth: true },
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
@@ -273,14 +197,33 @@ const StationTable: React.FC = () => {
           </Box>
         </Collapse>
       </Paper>
-      
+
+      {/* Botões fora da caixa branca */}
+      <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", mb: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSearch}
+          startIcon={<SearchIcon />}
+        >
+          Buscar
+        </Button>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => navigate("/registrarestacao")}
+        >
+          + Cadastrar
+        </Button>
+      </Box>
+
       {/* Data Table */}
       <DataTable<Station>
         data={filteredStations}
         columns={columns}
         loading={loading}
         error={error}
-        title=""
+        title="Estações"
         renderActions={(row) => (
           <SearchIcon
             style={{ color: "#ccc", cursor: "pointer" }}

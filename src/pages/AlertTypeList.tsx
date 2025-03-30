@@ -3,6 +3,7 @@ import DataTable from "../components/DataTable";
 import { links } from "../services/api";
 import { Modal, Box, Typography, CircularProgress, Button, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
 
@@ -25,7 +26,7 @@ const AlertTypeList: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<AlertType | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
-  const navigate = useNavigate(); // Adicionado para navegação
+  const navigate = useNavigate();
 
   const fetchAlertTypes = async (filters?: { [key: string]: string }) => {
     setLoading(true);
@@ -33,13 +34,21 @@ const AlertTypeList: React.FC = () => {
 
     try {
       const response = await links.listAlertTypes(filters || {});
-      console.log("Resposta recebida no AlertTypeList:", response); 
+      console.log("Resposta recebida no AlertTypeList:", response);
 
       if (response.success) {
         const alertsData = response.data || [];
-        console.log("Dados processados no AlertTypeList:", alertsData); 
-        setAlertTypes(alertsData);
-        setFilteredAlerts(alertsData);
+        console.log("Dados processados no AlertTypeList:", alertsData);
+        setAlertTypes(alertsData.map(alert => ({
+          ...alert,
+          status: alert.status || "Unknown", 
+          parameter_id: alert.parameter_id ?? 0, 
+        })));
+        setFilteredAlerts(alertsData.map(alert => ({
+          ...alert,
+          status: alert.status || "Unknown",
+          parameter_id: alert.parameter_id ?? 0,
+        })));
       } else {
         setError(response.error || "Erro ao carregar os tipos de alerta.");
       }
@@ -99,7 +108,15 @@ const AlertTypeList: React.FC = () => {
   return (
     <LoggedLayout>
       <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-        <Typography variant="h4" sx={{ marginBottom: "20px", textAlign: "center" }}>
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: "20px",
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#5f5cd9",
+          }}
+        >
           Tipos de Alerta
         </Typography>
         <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px", alignItems: "center" }}>
@@ -118,6 +135,14 @@ const AlertTypeList: React.FC = () => {
           >
             Buscar
           </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/registrartipoalerta")} 
+            startIcon={<AddIcon />}
+            sx={{ backgroundColor: "#4caf50", color: "white", height: "56px" }}
+          >
+            Cadastrar
+          </Button>
         </Box>
         <DataTable<AlertType>
           data={filteredAlerts}
@@ -131,11 +156,11 @@ const AlertTypeList: React.FC = () => {
                 onClick={() => fetchAlertDetails(row.id)}
                 sx={{ color: "#5f5cd9" }}
               >
-                Detalhes
+                <SearchIcon />
               </Button>
               <Button
                 variant="text"
-                onClick={() => handleEdit(row.id)} // Botão de editar
+                onClick={() => handleEdit(row.id)}
                 sx={{ color: "#5f5cd9" }}
               >
                 Editar

@@ -3,7 +3,10 @@ import DataTable from "../components/DataTable";
 import { links } from "../services/api";
 import { Modal, Box, Typography, CircularProgress, Button, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import { LoggedLayout } from "@components/layout/layoutLogged";
+import { useNavigate } from "react-router-dom";
 
 interface ParameterType {
   id: number;
@@ -23,6 +26,7 @@ const ParameterTypeList: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedParameterType, setSelectedParameterType] = useState<ParameterType | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
+  const navigate = useNavigate();
 
   const fetchParameterTypes = async (filters?: { [key: string]: string }) => {
     setLoading(true);
@@ -84,6 +88,14 @@ const ParameterTypeList: React.FC = () => {
     fetchParameterTypes(filters);
   };
 
+  const handleEditClick = (parameterTypeId: number) => {
+    navigate(`/editarparametrotipo/${parameterTypeId}`);
+  };
+
+  const handleRegisterClick = () => {
+    navigate("/registrarparametro");
+  };
+
   const columns = [
     { label: "ID", key: "id" as keyof ParameterType },
     { label: "Nome", key: "name" as keyof ParameterType },
@@ -96,7 +108,15 @@ const ParameterTypeList: React.FC = () => {
   return (
     <LoggedLayout>
       <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-        <Typography variant="h4" sx={{ marginBottom: "20px", textAlign: "center" }}>
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: "20px",
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#5f5cd9",
+          }}
+        >
           Tipos de Parâmetros
         </Typography>
         <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px", alignItems: "center" }}>
@@ -115,6 +135,14 @@ const ParameterTypeList: React.FC = () => {
           >
             Buscar
           </Button>
+          <Button
+            variant="contained"
+            onClick={handleRegisterClick}
+            startIcon={<AddIcon />}
+            sx={{ backgroundColor: "#4caf50", color: "white", height: "56px" }}
+          >
+           Cadastrar
+          </Button>
         </Box>
         <DataTable<ParameterType>
           data={filteredParameterTypes}
@@ -122,13 +150,16 @@ const ParameterTypeList: React.FC = () => {
           loading={loading}
           error={error}
           renderActions={(row) => (
-            <Button
-              variant="text"
-              onClick={() => fetchParameterTypeDetails(row.id)}
-              sx={{ color: "#5f5cd9" }}
-            >
-              Detalhes
-            </Button>
+            <Box sx={{ display: "flex", gap: "10px" }}>
+              <SearchIcon
+                sx={{ color: "#5f5cd9", cursor: "pointer" }}
+                onClick={() => fetchParameterTypeDetails(row.id)}
+              />
+              <EditIcon
+                sx={{ color: "#4caf50", cursor: "pointer" }}
+                onClick={() => handleEditClick(row.id)}
+              />
+            </Box>
           )}
         />
         <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
@@ -143,7 +174,7 @@ const ParameterTypeList: React.FC = () => {
               bgcolor: "background.paper",
               boxShadow: 24,
               p: 4,
-              borderRadius: 2,  
+              borderRadius: 2,
             }}
           >
             {modalLoading ? (

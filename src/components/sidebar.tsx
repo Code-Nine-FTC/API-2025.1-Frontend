@@ -14,24 +14,28 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
+import SensorsIcon from "@mui/icons-material/Sensors";
 import SchoolIcon from "@mui/icons-material/School";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import TuneIcon from "@mui/icons-material/Tune";
 import TecsusLogo from "../assets/tecsus_logo.svg";
 import StationLogo from "../assets/station_logo.svg";
-import LogoutLogo from '../assets/logout_logo.svg';
-import { Link } from "react-router-dom";
-import { useAuth } from "../services/authContext"
+import LogoutLogo from "../assets/logout_logo.svg";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../services/authContext";
 
 const drawerWidth = 260;
 
 const menuItems = [
-  { text: "Home", icon: <HomeIcon sx={{fontSize: 40}}/>, route: "/" },
-  { text: "Educação", icon: <SchoolIcon sx={{fontSize: 40}} />, route: "/educacao"  },
-  { text: "Estações", icon: <img src={StationLogo}/>, route: "/listarestacao" },
-  { text: "Dashboard", icon: <BarChartIcon sx={{fontSize: 40}} />, route: "/dashboard"  },
-  { text: "Alertas", icon: <NotificationsActiveIcon sx={{fontSize: 40}} />, route: "/alertas"  },
+  { text: "Home", icon: <HomeIcon sx={{ fontSize: 40 }} />, route: "/" },
+  { text: "Dashboard", icon: <BarChartIcon sx={{ fontSize: 40 }} />, route: "/dashboard" },
+  { text: "Estações", icon: <SensorsIcon sx={{ width: 40, height: 40 }} />, route: "/listarestacao" },
+  { text: "Tipo de Parâmetro", icon: <TuneIcon sx={{ fontSize: 40 }} />, route: "/listartipoparametro" },
+  { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
+  { text: "Tipo de Alertas", icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, route: "/listartipoalerta" },
 ];
 
 interface Props {
@@ -41,17 +45,17 @@ interface Props {
 const Sidebar = (props: Props) => {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [selected, setSelected] = useState("Home");
   const [userName, setUserName] = useState("Pedro");
 
   const { logout } = useAuth();
+  const location = useLocation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const drawer = (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh"}}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
         <img src={TecsusLogo} alt="Tecsus Logo" width="120px" />
       </Box>
@@ -61,48 +65,49 @@ const Sidebar = (props: Props) => {
       {/* Menu */}
       <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding 
-          sx={{
-            backgroundColor: "transparent",
-            "&:hover": {
-              backgroundColor: "transparent",
-              color: "black",
-            },
-          }}>
+          <ListItem key={item.text} disablePadding>
             <ListItemButton
-              selected={selected === item.text}
-              onClick={() => setSelected(item.text)}
-              component={Link} 
+              component={Link}
               to={item.route}
+              onClick={() => console.log(`Navegando para: ${item.route}`)} // Adicione este log
               sx={{
                 borderRadius: (theme) => theme.shape.borderRadius,
+                backgroundColor: location.pathname === item.route ? "#C1BEBE" : "transparent",
+                color: location.pathname === item.route ? "var(--purple-maincolor)" : "black",
                 "&:hover": {
                   backgroundColor: "#959595",
-                  color: "black", 
-                },
-                "&.Mui-selected": {
-                  backgroundColor: "#C1BEBE",
-                  color: "var(--purple-maincolor)",
-                  "& .MuiListItemIcon-root": {
-                    color: "var(--purple-maincolor)",
-                  },
+                  color: "black",
                 },
               }}
             >
-              <ListItemIcon>
+              <ListItemIcon
+                sx={{
+                  color: location.pathname === item.route ? "var(--purple-maincolor)" : "gray",
+                }}
+              >
                 {item.text === "Estações" ? (
-                  <img src={StationLogo}
-                  alt="Station Logo"
-                  className={selected === "Estações" ? "image-link" : ""}
-                  style={{width: 40, height: 40 }}
-                />
+                  <img
+                    src={StationLogo}
+                    alt="Station Logo"
+                    className={location.pathname === item.route ? "image-link" : ""}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      filter:
+                        location.pathname === item.route
+                          ? "brightness(0) saturate(100%) invert(29%) sepia(98%) saturate(747%) hue-rotate(223deg) brightness(91%) contrast(101%)"
+                          : "grayscale(100%)",
+                    }}
+                  />
                 ) : (
                   item.icon
                 )}
               </ListItemIcon>
-              <ListItemText primary={item.text} 
-                sx={{ 
-                  Typography: 'h6', textDecoration: "none",
+              <ListItemText
+                primary={item.text}
+                sx={{
+                  Typography: "h6",
+                  textDecoration: "none",
                 }}
               />
             </ListItemButton>
@@ -111,18 +116,28 @@ const Sidebar = (props: Props) => {
       </List>
 
       {/* Usuário */}
-      <Box sx={{ p: 2, backgroundColor: "#D0D0D0", borderRadius: 2, mx: 1, mb: 2, display: "flex", alignItems: "center" }}>
+      <Box
+        sx={{
+          p: 2,
+          backgroundColor: "#D0D0D0",
+          borderRadius: 2,
+          mx: 1,
+          mb: 2,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         <Link to="/perfil" className="image-link">
           <ListItemIcon>
-            <AccountCircleIcon sx={{fontSize: 40}}/>
+            <AccountCircleIcon sx={{ fontSize: 40 }} />
           </ListItemIcon>
         </Link>
         <Typography variant="body1" fontWeight="bold" fontSize="1.1em">
           {userName}
         </Typography>
-        <ListItemIcon sx={{ ml: 9}}>
+        <ListItemIcon sx={{ ml: 9 }}>
           <Box onClick={logout} className="image-link">
-            <img src={LogoutLogo} alt="Logout Logo" width="60%"/>
+            <img src={LogoutLogo} alt="Logout Logo" width="60%" />
           </Box>
         </ListItemIcon>
       </Box>
@@ -134,10 +149,14 @@ const Sidebar = (props: Props) => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-        <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} 
-            sx={{ marginLeft: "1%"}}>
-          <MenuIcon sx={{ color: "black", display: { xs: "block", md: "none" }}} />
-        </IconButton>
+      <IconButton
+        color="inherit"
+        edge="start"
+        onClick={handleDrawerToggle}
+        sx={{ marginLeft: "1%" }}
+      >
+        <MenuIcon sx={{ color: "black", display: { xs: "block", md: "none" } }} />
+      </IconButton>
 
       {/* Drawer para telas grandes */}
       <Drawer
@@ -146,10 +165,11 @@ const Sidebar = (props: Props) => {
           width: drawerWidth,
           flexShrink: 0,
           display: { xs: "none", md: "block" },
-          "& .MuiDrawer-paper": { width: drawerWidth, 
-          boxSizing: "border-box" ,
-          backgroundColor: "transparent",
-          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            backgroundColor: "transparent",
+            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
           },
         }}
         open
@@ -166,9 +186,8 @@ const Sidebar = (props: Props) => {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { width: drawerWidth}, 
+          "& .MuiDrawer-paper": { width: drawerWidth },
           boxSizing: "border-box",
-          // backgroundColor: "transparent"},
         }}
       >
         {drawer}

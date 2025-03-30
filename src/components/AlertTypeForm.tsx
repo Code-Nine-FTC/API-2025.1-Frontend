@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Box, Button, Typography, Paper } from "@mui/material";
 import "../pages/styles/registerstation.css";
 import { links } from "../services/api";
@@ -36,17 +36,18 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
 
   const [parameters, setParameters] = useState<Array<{ value: string; label: string }>>([]);
   const [stations, setStations] = useState<Array<{ value: string; label: string }>>([]);
+  const [loadingStations, setLoadingStations] = useState(false);
 
+  // Atualiza o formulário com os valores iniciais apenas uma vez
   useEffect(() => {
-  setForm({
-    parameter_id: 0,
-    name: "",
-    value: 0,
-    math_signal: "",
-    status: "",
-    ...initialValues,
-  });
-}, [initialValues]);
+    // Verifica se os valores iniciais são diferentes do estado atual antes de atualizar
+    setForm((prevForm) => {
+      if (JSON.stringify(prevForm) !== JSON.stringify({ ...prevForm, ...initialValues })) {
+        return { ...prevForm, ...initialValues };
+      }
+      return prevForm;
+    });
+  }, [initialValues]);
 
   // Busca os parâmetros ao carregar o componente
   useEffect(() => {
@@ -71,23 +72,29 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   }, []);
 
   // Busca as estações associadas ao parâmetro selecionado
-  const fetchStationsByParameter = async (parameterId: number) => {
-    try {
-      const response = await links.getParametersByStation(parameterId);
-      console.log("Resposta da API para estações associadas ao parâmetro:", response);
-      if (response.success && response.data) {
-        const stationOptions = response.data.map((station: { id: number; name_station: string }) => ({
-          value: station.id.toString(),
-          label: station.name_station,
-        }));
-        setStations(stationOptions);
-      } else {
-        console.error("Erro ao buscar estações:", response.error);
+  const fetchStationsByParameter = useCallback(
+    async (parameterId: number) => {
+      if (!parameterId) return; // Evita chamadas desnecessárias
+      setLoadingStations(true);
+      try {
+        const response = await links.getParametersByStation(parameterId);
+        if (response.success && response.data) {
+          const stationOptions = response.data.map((station: { id: number; name_station: string }) => ({
+            value: station.id.toString(),
+            label: station.name_station,
+          }));
+          setStations(stationOptions);
+        } else {
+          console.error("Erro ao buscar estações:", response.error);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar estações:", error);
+      } finally {
+        setLoadingStations(false);
       }
-    } catch (error) {
-      console.error("Erro ao buscar estações:", error);
-    }
-  };
+    },
+    []
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -97,7 +104,10 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
       maskedValue = parseInt(value, 10) || 0; // Converte para número
     }
 
-    setForm({ ...form, [name]: maskedValue } as FormFields);
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: maskedValue,
+    }));
 
     // Se o parâmetro for alterado, busca as estações associadas
     if (name === "parameter_id" && maskedValue) {
@@ -108,7 +118,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   const renderInput = (label: string, name: keyof FormFields, className = "") => (
     <div className={`input-group-wrapper ${className}`}>
       <div className="input-group">
-        <label className="input-label"><strong>{label}</strong></label>
+        <label className="input-label">
+          <strong>{label}</strong>
+        </label>
         <input
           type="text"
           name={name}
@@ -120,14 +132,22 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     </div>
   );
 
-  const renderSelect = (label: string, name: keyof FormFields, options: Array<{ value: string; label: string }>) => (
+  const renderSelect = (
+    label: string,
+    name: keyof FormFields,
+    options: Array<{ value: string; label: string }>,
+    onFocus?: () => void
+  ) => (
     <div className="input-group-wrapper">
       <div className="input-group">
-        <label className="input-label"><strong>{label}</strong></label>
+        <label className="input-label">
+          <strong>{label}</strong>
+        </label>
         <select
           name={name}
           value={form[name]}
           onChange={handleChange}
+          onFocus={onFocus} // Dispara a função ao focar no campo
           className="input-field"
         >
           <option value="">Selecione</option>
@@ -160,7 +180,16 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
           {renderSelect("ID do Parâmetro", "parameter_id", parameters)}
-          {renderSelect("Estações", "station_id", stations)}
+          {renderSelect(
+            "Estações",
+            "station_id",
+            stations,
+            () => {
+              if (form.parameter_id && !loadingStations) {
+                fetchStationsByParameter(form.parameter_id); // Carrega as estações ao focar no campo
+              }
+            }
+          )}
           {renderInput("Nome", "name")}
           {renderInput("Valor", "value")}
           {renderSelect("Sinal Matemático", "math_signal", [

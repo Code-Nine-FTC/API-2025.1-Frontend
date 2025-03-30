@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../components/DataTable";
 import { links } from "../services/api";
+import { Modal, Box, Typography, CircularProgress, Button, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
 import { LoggedLayout } from "@components/layout/layoutLogged";
-import { Modal, Box, Typography, CircularProgress, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface Alert {
   id: number;
@@ -26,10 +26,6 @@ const AlertList: React.FC = () => {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const navigate = useNavigate();
 
-  // Extrai os tipos de alerta únicos da listagem de alertas
-  const alertTypes = Array.from(new Set(alerts.map((alert) => alert.typeAlertName)));
-  const stations = Array.from(new Set(alerts.map((alert) => alert.station)));
-
   const fetchAlerts = async (filters?: { [key: string]: string }) => {
     setLoading(true);
     setError(null);
@@ -47,19 +43,7 @@ const AlertList: React.FC = () => {
             endDate: item.create_date,
           })) || [];
         setAlerts(alertsData);
-
-        // Aplica os filtros diretamente nos dados retornados
-        const filtered = alertsData.filter((alert) => {
-          const matchesType = filters?.type_alert_name
-            ? alert.typeAlertName === filters.type_alert_name
-            : true;
-          const matchesStation = filters?.station_name
-            ? alert.station === filters.station_name
-            : true;
-          return matchesType && matchesStation;
-        });
-
-        setFilteredAlerts(filtered);
+        setFilteredAlerts(alertsData);
       } else {
         setError(response.error || "Erro ao carregar os alertas.");
       }
@@ -103,7 +87,7 @@ const AlertList: React.FC = () => {
 
   return (
     <LoggedLayout>
-      <div className="alerts-container">
+      <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
         <Typography
           variant="h4"
           sx={{
@@ -115,59 +99,59 @@ const AlertList: React.FC = () => {
         >
           Alertas
         </Typography>
-        <div className="data-table-header" style={{ display: "flex", gap: "16px", marginBottom: "20px" }}>
-          <FormControl fullWidth>
-            <InputLabel>Tipo de Alerta</InputLabel>
-            <Select
+        {/* Campos de busca */}
+        <Box
+          sx={{
+            gap: "16px",
+            marginBottom: "20px",
+            padding: "16px",
+          }}
+        >
+          <Box sx={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <TextField
+              label="Filtrar por Tipo de Alerta"
+              variant="outlined"
               value={typeAlertName}
               onChange={(e) => setTypeAlertName(e.target.value)}
-              label="Tipo de Alerta"
-            >
-              <MenuItem value="">
-                <em>Selecione o Tipo de Alerta</em>
-              </MenuItem>
-              {alertTypes.map((type, index) => (
-                <MenuItem key={index} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth>
-            <InputLabel>Estação</InputLabel>
-            <Select
+              fullWidth
+            />
+            <TextField
+              label="Filtrar por Estação"
+              variant="outlined"
               value={stationName}
               onChange={(e) => setStationName(e.target.value)}
-              label="Estação"
-            >
-              <MenuItem value="">
-                <em>Selecione a Estação</em>
-              </MenuItem>
-              {stations.map((station, index) => (
-                <MenuItem key={index} value={station}>
-                  {station}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              fullWidth
+            />
+          </Box>
+        </Box>
+
+        {/* Botões fora da caixa branca */}
+        <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "20px" }}>
           <Button
             variant="contained"
             onClick={handleSearch}
-            style={{ backgroundColor: "#5f5cd9", color: "white", height: "56px" }}
+            startIcon={<SearchIcon />}
+            sx={{ backgroundColor: "#5f5cd9", color: "white", height: "56px" }}
           >
             Buscar
           </Button>
-        </div>
+        </Box>
+
         <DataTable<Alert>
           data={filteredAlerts}
           columns={columns}
           loading={loading}
           error={error}
           renderActions={(row) => (
-            <SearchIcon
-              style={{ color: "#ccc", cursor: "pointer" }}
-              onClick={() => handleOpenModal(row)}
-            />
+            <Box sx={{ display: "flex", gap: "10px" }}>
+              <Button
+                variant="text"
+                onClick={() => handleOpenModal(row)}
+                sx={{ color: "#5f5cd9" }}
+              >
+                <SearchIcon />
+              </Button>
+            </Box>
           )}
         />
         <Modal open={modalOpen} onClose={handleCloseModal}>
@@ -179,32 +163,30 @@ const AlertList: React.FC = () => {
               transform: "translate(-50%, -50%)",
               width: "90%",
               maxWidth: "500px",
-              bgcolor: "#333", // Fundo escuro
+              bgcolor: "background.paper",
               boxShadow: 24,
               p: 4,
               borderRadius: 2,
-              color: "white", // Texto branco
-              border: "2px solid #5f5cd9", // Borda roxa
             }}
           >
             {selectedAlert ? (
               <div>
-                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px", color: "white" }}>
+                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px" }}>
                   Detalhes do Alerta
                 </Typography>
-                <Typography sx={{ color: "white" }}><strong>ID:</strong> {selectedAlert.id}</Typography>
-                <Typography sx={{ color: "white" }}><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
-                <Typography sx={{ color: "white" }}><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
-                <Typography sx={{ color: "white" }}><strong>Estação:</strong> {selectedAlert.station}</Typography>
-                <Typography sx={{ color: "white" }}><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
-                <Typography sx={{ color: "white" }}><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
+                <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
+                <Typography><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
+                <Typography><strong>Estação:</strong> {selectedAlert.station}</Typography>
+                <Typography><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
+                <Typography><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
+                <Typography><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
               </div>
             ) : (
               <CircularProgress />
             )}
           </Box>
         </Modal>
-      </div>
+      </Box>
     </LoggedLayout>
   );
 };

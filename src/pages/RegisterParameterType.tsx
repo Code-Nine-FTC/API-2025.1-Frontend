@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { links } from "../services/api";
-import { Box, Button, CircularProgress, TextField, Alert, Card, CardContent, CardHeader } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Alert, Paper, Typography } from "@mui/material";
 import { LoggedLayout } from "@components/layout/layoutLogged";
+import "../pages/styles/registerstation.css";
 
 const RegisterParameterType: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -58,77 +59,59 @@ const RegisterParameterType: React.FC = () => {
     }
   };
 
+  const renderInput = (label: string, name: keyof typeof formData, type: string = "text") => (
+    <div className="input-group-wrapper">
+      <div className="input-group">
+        <label className="input-label">
+          <strong>{label}</strong>
+        </label>
+        <input
+          type={type}
+          name={name}
+          value={formData[name] || ""}
+          onChange={handleChange}
+          className="input-field"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <LoggedLayout>
-      <Box sx={{ maxWidth: 900, margin: "0 auto", padding: 4 }}>
-        <Card sx={{ padding: 2 }}>
-          <CardHeader title="Cadastrar Tipo de Parâmetro" />
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                label="Nome"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label="Unidade de Medida"
-                name="measureUnit"
-                value={formData.measureUnit}
-                onChange={handleChange}
-                required
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label="Quantidade de Decimais"
-                name="qntDecimals"
-                type="number"
-                value={formData.qntDecimals}
-                onChange={handleChange}
-                required
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label="Offset (opcional)"
-                name="offset"
-                type="number"
-                value={formData.offset || ""}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                label="Fator (opcional)"
-                name="factor"
-                type="number"
-                value={formData.factor || ""}
-                onChange={handleChange}
-                margin="normal"
-              />
-              <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
-                <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                  {loading ? <CircularProgress size={24} /> : "Cadastrar"}
-                </Button>
-              </Box>
-            </form>
-            {successMessage && (
-              <Alert severity="success" sx={{ marginTop: 2 }}>
-                {successMessage}
-              </Alert>
-            )}
-            {errorMessage && (
-              <Alert severity="error" sx={{ marginTop: 2 }}>
-                {errorMessage}
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+      <Box className="estacao-wrapper">
+        <Paper className="estacao-card">
+          <Typography variant="h4" align="center" className="estacao-title">
+            Cadastro de Tipo de Parâmetro
+          </Typography>
+          <form className="estacao-form" onSubmit={handleSubmit}>
+            {renderInput("Nome", "name")}
+            {renderInput("Unidade de Medida", "measureUnit")}
+            {renderInput("Quantidade de Decimais", "qntDecimals", "number")}
+            {renderInput("Offset (opcional)", "offset", "number")}
+            {renderInput("Fator (opcional)", "factor", "number")}
+            <Box mt={3} textAlign="center">
+              <Button
+                variant="contained"
+                type="submit"
+                className="estacao-btn"
+                style={{ backgroundColor: "#5f5cd9", color: "white" }}
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} /> : "Cadastrar"}
+              </Button>
+            </Box>
+          </form>
+          {successMessage && (
+            <Alert severity="success" sx={{ marginTop: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
+          {errorMessage && (
+            <Alert severity="error" sx={{ marginTop: 2 }}>
+              {errorMessage}
+            </Alert>
+          )}
+        </Paper>
       </Box>
     </LoggedLayout>
   );
