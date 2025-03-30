@@ -29,6 +29,12 @@ const Navbar: React.FC = () => {
           >
             Educacional
           </Button>
+          <Button 
+            sx={{ color: location.pathname === "/listagem-combinada" ? "purple" : "black", fontWeight: "bold" }} 
+            onClick={() => navigate("/listagem-combinada")}
+          >
+            Listagem Estação/Alerta
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

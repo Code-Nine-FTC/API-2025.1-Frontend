@@ -1,5 +1,6 @@
-import { Routes, Route } from "react-router-dom";
-
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import CombinedList from "@pages/CombinedList";
 import About from "@pages/About";
 //import ResponsiveDrawer from "@components/sidebar";
 import LoginPage from "@pages/login";
@@ -24,13 +25,14 @@ export default function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/educacao" element={<Education />} />
         <Route path="/login" element={<LoginPage />} />
-
+        <Route path="/listagem-combinada" element={<CombinedList />} />
         <Route path="/registrarestacao" element={
           <ProtectedRoute>
             <RegisterStations />
           </ProtectedRoute>
         } />
         <Route path="/listarestacao" element={<StationListPage />} />
+
         <Route path="/registrartipoalerta" element={
           <ProtectedRoute>
             <RegisterAlertType />
