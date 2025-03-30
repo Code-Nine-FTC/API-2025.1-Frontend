@@ -4,7 +4,9 @@ import { links } from "../services/api";
 import { Modal, Box, Typography, CircularProgress, Button, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility"; // Ícone para visualizar
+import EditIcon from "@mui/icons-material/Edit"; // Ícone para editar
+import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"; // Ícone para desativar
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
 
@@ -34,7 +36,7 @@ const AlertTypeList: React.FC = () => {
     setError(null);
 
     try {
-      const response = await links.listAlertTypes(filters || {});
+      const response = await links.listAlertTypes(filters || {}); // Envia os filtros para o backend
       console.log("Resposta recebida no AlertTypeList:", response);
 
       if (response.success) {
@@ -42,13 +44,13 @@ const AlertTypeList: React.FC = () => {
         console.log("Dados processados no AlertTypeList:", alertsData);
         setAlertTypes(alertsData.map(alert => ({
           ...alert,
-          status: alert.status || "Unknown", 
+          status: alert.status || "unknown", 
           parameter_id: alert.parameter_id ?? 0, 
         })));
         setFilteredAlerts(alertsData.map(alert => ({
           ...alert,
-          status: alert.status || "Unknown",
-          parameter_id: alert.parameter_id ?? 0,
+          status: alert.status || "unknown", 
+          parameter_id: alert.parameter_id ?? 0, 
         })));
       } else {
         setError(response.error || "Erro ao carregar os tipos de alerta.");
@@ -82,15 +84,41 @@ const AlertTypeList: React.FC = () => {
     }
   };
 
+  const handleDisable = async (alertTypeId: number) => {
+    if (!window.confirm("Tem certeza que deseja desativar este tipo de alerta?")) {
+      return;
+    }
+
+    try {
+      const response = await links.disableAlertType(alertTypeId); // Chama o método do serviço
+      if (response.success) {
+        alert("Tipo de alerta desativado com sucesso!");
+        fetchAlertTypes(); // Atualiza a lista após a desativação
+      } else {
+        alert(response.error || "Erro ao desativar o tipo de alerta.");
+      }
+    } catch (err) {
+      console.error("Erro ao desativar o tipo de alerta:", err);
+      alert("Erro ao desativar o tipo de alerta.");
+    }
+  };
+
   useEffect(() => {
     fetchAlertTypes();
   }, []);
 
   const handleSearch = () => {
     const filters: { [key: string]: string } = {};
-    if (nameFilter.trim()) filters.name = nameFilter;
+    if (nameFilter.trim()) {
+      filters.name = nameFilter.toLowerCase(); // Converte para minúsculas para comparação
+    }
 
-    fetchAlertTypes(filters);
+    // Filtragem no Frontend
+    const filtered = alertTypes.filter((alert) =>
+      alert.name.toLowerCase().includes(filters.name || "")
+    );
+
+    setFilteredAlerts(filtered);
   };
 
   const handleEdit = (alertId: number) => {
@@ -120,27 +148,45 @@ const AlertTypeList: React.FC = () => {
         >
           Tipos de Alerta
         </Typography>
-        <Box sx={{ display: "flex", gap: "10px", marginBottom: "20px", alignItems: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "20px",
+            alignItems: "center", // Alinha os itens verticalmente
+            flexWrap: "wrap", // Permite que os itens quebrem linha em telas menores
+          }}
+        >
           <TextField
             label="Filtrar por nome"
             variant="outlined"
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
-            fullWidth
+            sx={{ flex: 1 }} // Faz o campo de texto ocupar o espaço restante
           />
           <Button
             variant="contained"
             onClick={handleSearch}
             startIcon={<SearchIcon />}
-            sx={{ backgroundColor: "#5f5cd9", color: "white", height: "56px" }}
+            sx={{
+              backgroundColor: "#5f5cd9",
+              color: "white",
+              height: "56px", // Garante altura consistente
+              whiteSpace: "nowrap", // Evita quebra de texto
+            }}
           >
             Buscar
           </Button>
           <Button
             variant="contained"
-            onClick={() => navigate("/registrartipoalerta")} 
+            onClick={() => navigate("/registrartipoalerta")}
             startIcon={<AddIcon />}
-            sx={{ backgroundColor: "#4caf50", color: "white", height: "56px" }}
+            sx={{
+              backgroundColor: "#4caf50",
+              color: "white",
+              height: "56px", // Garante altura consistente
+              whiteSpace: "nowrap", // Evita quebra de texto
+            }}
           >
             Cadastrar
           </Button>
@@ -152,16 +198,20 @@ const AlertTypeList: React.FC = () => {
           error={error}
           renderActions={(row) => (
             <Box sx={{ display: "flex", gap: "10px" }}>
-              <Button
-                variant="text"
+              {/* Ícone para visualizar detalhes */}
+              <SearchIcon
+                sx={{ color: "#5f5cd9", cursor: "pointer" }}
                 onClick={() => fetchAlertDetails(row.id)}
-                sx={{ color: "#5f5cd9" }}
-              >
-                <SearchIcon />
-              </Button>
+              />
+              {/* Ícone para editar */}
               <EditIcon
                 sx={{ color: "#4caf50", cursor: "pointer" }}
                 onClick={() => handleEdit(row.id)}
+              />
+              {/* Ícone para desativar */}
+              <DoNotDisturbIcon
+                sx={{ color: "red", cursor: "pointer" }}
+                onClick={() => handleDisable(row.id)}
               />
             </Box>
           )}
