@@ -38,7 +38,7 @@ const menuItems = [
   {
     text: "Tipo de Parâmetro",
     icon: <TuneIcon sx={{ fontSize: 40 }} />,
-    relatedRoutes: ["/registrarparametro", "/listarparametro"],
+    relatedRoutes: ["/listartipoparametro","/registrarparametro",],
     routePrefix: "/editarparametrotipo/",
   },
   { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
@@ -53,7 +53,7 @@ interface Props {
 const Sidebar = (props: Props) => {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userName, setUserName] = useState("Pedro");
+  const [userName, setUserName] = useState("ADMINISTRADOR");
 
   const { logout } = useAuth();
   const location = useLocation();
