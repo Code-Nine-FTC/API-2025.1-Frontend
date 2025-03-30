@@ -10,13 +10,14 @@ import AlertList from "@pages/AlertList";
 import StationListPage from "@pages/StationList";
 import RegisterAlertType from "@pages/RegisterAlertType";
 //import ParameterTypeList from "@pages/ParameterTypeList";
-import { ProtectedRoute } from "../services/authContext"
+import { ProtectedRoute } from "../services/authContext";
 import { EditAlertType } from "@pages/EditAlertType";
 import AlertTypeList from "@pages/AlertTypeList";
 import RegisterParameterType from "@pages/RegisterParameterType";
 import ParameterTypeList from "@pages/ParameterTypeList";
 import EditParameterType from "@pages/EditParameterType";
 import ViewStations from "@pages/ViewStation";
+import Profile from "@pages/Profile"; // Importar a página de perfil
 
 export default function AppRoutes() {
   return (
@@ -65,6 +66,11 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <EditParameterType />
           </ProtectedRoute>} />
+        <Route path="/perfil" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
       </Routes>
   );
 }

@@ -694,6 +694,26 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao ativar estação" };
     }
   },
+
+  getUser: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get("/user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data.data };
+    } catch (error: any) {
+      console.error("Erro ao buscar dados do usuário:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar dados do usuário" };
+    }
+  },
 };
 
 

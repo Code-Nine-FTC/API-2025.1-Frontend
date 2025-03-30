@@ -62,6 +62,8 @@ const Sidebar = (props: Props) => {
     setMobileOpen(!mobileOpen);
   };
 
+  const isProfileActive = location.pathname === "/perfil"; // Verifica se a rota atual é "/perfil"
+
   const drawer = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
@@ -129,11 +131,25 @@ const Sidebar = (props: Props) => {
         }}
       >
         <Link to="/perfil" className="image-link">
-          <ListItemIcon>
+          <ListItemIcon
+            sx={{
+              color: isProfileActive ? "purple" : "gray", // Ícone roxo se ativo
+              "&:hover": {
+                color: "purple", // Ícone roxo ao passar o mouse
+              },
+            }}
+          >
             <AccountCircleIcon sx={{ fontSize: 40 }} />
           </ListItemIcon>
         </Link>
-        <Typography variant="body1" fontWeight="bold" fontSize="1.1em">
+        <Typography
+          variant="body1"
+          fontWeight="bold"
+          fontSize="1.1em"
+          sx={{
+            color: isProfileActive ? "purple" : "black", // Texto roxo se ativo
+          }}
+        >
           {userName}
         </Typography>
         <ListItemIcon sx={{ ml: 9 }}>
