@@ -4,6 +4,7 @@ import { links } from "../services/api";
 import { Modal, Box, Typography, CircularProgress, Button, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
 
@@ -158,13 +159,10 @@ const AlertTypeList: React.FC = () => {
               >
                 <SearchIcon />
               </Button>
-              <Button
-                variant="text"
+              <EditIcon
+                sx={{ color: "#4caf50", cursor: "pointer" }}
                 onClick={() => handleEdit(row.id)}
-                sx={{ color: "#5f5cd9" }}
-              >
-                Editar
-              </Button>
+              />
             </Box>
           )}
         />
