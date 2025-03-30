@@ -53,7 +53,7 @@ interface Props {
 const Sidebar = (props: Props) => {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userName, setUserName] = useState("ADMINISTRADOR");
+  const [userName, setUserName] = useState("Adm"); 
 
   const { logout } = useAuth();
   const location = useLocation();
