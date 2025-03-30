@@ -13,6 +13,8 @@ import RegisterAlertType from "@pages/RegisterAlertType";
 import { ProtectedRoute } from "../services/authContext"
 import { EditAlertType } from "@pages/EditAlertType";
 import AlertTypeList from "@pages/AlertTypeList";
+import RegisterParameterType from "@pages/RegisterParameterType";
+import ParameterTypeList from "@pages/ParameterTypeList";
 
 export default function AppRoutes() {
   return (
@@ -39,12 +41,21 @@ export default function AppRoutes() {
           </ProtectedRoute>
         } />
         <Route path="/alerts" element={<AlertList />} />
-		<Route path="/editaralerta/:id" element={
-		  <ProtectedRoute>	
-			<EditAlertType />
-		  </ProtectedRoute>
-		} />
-		
-        </Routes>
+        <Route path="/editaralerta/:id" element={
+          <ProtectedRoute>	
+          <EditAlertType />
+          </ProtectedRoute>
+        } />
+        <Route path="/registrarparametro" element={
+          <ProtectedRoute>
+            <RegisterParameterType />
+          </ProtectedRoute>
+        } />
+        <Route path="/listartipoparametro" element={
+          <ProtectedRoute>
+            <ParameterTypeList />
+          </ProtectedRoute>
+        } />
+      </Routes>
   );
 }

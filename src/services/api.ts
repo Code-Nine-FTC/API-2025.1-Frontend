@@ -512,6 +512,44 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
     }
   },
+  createParameterType: async (parameterType: {
+    name: string;
+    measure_unit: string;
+    qnt_decimals: number;
+    offset?: number;
+    factor?: number;
+  }): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.post(
+        "/parameter_types",
+        {
+          name: parameterType.name,
+          measure_unit: parameterType.measure_unit,
+          qnt_decimals: parameterType.qnt_decimals,
+          offset: parameterType.offset,
+          factor: parameterType.factor,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      console.log("Resposta do backend:", response);
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Erro ao criar tipo de parâmetro:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao criar tipo de parâmetro" };
+    }
+  }
 }
 
 export { links };
