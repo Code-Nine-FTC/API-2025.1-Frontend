@@ -54,7 +54,6 @@ const links = {
   }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
-
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
@@ -592,7 +591,111 @@ const links = {
       };
     }
   },
-}
+  
+  getStation: async (stationId: number): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get(`/stations/${stationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Erro ao obter estação:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao obter estação" };
+    }
+  },
+
+  updateStation: async (
+    stationId: number,
+    data: {
+      name?: string;
+      uid?: string;
+      latitude?: number;
+      longitude?: number;
+      address?: {
+        city?: string;
+        state?: string;
+        country?: string;
+      };
+      is_active?: boolean;
+      parameter_types?: Array<number>;
+    }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(`/stations/${stationId}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Erro ao atualizar estação:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao atualizar estação" };
+    }
+  },
+
+  disableStation: async (stationId: number): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(
+        `/stations/${stationId}`,
+        { is_active: false },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Erro ao desativar estação:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao desativar estação" };
+    }
+  },
+
+  activateStation: async (stationId: number): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(
+        `/stations/${stationId}`,
+        { is_active: true },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Erro ao ativar estação:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao ativar estação" };
+    }
+  },
+};
+
 
 export { links };
 export default api;
