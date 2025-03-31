@@ -57,14 +57,15 @@ export const EditAlertType = () => {
         const response = await links.getAlertType(parseInt(id));
 		console.log("Resposta da API para o tipo de alerta:", response);
 
-        if (response.data) {
-          const data = response.data;
+		const alertTypeData = response.data.data;
+
+        if (alertTypeData) {
           setInitialValues({
-            parameter_id: data.parameter_id || 0,
-            name: data.name || "",
-            value: data.value || 0,
-            math_signal: data.math_signal || "",
-            status: data.status || "",
+            parameter_id: alertTypeData.parameter_id || 0,
+            name: alertTypeData.name || "",
+            value: alertTypeData.value || 0,
+            math_signal: alertTypeData.math_signal || "",
+            status: alertTypeData.status || "",
           });
           
         } else {
