@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, Typography, Container } from "@mui/material";
 import AppIcon from "./components/ui/AppIcon";
+import StatusIcon from "./components/ui/StatusIcon";
+import StatusTable from "./components/ui/TableExemple";
 
 const App: React.FC = () => {
   return (
@@ -15,6 +17,9 @@ const App: React.FC = () => {
       <AppIcon name="Settings" style={{ fontSize: 40, color: "green" }} />
       <AppIcon name="Search" style={{ fontSize: 40, color: "red" }} />
       Exemplo de Uso de Icones
+      <StatusIcon status="R" size={30} />
+      Exemplo Tabela com Status
+      <StatusTable />
     </Container>
   );
 };
