@@ -23,7 +23,7 @@ interface Station {
   address: string[];
   latitude: number;
   longitude: number;
-  last_update: string;
+  create_date: string;
 }
 
 const StationTable: React.FC = () => {
@@ -141,7 +141,7 @@ const StationTable: React.FC = () => {
           { label: "Endereço", key: "address" as keyof Station },
           { label: "Latitude", key: "latitude" as keyof Station },
           { label: "Longitude", key: "longitude" as keyof Station },
-          { label: "Data de criação", key: "last_update" as keyof Station },
+          { label: "Data de criação", key: "create_date" as keyof Station },
         ]}
         loading={loading}
         renderActions={(row) => (
