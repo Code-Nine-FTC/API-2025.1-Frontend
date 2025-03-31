@@ -1,14 +1,28 @@
+
 * {
   padding: 0;
   margin: 0;
   border: 0;
-  background-color: #EBE7E7;
+  font-family: 'Montserrat', sans-serif;
 }
 
 :root{
 --purple-maincolor:#5652C7;
 --green-maincolor: #74DA23;
+--green-maincolorhover: #5dab1d;
 --black-logincolor: #000000;
 --red-deletebutton: #A9080B;
 --blue-editbutton: #0069BF;
  }
+
+
+
+.image-link:hover{
+  filter: 
+    invert(27%),
+    sepia(83%),
+    saturate(7475%),
+    hue-rotate(250deg),
+    brightness(91%),
+    contrast(101%);
+}
