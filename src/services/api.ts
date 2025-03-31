@@ -775,7 +775,7 @@ const links = {
 
       const response = await api.patch(`/stations/${stationId}`, data, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       });
 
@@ -925,8 +925,8 @@ const links = {
       }
 
       const response = await api.patch(
-        `/parameter_types/${parameterTypeId}/update`, // ⚠️ usa a rota /update
-        { is_active: false }, // ✅ envia no corpo
+        `/parameter_types/${parameterTypeId}/update`,
+        { is_active: false },
         {
           headers: {
             Authorization: `Bearer ${token}`,
