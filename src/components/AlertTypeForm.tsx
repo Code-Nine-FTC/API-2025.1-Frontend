@@ -196,7 +196,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             { value: ">", label: "Maior que (>)" },
             { value: "<", label: "Menor que (<)" },
             { value: "=", label: "Igual a (=)" },
-            { value: "=<", label: "Menor ou igual a (=<)" },
+            { value: "<=", label: "Menor ou igual a (<=)" },
             { value: ">=", label: "Maior ou igual a (>=)" },
           ])}
           {renderSelect("Status", "status", [
