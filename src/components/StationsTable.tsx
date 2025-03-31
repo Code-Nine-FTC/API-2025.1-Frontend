@@ -14,6 +14,7 @@ import {
   Typography,
   CircularProgress,
   Autocomplete,
+  Grid,
 } from "@mui/material";
 
 interface Station {
@@ -37,7 +38,6 @@ const StationTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Verifica se o usuário está logado
   const isLoggedIn = !!localStorage.getItem("token");
 
   const fetchStations = useCallback(async () => {
@@ -70,58 +70,106 @@ const StationTable: React.FC = () => {
       <Paper sx={{ p: 2, mb: 2 }}>
         <Stack spacing={2}>
           {/* Filtros */}
-          <Stack direction="row" spacing={2}>
-            <Autocomplete
-              fullWidth
-              options={stations.map((station) => station.name_station)}
-              inputValue={filters.name_station}
-              onInputChange={(_, newInputValue) =>
-                setFilters((prev) => ({ ...prev, name_station: newInputValue || "" }))
-              }
-              onChange={(_, selectedValue) =>
-                setFilters((prev) => ({ ...prev, name_station: selectedValue || "" }))
-              }
-              renderInput={(params) => <TextField {...params} label="Buscar por nome" variant="outlined" size="small" />}
-            />
-            <Autocomplete
-              fullWidth
-              options={stations.map((station) => station.uid)}
-              inputValue={filters.uid}
-              onInputChange={(_, newInputValue) =>
-                setFilters((prev) => ({ ...prev, uid: newInputValue || "" }))
-              }
-              onChange={(_, selectedValue) =>
-                setFilters((prev) => ({ ...prev, uid: selectedValue || "" }))
-              }
-              renderInput={(params) => <TextField {...params} label="UID da estação" variant="outlined" size="small" />}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filters.status}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.checked }))}
-                />
-              }
-              label="Ativo"
-            />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{ backgroundColor: "var(--purple-maincolor)" }}
-                onClick={handleSearch}
-                startIcon={loading ? <CircularProgress size={20} /> : <SearchIcon />}
-              >
-                Buscar
-              </Button>
-            </Box>
-          </Stack>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                fullWidth
+                options={stations.map((station) => station.name_station)}
+                inputValue={filters.name_station}
+                onInputChange={(_, newInputValue) =>
+                  setFilters((prev) => ({ ...prev, name_station: newInputValue || "" }))
+                }
+                onChange={(_, selectedValue) =>
+                  setFilters((prev) => ({ ...prev, name_station: selectedValue || "" }))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Buscar por nome"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      input: { fontSize: "14px" },
+                      label: { fontSize: "12px" },
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Autocomplete
+                fullWidth
+                options={stations.map((station) => station.uid)}
+                inputValue={filters.uid}
+                onInputChange={(_, newInputValue) =>
+                  setFilters((prev) => ({ ...prev, uid: newInputValue || "" }))
+                }
+                onChange={(_, selectedValue) =>
+                  setFilters((prev) => ({ ...prev, uid: selectedValue || "" }))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="UID da estação"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      input: { fontSize: "14px" },
+                      label: { fontSize: "12px" },
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={filters.status}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.checked }))}
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "18px",
+                      },
+                    }}
+                  />
+                }
+                label="Ativo"
+                sx={{ fontSize: "12px" }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "var(--purple-maincolor)",
+                    fontSize: "14px",
+                    padding: "6px 12px",
+                  }}
+                  onClick={handleSearch}
+                  startIcon={loading ? <CircularProgress size={20} /> : <SearchIcon />}
+                >
+                  Buscar
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Stack>
       </Paper>
 
       {/* Botão de Cadastrar - Apenas se estiver logado */}
       {isLoggedIn && (
         <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", mb: 2 }}>
-          <Button variant="contained" color="success" onClick={() => navigate("/registrarestacao")}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => navigate("/registrarestacao")}
+            sx={{
+              fontSize: "14px",
+              padding: "6px 12px",
+            }}
+          >
             Cadastrar
           </Button>
         </Box>
