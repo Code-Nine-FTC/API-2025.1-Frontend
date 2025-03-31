@@ -5,6 +5,11 @@ const api = axios.create({
   baseURL: `http://127.0.0.1:5000`,
 });
 
+const isUserLoggedIn = () => {
+  const token = localStorage.getItem("token");
+  return !!token;
+};
+
 const links = {
   login: async (
     email: string,
@@ -514,6 +519,7 @@ const links = {
 
       console.log("Resposta do backend:", response);
 
+      // Verifica se a resposta contém a propriedade `data` com um array
       if (response.data && Array.isArray(response.data.data)) {
         return { success: true, data: response.data.data };
       }
@@ -734,6 +740,7 @@ const links = {
         },
       });
 
+      console.log("Resposta do backend:", response);
       return { success: true, data: response.data };
     } catch (error: any) {
       console.error("Erro ao obter estação:", error.message || error);
