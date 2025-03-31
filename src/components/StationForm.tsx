@@ -13,7 +13,7 @@ import {
 import "../pages/styles/registerstation.css";
 import { links } from "../services/api";
 
-interface FormFields {
+export interface FormFields {
   name: string;
   uid: string;
   country: string;
@@ -21,7 +21,7 @@ interface FormFields {
   state: string;
   latitude: string;
   longitude: string;
-  parameter_types: Array<{ type: string; unit: string }>;
+  parameter_types: { type: string; unit: string } | null;
 }
 
 interface StationFormProps {
@@ -49,7 +49,7 @@ export const StationForm: React.FC<StationFormProps> = ({
     state: "",
     latitude: "",
     longitude: "",
-    parameter_types: [],
+    parameter_types: null,
     ...initialValues,
   });
 
@@ -67,12 +67,6 @@ export const StationForm: React.FC<StationFormProps> = ({
 
     fetchParameters();
   }, []);
-
-  // useEffect(() => {
-  //   if (initialValues.zip) {
-  //     fetchAddressByZip(initialValues.zip);
-  //   }
-  // }, [initialValues]);
 
   const fetchAddressByZip = async (cep: string) => {
     try {
@@ -117,13 +111,13 @@ export const StationForm: React.FC<StationFormProps> = ({
     }
   };
 
-  const handleParameterChange = (event: SelectChangeEvent<number[]>) => {
+  const handleParameterChange = (event: SelectChangeEvent<number>) => {
     if (readOnly) return;
 
-    const selectedIds = event.target.value as number[];
+    const selectedId = event.target.value as unknown as number;
     setForm({
       ...form,
-      parameter_types: selectedIds.map((id) => ({ type: id.toString(), unit: "" })),
+      parameter_types: { type: selectedId.toString(), unit: "" },
     });
   };
 
@@ -151,12 +145,12 @@ export const StationForm: React.FC<StationFormProps> = ({
     <FormControl className="input-group-wrapper" disabled={readOnly}>
       <InputLabel>{label}</InputLabel>
       <Select
-        multiple
-        value={form.parameter_types.map((param) => parseInt(param.type))}
+        value={form.parameter_types ? parseInt(form.parameter_types.type) : ""}
         onChange={handleParameterChange}
-        renderValue={(selected) =>
-          selected.map((id) => options.find((opt) => opt.id === id)?.name).join(", ")
-        }
+        renderValue={(selected) => {
+          const found = options.find((opt) => opt.id === selected);
+          return found ? found.name : "";
+        }}
       >
         {options.map((option) => (
           <MenuItem key={option.id} value={option.id}>
@@ -167,46 +161,12 @@ export const StationForm: React.FC<StationFormProps> = ({
     </FormControl>
   );
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (readOnly) return;
 
-    const parameterTypeIds = form.parameter_types.map((param) => parseInt(param.type));
-
-    const stationData = {
-      name: form.name,
-      uid: form.uid,
-      latitude: parseFloat(form.latitude),
-      longitude: parseFloat(form.longitude),
-      address: {
-        city: form.city,
-        state: form.state,
-        country: "Brasil",
-      },
-      parameter_types: parameterTypeIds,
-    };
-
-    try {
-      const result = await links.createStation(stationData);
-      if (result.success) {
-        alert("Estação criada com sucesso!");
-        onSubmit?.(form);
-        setForm({
-          name: "",
-          uid: "",
-          city: "",
-          state: "",
-          country: "",
-          latitude: "",
-          longitude: "",
-          parameter_types: [],
-        });
-      } else {
-        alert(`Erro ao criar estação: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("Erro ao criar estação:", error);
-      alert("Erro ao criar estação.");
+    if (onSubmit) {
+      onSubmit(form);
     }
   };
 
@@ -220,11 +180,7 @@ export const StationForm: React.FC<StationFormProps> = ({
       <form className="estacao-form" onSubmit={handleFormSubmit}>
         {renderInput("Nome da estação", "name")}
         {renderInput("UID", "uid")}
-        {/* <div className="row">
-          {renderInput("Código Postal", "zip", "input-small")}
-          {renderInput("Rua", "street", "input-medium")}
-          {renderInput("Número", "number", "input-tiny")}
-        </div> */}
+
         <div className="row">
           {renderInput("País", "country", "input-bairro")}
           {renderInput("Cidade", "city", "input-cidade")}

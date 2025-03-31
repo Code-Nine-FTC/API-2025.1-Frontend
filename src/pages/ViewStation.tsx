@@ -16,10 +16,27 @@ import { StationForm } from "../components/StationForm";
 import { links } from "../services/api";
 import "./styles/registerstation.css";
 
+type FormFields = {
+  name: string;
+  uid: string;
+  latitude: string;
+  longitude: string;
+  city: string;
+  state: string;
+  country: string;
+  parameter_types: { type: string; unit: string } | null;
+};
+
+type StationFormValues = FormFields & {
+  is_active?: boolean;
+  original: any;
+};
+
+
 const ViewStation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [station, setStation] = useState<any>(null);
+  const [station, setStation] = useState<StationFormValues | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showDisablePopup, setShowDisablePopup] = useState(false);
   const [showActivatePopup, setShowActivatePopup] = useState(false);
@@ -33,29 +50,21 @@ const ViewStation: React.FC = () => {
         if (response.success) {
           const apiData = response.data.data;
 
-          const formattedData = {
-            name: apiData.name_station || "",  // Using name_station instead of name
+          const formattedData: StationFormValues = {
+            name: apiData.name_station || "",
             uid: apiData.uid || "",
-            // Address fields - extract from address object
             city: apiData.address?.city || "",
             state: apiData.address?.state || "",
             country: apiData.address?.country || "Brasil",
-            // Convert numbers to strings for form fields
             latitude: String(apiData.latitude || ""),
             longitude: String(apiData.longitude || ""),
-            // Use parameters array instead of parameter_types
-            parameter_types: Array.isArray(apiData.parameters) 
-              ? apiData.parameters.map((p: any) => ({
-                  type: String(p.id || p),
-                  unit: p.measure_unit || ""
-                }))
-              : [],
-            // Store the is_active status
+            parameter_types: Array.isArray(apiData.parameters) && apiData.parameters.length > 0
+            ? { type: String(apiData.parameters[0].parameter_type_id), unit: "" }
+            : null,                 
             is_active: apiData.status !== undefined ? apiData.status : true,
-            // Preserve original data for comparison when updating
             original: apiData
           };
-          // Set the station data to state
+
           setStation(formattedData);
         } else {
           alert(response.error || "Erro ao carregar estação.");
@@ -76,75 +85,53 @@ const ViewStation: React.FC = () => {
     fetchStation();
   }, [id, navigate]);
 
-  const handleUpdate = async (form: any) => {
+  const handleUpdate = async (form: FormFields & { original: any }) => {
     try {
-      const original = station.original;
-      const updatedFields: Partial<any> = {};
+      const original = form.original;
+      const updatedFields: any = {};
 
       if (form.name && form.name !== original.name_station) {
         updatedFields.name = form.name;
       }
-      
-      // Check other fields
+
       if (form.uid && form.uid !== original.uid) {
         updatedFields.uid = form.uid;
       }
-      
+
       if (form.latitude && parseFloat(form.latitude) !== original.latitude) {
         updatedFields.latitude = parseFloat(form.latitude);
       }
-      
+
       if (form.longitude && parseFloat(form.longitude) !== original.longitude) {
         updatedFields.longitude = parseFloat(form.longitude);
       }
-      
-      // Build address object from form fields
+
       const formAddress = {
-        city: form.city || "",
-        state: form.state || "",
-        country: form.country || ""
+        city: form.city || undefined,
+        state: form.state || undefined,
+        country: form.country || undefined
       };
-      
-      // Compare address objects
+
       if (JSON.stringify(formAddress) !== JSON.stringify(original.address)) {
         updatedFields.address = formAddress;
       }
-      
-      // Handle parameter types/parameters - we need to format these correctly
-      if (form.parameter_types && Array.isArray(form.parameter_types)) {
-        console.log("Raw parameter_types:", JSON.stringify(form.parameter_types));
-        
-        // Create a new array with only valid parameter IDs
-        const validParams = [];
-        for (const param of form.parameter_types) {
-          if (param && param.type && !isNaN(parseInt(param.type, 10))) {
-            validParams.push(parseInt(param.type, 10));
-          }
-        }
-        
-        console.log("Valid parameters after filtering:", validParams);
-        
-        // Get original parameter IDs with safer approach
-        const originalParamIds = [];
-        if (Array.isArray(original.parameters)) {
-          for (const param of original.parameters) {
-            if (param && (param.id || parseInt(param, 10))) {
-              originalParamIds.push(param.id || parseInt(param, 10));
-            }
-          }
-        }
 
-        console.log("Original parameter IDs:", originalParamIds);
-
-        const sortedValidParams = [...validParams].sort();
-        const sortedOriginalParams = [...originalParamIds].sort();
-        
-        if (JSON.stringify(sortedValidParams) !== JSON.stringify(sortedOriginalParams)) {
-          updatedFields.parameter_types = validParams;
-        }
-      }
+      if (form.parameter_types && form.parameter_types.type) {
+        const selectedParamId = parseInt(form.parameter_types.type, 10);
+        const originalParamIds = Array.isArray(original.parameters)
+          ? original.parameters.map((p: any) => p?.id || parseInt(p, 10))
+          : [];
       
-      if (Object.keys(updatedFields).length === 0) {
+        if (!originalParamIds.includes(selectedParamId)) {
+          updatedFields.parameter_types = [selectedParamId];
+        }
+      }      
+
+      const now = new Date();
+      const naiveDate = now.toISOString().split(".")[0];
+      updatedFields.last_update = naiveDate;
+
+      if (Object.keys(updatedFields).length === 1 && updatedFields.last_update) {
         alert("Nenhuma alteração foi feita.");
         setIsEditing(false);
         return;
@@ -156,17 +143,10 @@ const ViewStation: React.FC = () => {
         alert("Estação atualizada com sucesso!");
         setIsEditing(false);
         setStation({
-          ...station,
-          name: form.name,
-          uid: form.uid,
-          city: form.city,
-          state: form.state,
-          country: form.country,
-          latitude: form.latitude,
-          longitude: form.longitude,
-          parameter_types: form.parameter_types,
+          ...station!,
+          ...form,
           original: {
-            ...station.original,
+            ...station!.original,
             name_station: form.name,
             uid: form.uid,
             address: {
@@ -179,8 +159,8 @@ const ViewStation: React.FC = () => {
           }
         });
       } else {
-          console.error("Update failed:", response);
-          alert(response.error || "Erro ao atualizar estação.");
+        console.error("Update failed:", response);
+        alert(response.error || "Erro ao atualizar estação.");
       }
     } catch (error) {
       console.error("Erro ao atualizar estação:", error);
@@ -193,7 +173,7 @@ const ViewStation: React.FC = () => {
       const response = await links.disableStation(Number(id));
       if (response.success) {
         alert("Estação desativada com sucesso!");
-        setStation({ ...station, is_active: false });
+        setStation({ ...station!, is_active: false });
         setShowDisablePopup(false);
       } else {
         alert(response.error || "Erro ao desativar estação.");
@@ -209,7 +189,7 @@ const ViewStation: React.FC = () => {
       const response = await links.activateStation(Number(id));
       if (response.success) {
         alert("Estação ativada com sucesso!");
-        setStation({ ...station, is_active: true });
+        setStation({ ...station!, is_active: true });
         setShowActivatePopup(false);
       } else {
         alert(response.error || "Erro ao ativar estação.");
@@ -247,7 +227,15 @@ const ViewStation: React.FC = () => {
           <Box className="estacao-form">
             <StationForm
               initialValues={station}
-              onSubmit={isEditing ? handleUpdate : undefined}
+              onSubmit={
+                isEditing
+                  ? (form: FormFields) =>
+                      handleUpdate({
+                        ...form,
+                        original: station.original,
+                      })
+                  : undefined
+              }
               submitLabel="Salvar Alterações"
               readOnly={!isEditing}
               title=""
@@ -298,9 +286,7 @@ const ViewStation: React.FC = () => {
 
       <Dialog open={showDisablePopup} onClose={() => setShowDisablePopup(false)}>
         <DialogTitle>Confirmar Desativação</DialogTitle>
-        <DialogContent>
-          Tem certeza de que deseja desativar esta estação?
-        </DialogContent>
+        <DialogContent>Tem certeza de que deseja desativar esta estação?</DialogContent>
         <DialogActions>
           <Button onClick={() => setShowDisablePopup(false)} color="primary">
             Cancelar
@@ -313,9 +299,7 @@ const ViewStation: React.FC = () => {
 
       <Dialog open={showActivatePopup} onClose={() => setShowActivatePopup(false)}>
         <DialogTitle>Confirmar Ativação</DialogTitle>
-        <DialogContent>
-          Tem certeza de que deseja ativar esta estação?
-        </DialogContent>
+        <DialogContent>Tem certeza de que deseja ativar esta estação?</DialogContent>
         <DialogActions>
           <Button onClick={() => setShowActivatePopup(false)} color="primary">
             Cancelar
