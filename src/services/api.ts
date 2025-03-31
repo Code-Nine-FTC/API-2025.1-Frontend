@@ -691,7 +691,7 @@ const links = {
     }
   },
 
-  getUser: async (): Promise<{ success: boolean; data?: any; error?: string }> => {
+  getUser: async (): Promise<{ success: boolean; data?: { name: string; email: string; last_update: string }; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -710,6 +710,31 @@ const links = {
       return { success: false, error: error.response?.data?.detail || "Erro ao buscar dados do usuário" };
     }
   },
+
+  disableAlertType: async (alertTypeId: number): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(`alert_type/disables/${alertTypeId}`, {}, {
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      if (response.status === 200) {
+        return { success: true };
+      }
+
+      throw new Error("Erro ao desativar o tipo de alerta");
+    } catch (error: any) {
+      console.error("Erro ao desativar o tipo de alerta:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao desativar o tipo de alerta" };
+    }
+  },
+  
 };
 
 

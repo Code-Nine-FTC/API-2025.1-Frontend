@@ -179,7 +179,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {title}
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderSelect("ID do Parâmetro", "parameter_id", parameters)}
+          {renderSelect("Tipo de Parâmetro", "parameter_id", parameters)}
           {renderSelect(
             "Estações",
             "station_id",
