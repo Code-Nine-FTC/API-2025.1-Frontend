@@ -129,12 +129,12 @@ const Sidebar = (props: Props) => {
           alignItems: "center",
         }}
       >
-        <Link to="/perfil" className="image-link">
+        <Link to="/perfil" className="image-link" style={{ textDecoration: "none" }}>
           <ListItemIcon
             sx={{
-              color: isProfileActive ? "purple" : "gray", // Ícone roxo se ativo
+              color: isProfileActive ? "var(--purple-maincolor)" : "gray", // Ícone roxo se ativo
               "&:hover": {
-                color: "purple", // Ícone roxo ao passar o mouse
+                color: "var(--purple-maincolor)", // Ícone roxo ao passar o mouse
               },
             }}
           >
@@ -146,7 +146,8 @@ const Sidebar = (props: Props) => {
           fontWeight="bold"
           fontSize="1.1em"
           sx={{
-            color: isProfileActive ? "purple" : "black", // Texto roxo se ativo
+            color: isProfileActive ? "var(--purple-maincolor)" : "black", // Texto roxo se ativo
+            ml: 1, // Adiciona margem à esquerda para espaçamento
           }}
         >
           {userName}

@@ -37,6 +37,9 @@ const StationTable: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Verifica se o usuário está logado
+  const isLoggedIn = !!localStorage.getItem("token");
+
   const fetchStations = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -115,11 +118,14 @@ const StationTable: React.FC = () => {
         </Stack>
       </Paper>
 
-      <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", mb: 2 }}>
-        <Button variant="contained" color="success" onClick={() => navigate("/registrarestacao")}>
-          Cadastrar
-        </Button>
-      </Box>
+      {/* Botão de Cadastrar - Apenas se estiver logado */}
+      {isLoggedIn && (
+        <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", mb: 2 }}>
+          <Button variant="contained" color="success" onClick={() => navigate("/registrarestacao")}>
+            Cadastrar
+          </Button>
+        </Box>
+      )}
 
       {error && (
         <Box sx={{ mb: 2, color: "red" }}>
@@ -138,7 +144,6 @@ const StationTable: React.FC = () => {
           { label: "Data de criação", key: "last_update" as keyof Station },
         ]}
         loading={loading}
-        title="Estações"
         renderActions={(row) => (
           <SearchIcon
             style={{ color: "#ccc", cursor: "pointer" }}
