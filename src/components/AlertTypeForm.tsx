@@ -186,7 +186,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             stations,
             () => {
               if (form.parameter_id && !loadingStations) {
-                fetchStationsByParameter(form.parameter_id); 
+                fetchStationsByParameter(form.parameter_id); // Carrega as estações ao focar no campo
               }
             }
           )}
@@ -200,9 +200,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             { value: ">=", label: "Maior ou igual a (>=)" },
           ])}
           {renderSelect("Status", "status", [
-            { value: "Seguro", label: "Seguro" },
-            { value: "Risco Moderado", label: "Risco Moderado" },
-            { value: "Risco Alto", label: "Risco Alto" },
+            { value: "G", label: "Seguro" },
+            { value: "Y", label: "Risco Moderado" },
+            { value: "R", label: "Risco Alto" },
           ])}
           <Box mt={3} textAlign="center">
             <Button

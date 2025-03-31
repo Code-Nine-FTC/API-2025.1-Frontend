@@ -155,19 +155,29 @@ const ViewStation: React.FC = () => {
       if (response.success) {
         alert("Estação atualizada com sucesso!");
         setIsEditing(false);
-        const updatedStation = {
+        setStation({
           ...station,
-          name: form.name || station.name,
-          uid: form.uid || station.uid,
-          city: form.city || station.city,
-          state: form.state || station.state,
-          country: form.country || station.country,
-          latitude: form.latitude || station.latitude,
-          longitude: form.longitude || station.longitude,
-          parameter_types: form.parameter_types || station.parameter_types,
-        };
-        
-        setStation(updatedStation);
+          name: form.name,
+          uid: form.uid,
+          city: form.city,
+          state: form.state,
+          country: form.country,
+          latitude: form.latitude,
+          longitude: form.longitude,
+          parameter_types: form.parameter_types,
+          original: {
+            ...station.original,
+            name_station: form.name,
+            uid: form.uid,
+            address: {
+              city: form.city,
+              state: form.state,
+              country: form.country
+            },
+            latitude: parseFloat(form.latitude),
+            longitude: parseFloat(form.longitude)
+          }
+        });
       } else {
           console.error("Update failed:", response);
           alert(response.error || "Erro ao atualizar estação.");
