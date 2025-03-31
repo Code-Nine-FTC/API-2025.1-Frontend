@@ -200,9 +200,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             { value: ">=", label: "Maior ou igual a (>=)" },
           ])}
           {renderSelect("Status", "status", [
-            { value: "Ok", label: "Ok" },
-            { value: "Warning", label: "Estado de atenção" },
-            { value: "Danger", label: "Perigo" },
+            { value: "G", label: "Seguro" },
+            { value: "Y", label: "Risco Moderado" },
+            { value: "R", label: "Risco Alto" },
           ])}
           <Box mt={3} textAlign="center">
             <Button
