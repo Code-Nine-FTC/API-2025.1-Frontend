@@ -417,19 +417,18 @@ const links = {
         throw new Error("Usuário não autenticado");
       }
 
-      // Faz a requisição ao endpoint com o ID do parâmetro na URL e na query string
+
       const response = await api.get(`/stations/parameters/${parameterTypeId}`, {
         headers: {
           Authorization: token,
         },
         params: {
-          type_paramter_id: parameterTypeId, // Adiciona o parâmetro na query string
+          type_paramter_id: parameterTypeId,
         },
       });
 
       console.log("Resposta do backend:", response);
 
-      // Verifica se a resposta contém a propriedade `data` com um array
       if (response.data && Array.isArray(response.data.data)) {
         return { success: true, data: response.data.data };
       }
@@ -686,23 +685,28 @@ const links = {
     }
   },
 
-  getUser: async (): Promise<{ success: boolean; data?: { name: string; email: string; last_update: string }; error?: string }> => {
+
+  getUserProfile: async (): Promise<{ success: boolean; data?: { id: number; name: string; email: string }; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
 
-      const response = await api.get("/user", {
+      const response = await api.get("/user/", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: token, // Certifique-se de que o token está no formato correto
         },
       });
 
-      return { success: true, data: response.data.data };
+      if (response.status === 200 && response.data) {
+        return { success: true, data: response.data.data }; // Acesse `data.data` para obter os dados do usuário
+      }
+
+      throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
-      console.error("Erro ao buscar dados do usuário:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar dados do usuário" };
+      console.error("Erro ao buscar dados do perfil:", error.message || error);
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar dados do perfil" };
     }
   },
 
