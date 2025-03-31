@@ -27,7 +27,6 @@ import { useAuth } from "../services/authContext";
 const drawerWidth = 260;
 
 const menuItems = [
-  // { text: "Dashboard", icon: <BarChartIcon sx={{ fontSize: 40 }} />, route: "/dashboard" },
   {
     text: "Estações",
     icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
@@ -37,7 +36,7 @@ const menuItems = [
   {
     text: "Tipo de Parâmetro",
     icon: <TuneIcon sx={{ fontSize: 40 }} />,
-    relatedRoutes: ["/listartipoparametro","/registrarparametro",],
+    relatedRoutes: ["/listartipoparametro", "/registrarparametro"],
     routePrefix: "/editarparametrotipo/",
   },
   { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
@@ -52,7 +51,7 @@ interface Props {
 const Sidebar = (props: Props) => {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userName, setUserName] = useState("Adm"); 
+  const [userName, setUserName] = useState("Adm");
 
   const { logout } = useAuth();
   const location = useLocation();
@@ -74,7 +73,6 @@ const Sidebar = (props: Props) => {
       {/* Menu */}
       <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => {
-          // Verifica se a rota atual está incluída no array relatedRoutes ou começa com o routePrefix
           const isActive =
             (item.relatedRoutes && item.relatedRoutes.includes(location.pathname)) ||
             (item.routePrefix && location.pathname.startsWith(item.routePrefix)) ||
@@ -172,13 +170,21 @@ const Sidebar = (props: Props) => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
+
+      {/* Ícone de menu (hambúrguer) no canto superior esquerdo */}
       <IconButton
         color="inherit"
         edge="start"
         onClick={handleDrawerToggle}
-        sx={{ marginLeft: "1%" }}
+        sx={{
+          position: "absolute", // Fixa o ícone na posição desejada
+          top: 16, // Ajuste a distância do topo
+          left: 16, // Ajuste a distância da esquerda
+          zIndex: 1300, // Garante que o ícone fique acima de outros elementos
+          display: { xs: "block", md: "none" }, // Mostra apenas em telas pequenas
+        }}
       >
-        <MenuIcon sx={{ color: "black", display: { xs: "block", md: "none" } }} />
+        <MenuIcon sx={{ color: "black" }} />
       </IconButton>
 
       {/* Drawer para telas grandes */}
