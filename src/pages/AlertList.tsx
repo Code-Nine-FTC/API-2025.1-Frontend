@@ -107,7 +107,7 @@ const AlertList: React.FC = () => {
             padding: "16px",
           }}
         >
-          <Box sx={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {/* <Box sx={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <TextField
               label="Filtrar por Tipo de Alerta"
               variant="outlined"
@@ -122,11 +122,11 @@ const AlertList: React.FC = () => {
               onChange={(e) => setStationName(e.target.value)}
               fullWidth
             />
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Botões fora da caixa branca */}
-        <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "20px" }}>
+        {/* <Box sx={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "20px" }}>
           <Button
             variant="contained"
             onClick={handleSearch}
@@ -135,7 +135,7 @@ const AlertList: React.FC = () => {
           >
             Buscar
           </Button>
-        </Box>
+        </Box> */}
 
         <DataTable<Alert>
           data={filteredAlerts}
