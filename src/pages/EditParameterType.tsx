@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { links } from "../services/api";
 import { LoggedLayout } from "../components/layout/layoutLogged";
-import "./styles/editparametertype.css";
+import "../pages/styles/registerstation.css";
 
 const EditParameterType = () => {
   const { parameterTypeId } = useParams<{ parameterTypeId: string }>();
