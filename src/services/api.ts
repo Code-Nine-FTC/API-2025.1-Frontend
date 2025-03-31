@@ -440,7 +440,34 @@ const links = {
     }
   },
 
-  
+  getParameterType: async (parameterTypeId: number): Promise<{ success: boolean; data?: any; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get(`/parameter_types/${parameterTypeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        return { success: true, data: response.data };
+      }
+
+      throw new Error("Erro ao buscar o tipo de parâmetro");
+    } catch (error: any) {
+      console.error("Erro ao buscar o tipo de parâmetro:", error.message || error);
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao buscar o tipo de parâmetro",
+      };
+    }
+  },
+
   getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeResponse; error?: string }> => {
     try {
       const token = localStorage.getItem("token");

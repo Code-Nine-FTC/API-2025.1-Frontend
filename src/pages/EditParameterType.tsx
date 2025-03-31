@@ -20,20 +20,19 @@ const EditParameterType = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Fetch parameter type data
   useEffect(() => {
     const fetchParameterType = async () => {
       setLoading(true);
       try {
-        const response = await links.getParametersByStation(Number(parameterTypeId));
+        const response = await links.getParameterType(Number(parameterTypeId));
         if (response.success && response.data) {
           setFormData({
-            name: response.data[0]?.name_station || "",
-            measure_unit: "",
-            qnt_decimals: 0,
-            offset: 0,
-            factor: 0,
-            is_active: true,
+            name: response.data.data.name || "",
+            measure_unit: response.data.data.measure_unit || "",
+            qnt_decimals: response.data.data.qnt_decimals || 0,
+            offset: response.data.data.offset || 0,
+            factor: response.data.data.factor || 0,
+            is_active: response.data.data.is_active ?? true,
           });
         } else {
           setErrorMessage("Erro ao carregar os dados do tipo de parâmetro.");
