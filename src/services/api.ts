@@ -6,7 +6,10 @@ const api = axios.create({
 });
 
 const links = {
-  login: async (email: string, password: string): Promise<{ success: boolean; token?: string; error?: string }> => {
+  login: async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; token?: string; error?: string }> => {
     try {
       const formData = new URLSearchParams();
       formData.append("username", email);
@@ -21,7 +24,9 @@ const links = {
       const { access_token, token_type } = response.data;
 
       if (!access_token || !token_type) {
-        throw new Error("Resposta inválida do servidor: faltando access_token ou token_type");
+        throw new Error(
+          "Resposta inválida do servidor: faltando access_token ou token_type"
+        );
       }
 
       const fullToken = `Bearer ${access_token}`;
@@ -75,15 +80,18 @@ const links = {
       return { success: true, data: response.data };
     } catch (error: any) {
       console.error("Erro ao criar estação:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao criar estação" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao criar estação",
+      };
     }
   },
 
   listStations: async (filters?: {
-      uid?: string;
-      name?: string;
-      status?: boolean;
-    }): Promise<{ success: boolean; data?: any; error?: string }> => {
+    uid?: string;
+    name?: string;
+    status?: boolean;
+  }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -92,15 +100,16 @@ const links = {
       }
 
       const params = new URLSearchParams();
-      
+
       if (filters) {
         if (filters.uid) params.append("uid", filters.uid);
         if (filters.name) params.append("name", filters.name);
-        if (filters.status !== undefined) params.append("status", filters.status.toString());
+        if (filters.status !== undefined)
+          params.append("status", filters.status.toString());
       }
 
-      console.log("filtros", filters)
-      console.log(params)
+      console.log("filtros", filters);
+      console.log(params);
 
       const response = await api.get("/stations/filters", {
         headers: {
@@ -112,7 +121,10 @@ const links = {
       console.log("Resposta do backend:", response);
       return { success: true, data: response.data };
     } catch (error: any) {
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao buscar estações",
+      };
     }
   },
 
@@ -157,16 +169,19 @@ const links = {
       return { success: true, data: response.data };
     } catch (error: any) {
       console.error("Erro ao criar alerta:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao criar alerta" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao criar alerta",
+      };
     }
   },
 
-  createAlertType: async (alertTypeData: { 
-    parameter_id: number; 
-    name: string; 
-    value: number; 
-    math_signal: string; 
-    status: string; 
+  createAlertType: async (alertTypeData: {
+    parameter_id: number;
+    name: string;
+    value: number;
+    math_signal: string;
+    status: string;
   }): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
@@ -198,7 +213,10 @@ const links = {
       throw new Error("Erro ao criar o tipo de alerta");
     } catch (error: any) {
       console.error("Erro ao criar o tipo de alerta:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao criar o tipo de alerta" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao criar o tipo de alerta",
+      };
     }
   },
 
@@ -209,7 +227,17 @@ const links = {
     end_date?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ success: boolean; data?: Array<{ id: number; measure_value: string; type_alert_name: string; station_name: string; create_date: string }>; error?: string }> => {
+  }): Promise<{
+    success: boolean;
+    data?: Array<{
+      id: number;
+      measure_value: string;
+      type_alert_name: string;
+      station_name: string;
+      create_date: string;
+    }>;
+    error?: string;
+  }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -220,8 +248,10 @@ const links = {
       const params = new URLSearchParams();
 
       if (filters) {
-        if (filters.type_alert_name) params.append("type_alert_name", filters.type_alert_name);
-        if (filters.station_name) params.append("station_name", filters.station_name);
+        if (filters.type_alert_name)
+          params.append("type_alert_name", filters.type_alert_name);
+        if (filters.station_name)
+          params.append("station_name", filters.station_name);
         if (filters.start_date) params.append("start_date", filters.start_date);
         if (filters.end_date) params.append("end_date", filters.end_date);
         if (filters.page) params.append("page", filters.page.toString());
@@ -248,12 +278,21 @@ const links = {
 
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
-      console.error("Erro ao buscar alertas filtrados:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas filtrados" };
+      console.error(
+        "Erro ao buscar alertas filtrados:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail || "Erro ao buscar alertas filtrados",
+      };
     }
   },
 
-  getAlertById: async (alertId: number): Promise<{ success: boolean; data?: any; error?: string }> => {
+  getAlertById: async (
+    alertId: number
+  ): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -276,11 +315,16 @@ const links = {
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
       console.error("Erro ao buscar alerta por ID:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alerta por ID" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao buscar alerta por ID",
+      };
     }
   },
 
-  deleteAlert: async (alertId: number): Promise<{ success: boolean; error?: string }> => {
+  deleteAlert: async (
+    alertId: number
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -305,7 +349,10 @@ const links = {
       throw new Error("Erro ao deletar o alerta");
     } catch (error: any) {
       console.error("Erro ao deletar o alerta:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao deletar o alerta" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao deletar o alerta",
+      };
     }
   },
 
@@ -316,7 +363,11 @@ const links = {
     end_date?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ success: boolean; data?: Array<{ id: number; name_station: string }>; error?: string }> => {
+  }): Promise<{
+    success: boolean;
+    data?: Array<{ id: number; name_station: string }>;
+    error?: string;
+  }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -354,62 +405,94 @@ const links = {
 
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
-      console.error("Erro ao buscar estações filtradas:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações filtradas" };
+      console.error(
+        "Erro ao buscar estações filtradas:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail || "Erro ao buscar estações filtradas",
+      };
     }
   },
 
   listParameterTypes: async (filters?: {
     name?: string;
     measure_unit?: string;
+    is_active?: boolean | string; 
     page?: number;
     limit?: number;
-  }): Promise<{ success: boolean; data?: Array<{ id: number; name: string; measure_unit: string; qnt_decimals: number; offset?: number; factor?: number }>; error?: string }> => {
+  }): Promise<{
+    success: boolean;
+    data?: Array<{
+      id: number;
+      name: string;
+      measure_unit: string;
+      is_active: boolean;
+      qnt_decimals: number;
+      offset?: number;
+      factor?: number;
+    }>;
+    error?: string;
+  }> => {
     try {
       const token = localStorage.getItem("token");
-
+  
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
-
+  
       const params = new URLSearchParams();
-
+  
       if (filters) {
         if (filters.name) params.append("name", filters.name);
         if (filters.measure_unit) params.append("measure_unit", filters.measure_unit);
         if (filters.page) params.append("page", filters.page.toString());
         if (filters.limit) params.append("limit", filters.limit.toString());
+        if (filters.is_active !== undefined) params.append("is_active", String(filters.is_active));
       }
-
+  
       const response = await api.get("/parameter_types", {
         headers: {
           Authorization: token,
         },
         params: params,
       });
-
+  
       console.log("Resposta do backend:", response);
-
+  
       if (response.data && Array.isArray(response.data.data)) {
         const parameterTypes = response.data.data.map((parameterType: any) => ({
           id: parameterType.id,
           name: parameterType.name,
           measure_unit: parameterType.measure_unit,
+          is_active: parameterType.is_active ?? true,
           qnt_decimals: parameterType.qnt_decimals,
           offset: parameterType.offset,
           factor: parameterType.factor,
         }));
         return { success: true, data: parameterTypes };
       }
-
+  
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
       console.error("Erro ao listar tipos de parâmetro:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao listar tipos de parâmetro" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao listar tipos de parâmetro",
+      };
     }
   },
+  
 
-  getParametersByStation: async (parameterTypeId: number): Promise<{ success: boolean; data?: Array<{ id: number; name_station: string }>; error?: string }> => {
+  getParametersByStation: async (
+    parameterTypeId: number
+  ): Promise<{
+    success: boolean;
+    data?: Array<{ id: number; name_station: string }>;
+    error?: string;
+  }> => {
     try {
       const token = localStorage.getItem("token");
 
@@ -417,15 +500,17 @@ const links = {
         throw new Error("Usuário não autenticado");
       }
 
-
-      const response = await api.get(`/stations/parameters/${parameterTypeId}`, {
-        headers: {
-          Authorization: token,
-        },
-        params: {
-          type_paramter_id: parameterTypeId,
-        },
-      });
+      const response = await api.get(
+        `/stations/parameters/${parameterTypeId}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+          params: {
+            type_paramter_id: parameterTypeId,
+          },
+        }
+      );
 
       console.log("Resposta do backend:", response);
 
@@ -435,8 +520,16 @@ const links = {
 
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
-      console.error("Erro ao buscar estações por parâmetro:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações por parâmetro" };
+      console.error(
+        "Erro ao buscar estações por parâmetro:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          "Erro ao buscar estações por parâmetro",
+      };
     }
   },
 
@@ -472,7 +565,7 @@ const links = {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get(`/alert_type/${id}`, {
-        headers: { Authorization: token }
+        headers: { Authorization: token },
       });
       return { success: true, data: response.data };
     } catch (error) {
@@ -481,11 +574,14 @@ const links = {
     }
   },
 
-  updateAlertType: async (id: number, data: AlertTypeUpdate): Promise<{ success: boolean; error?: string }> => {
+  updateAlertType: async (
+    id: number,
+    data: AlertTypeUpdate
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       await api.patch(`/alert_type/${id}`, data, {
-        headers: { Authorization: token }
+        headers: { Authorization: token },
       });
       return { success: true };
     } catch (error) {
@@ -494,10 +590,12 @@ const links = {
     }
   },
 
-  listAlertTypes: async (filters?: { [key: string]: string }): Promise<{ 
-    success: boolean; 
-    data?: Array<AlertTypeResponse>; 
-    error?: string 
+  listAlertTypes: async (filters?: {
+    [key: string]: string;
+  }): Promise<{
+    success: boolean;
+    data?: Array<AlertTypeResponse>;
+    error?: string;
   }> => {
     try {
       const token = localStorage.getItem("token");
@@ -525,7 +623,10 @@ const links = {
       return { success: true, data: alertTypes };
     } catch (error: any) {
       console.error("Erro ao buscar alertas:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao buscar alertas",
+      };
     }
   },
   createParameterType: async (parameterType: {
@@ -563,7 +664,11 @@ const links = {
       return { success: true, data: response.data };
     } catch (error: any) {
       console.error("Erro ao criar tipo de parâmetro:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao criar tipo de parâmetro" };
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail || "Erro ao criar tipo de parâmetro",
+      };
     }
   },
   updateParameterType: async (
@@ -601,15 +706,22 @@ const links = {
 
       throw new Error("Erro ao atualizar o tipo de parâmetro");
     } catch (error: any) {
-      console.error("Erro ao atualizar o tipo de parâmetro:", error.message || error);
+      console.error(
+        "Erro ao atualizar o tipo de parâmetro:",
+        error.message || error
+      );
       return {
         success: false,
-        error: error.response?.data?.detail || "Erro ao atualizar o tipo de parâmetro",
+        error:
+          error.response?.data?.detail ||
+          "Erro ao atualizar o tipo de parâmetro",
       };
     }
   },
-  
-  getStation: async (stationId: number): Promise<{ success: boolean; data?: any; error?: string }> => {
+
+  getStation: async (
+    stationId: number
+  ): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -625,7 +737,10 @@ const links = {
       return { success: true, data: response.data };
     } catch (error: any) {
       console.error("Erro ao obter estação:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao obter estação" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao obter estação",
+      };
     }
   },
 
@@ -660,11 +775,16 @@ const links = {
       return { success: true };
     } catch (error: any) {
       console.error("Erro ao atualizar estação:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao atualizar estação" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao atualizar estação",
+      };
     }
   },
 
-  disableStation: async (stationId: number): Promise<{ success: boolean; error?: string }> => {
+  disableStation: async (
+    stationId: number
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -684,11 +804,16 @@ const links = {
       return { success: true };
     } catch (error: any) {
       console.error("Erro ao desativar estação:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao desativar estação" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao desativar estação",
+      };
     }
   },
 
-  activateStation: async (stationId: number): Promise<{ success: boolean; error?: string }> => {
+  activateStation: async (
+    stationId: number
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -708,12 +833,18 @@ const links = {
       return { success: true };
     } catch (error: any) {
       console.error("Erro ao ativar estação:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao ativar estação" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao ativar estação",
+      };
     }
   },
 
-
-  getUserProfile: async (): Promise<{ success: boolean; data?: { id: number; name: string; email: string }; error?: string }> => {
+  getUserProfile: async (): Promise<{
+    success: boolean;
+    data?: { id: number; name: string; email: string };
+    error?: string;
+  }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -733,22 +864,31 @@ const links = {
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
       console.error("Erro ao buscar dados do perfil:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar dados do perfil" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Erro ao buscar dados do perfil",
+      };
     }
   },
 
-  disableAlertType: async (alertTypeId: number): Promise<{ success: boolean; error?: string }> => {
+  disableAlertType: async (
+    alertTypeId: number
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
 
-      const response = await api.patch(`alert_type/disables/${alertTypeId}`, {}, {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await api.patch(
+        `alert_type/disables/${alertTypeId}`,
+        {},
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
       if (response.status === 200) {
         return { success: true };
@@ -756,13 +896,56 @@ const links = {
 
       throw new Error("Erro ao desativar o tipo de alerta");
     } catch (error: any) {
-      console.error("Erro ao desativar o tipo de alerta:", error.message || error);
-      return { success: false, error: error.response?.data?.detail || "Erro ao desativar o tipo de alerta" };
+      console.error(
+        "Erro ao desativar o tipo de alerta:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail || "Erro ao desativar o tipo de alerta",
+      };
     }
   },
-  
-};
 
+  disableParameterType: async (
+    parameterTypeId: number
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.patch(
+        `/parameter_types/${parameterTypeId}/update`, // ⚠️ usa a rota /update
+        { is_active: false }, // ✅ envia no corpo
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        return { success: true };
+      }
+
+      throw new Error("Erro ao desativar o tipo de parâmetro");
+    } catch (error: any) {
+      console.error(
+        "Erro ao desativar o tipo de parâmetro:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          "Erro ao desativar o tipo de parâmetro",
+      };
+    }
+  },
+};
 
 export { links };
 export default api;
