@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
 import SensorsIcon from "@mui/icons-material/Sensors";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
@@ -153,7 +152,13 @@ const Sidebar = (props: Props) => {
           {userName}
         </Typography>
         <ListItemIcon sx={{ ml: 9 }}>
-          <Box onClick={logout} className="image-link">
+          <Box
+            onClick={logout}
+            className="image-link"
+            sx={{
+              cursor: "pointer",
+            }}
+          >
             <img src={LogoutLogo} alt="Logout Logo" width="60%" />
           </Box>
         </ListItemIcon>
