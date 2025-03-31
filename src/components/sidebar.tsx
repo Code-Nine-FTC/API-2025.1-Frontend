@@ -27,7 +27,7 @@ import { useAuth } from "../services/authContext";
 const drawerWidth = 260;
 
 const menuItems = [
-  { text: "Dashboard", icon: <BarChartIcon sx={{ fontSize: 40 }} />, route: "/dashboard" },
+  // { text: "Dashboard", icon: <BarChartIcon sx={{ fontSize: 40 }} />, route: "/dashboard" },
   {
     text: "Estações",
     icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
