@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, TextField, Button, CircularProgress, Alert } from "@mui/material";
-import { links } from "../services/api"; // Importa o serviço com o método updateParameterType
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  Alert,
+  Paper,
+} from "@mui/material";
+import { links } from "../services/api";
 import { LoggedLayout } from "../components/layout/layoutLogged";
+import "./styles/editparametertype.css";
 
 const EditParameterType = () => {
   const { parameterTypeId } = useParams<{ parameterTypeId: string }>();
@@ -50,7 +59,10 @@ const EditParameterType = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: name === "qnt_decimals" ? parseInt(value) : value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "qnt_decimals" ? parseInt(value) : value,
+    }));
   };
 
   const handleSave = async () => {
@@ -59,10 +71,13 @@ const EditParameterType = () => {
     setSuccessMessage("");
 
     try {
-      const response = await links.updateParameterType(Number(parameterTypeId), formData);
+      const response = await links.updateParameterType(
+        Number(parameterTypeId),
+        formData
+      );
       if (response.success) {
         setSuccessMessage("Tipo de parâmetro atualizado com sucesso!");
-        setTimeout(() => navigate("/listartipoparametro"), 2000); // Redireciona após 2 segundos
+        setTimeout(() => navigate("/listartipoparametro"), 2000);
       } else {
         setErrorMessage(response.error || "Erro ao atualizar o tipo de parâmetro.");
       }
@@ -76,7 +91,7 @@ const EditParameterType = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
       </Box>
     );
@@ -84,71 +99,111 @@ const EditParameterType = () => {
 
   return (
     <LoggedLayout>
-      <Box sx={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-        <Typography variant="h4" sx={{ marginBottom: "20px", textAlign: "center" }}>
-          Editar Tipo de Parâmetro
-        </Typography>
-        {errorMessage && (
-          <Alert severity="error" sx={{ marginBottom: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-        {successMessage && (
-          <Alert severity="success" sx={{ marginBottom: 2 }}>
-            {successMessage}
-          </Alert>
-        )}
-        <TextField
-          label="Nome"
-          name="name"
-          value={formData.name}
-          onChange={handleInputChange}
-          fullWidth
-          sx={{ marginBottom: "16px" }}
-        />
-        <TextField
-          label="Unidade de Medida"
-          name="measure_unit"
-          value={formData.measure_unit}
-          onChange={handleInputChange}
-          fullWidth
-          sx={{ marginBottom: "16px" }}
-        />
-        <TextField
-          label="Quantidade de Decimais"
-          name="qnt_decimals"
-          type="number"
-          value={formData.qnt_decimals}
-          onChange={handleInputChange}
-          fullWidth
-          sx={{ marginBottom: "16px" }}
-        />
-        <TextField
-          label="Offset"
-          name="offset"
-          type="number"
-          value={formData.offset}
-          onChange={handleInputChange}
-          fullWidth
-          sx={{ marginBottom: "16px" }}
-        />
-        <TextField
-          label="Fator"
-          name="factor"
-          type="number"
-          value={formData.factor}
-          onChange={handleInputChange}
-          fullWidth
-          sx={{ marginBottom: "16px" }}
-        />
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={saving}
-          sx={{ backgroundColor: "#4caf50", color: "white" }}
-        >
-          {saving ? "Salvando..." : "Salvar"}
-        </Button>
+      <Box className="estacao-wrapper">
+        <Paper className="estacao-card">
+          <Typography variant="h4" align="center" className="estacao-title">
+            Editar Tipo de Parâmetro
+          </Typography>
+
+          {errorMessage && (
+            <Alert severity="error" sx={{ marginBottom: 2 }}>
+              {errorMessage}
+            </Alert>
+          )}
+          {successMessage && (
+            <Alert severity="success" sx={{ marginBottom: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
+
+          <Box className="estacao-form">
+            <Box className="row">
+              <Box className="input-group-wrapper">
+                <Box className="input-group">
+                  <label className="input-label">Nome</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="input-field"
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box className="row">
+              <Box className="input-group-wrapper">
+                <Box className="input-group">
+                  <label className="input-label">Unidade de Medida</label>
+                  <input
+                    type="text"
+                    name="measure_unit"
+                    value={formData.measure_unit}
+                    onChange={handleInputChange}
+                    className="input-field"
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box className="row">
+              <Box className="input-group-wrapper">
+                <Box className="input-group">
+                  <label className="input-label">Quantidade de Decimais</label>
+                  <input
+                    type="number"
+                    name="qnt_decimals"
+                    value={formData.qnt_decimals}
+                    onChange={handleInputChange}
+                    className="input-field"
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box className="row">
+              <Box className="input-group-wrapper">
+                <Box className="input-group">
+                  <label className="input-label">Offset</label>
+                  <input
+                    type="number"
+                    name="offset"
+                    value={formData.offset}
+                    onChange={handleInputChange}
+                    className="input-field"
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box className="row">
+              <Box className="input-group-wrapper">
+                <Box className="input-group">
+                  <label className="input-label">Fator</label>
+                  <input
+                    type="number"
+                    name="factor"
+                    value={formData.factor}
+                    onChange={handleInputChange}
+                    className="input-field"
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box mt={3} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
+              <Button
+                variant="contained"
+                onClick={handleSave}
+                disabled={saving}
+                className="estacao-btn"
+              >
+                {saving ? "Salvando..." : "Salvar"}
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
       </Box>
     </LoggedLayout>
   );
