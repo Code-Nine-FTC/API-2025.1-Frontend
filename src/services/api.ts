@@ -87,10 +87,7 @@ const links = {
   listStations: async (filters?: {
       uid?: string;
       name?: string;
-      start_date?: string;
-      end_date?: string;
-      page?: number;
-      limit?: number;
+      status?: boolean;
     }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
@@ -100,28 +97,27 @@ const links = {
       }
 
       const params = new URLSearchParams();
-      console.log("filtros", filters)
-      console.log(params)
-
+      
       if (filters) {
         if (filters.uid) params.append("uid", filters.uid);
         if (filters.name) params.append("name", filters.name);
-        if (filters.start_date) params.append("start_date", filters.start_date);
-        if (filters.end_date) params.append("end_date", filters.end_date);
-        if (filters.page) params.append("page", filters.page.toString());
-        if (filters.limit) params.append("limit", filters.limit.toString());
+        if (filters.status !== undefined) params.append("status", filters.status.toString());
       }
 
-      const response = await api.get("/stations/stations", {
+      console.log("filtros", filters)
+      console.log(params)
+
+      const response = await api.get("/stations/filters", {
         headers: {
           Authorization: token,
         },
         params: params,
       });
 
+      console.log("Resposta do backend:", response);
       return { success: true, data: response.data };
     } catch (error: any) {
-      return { success: false, error: error.response?.data?.detail || "Erro ao buscar alertas" };
+      return { success: false, error: error.response?.data?.detail || "Erro ao buscar estações" };
     }
   },
 

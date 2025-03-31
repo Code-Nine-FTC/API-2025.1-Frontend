@@ -32,22 +32,8 @@ const DataTable = <T,>({
   title = "",
   renderActions,
 }: DataTableProps<T>) => {
-  const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const handleSearch = () => {
-    if (onSearch) {
-      onSearch(search);
-    }
-  };
-
-  const handleResetSearch = () => {
-    setSearch("");
-    if (onResetSearch) {
-      onResetSearch();
-    }
-  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -58,47 +44,42 @@ const DataTable = <T,>({
     setPage(0);
   };
 
+  const renderCellContent = (row: T, key: keyof T) => {
+    const value = row[key];
+    
+    // Handle undefined or null
+    if (value === undefined || value === null) {
+      return "-";
+    }
+    
+    // Handle objects like address
+    if (typeof value === 'object' && value !== null) {
+      if (Array.isArray(value)) {
+        return value.join(', ');
+      }
+      // Format address object
+      if (key === 'address') {
+        const addr = value as any;
+        return `${addr.city || ''}, ${addr.state || ''}, ${addr.country || ''}`.replace(/^, |, $/g, '');
+      }
+      return JSON.stringify(value);
+    }
+    
+    // Handle dates
+    if (key === 'create_date' && typeof value === 'string') {
+      return new Date(value).toLocaleString('pt-BR');
+    }
+    
+    return String(value);
+  }
+
   return (
     <div className="data-table-container">
       {title && (
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <h1 className="data-table-title">{title}</h1>
-          {onAdd && (
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<AddIcon />}
-              onClick={onAdd}
-            >
-              Cadastrar
-            </Button>
-          )}
         </Box>
       )}
-      <div className="data-table-header">
-        {onSearch && (
-          <Box display="flex" alignItems="center" gap={1}>
-            <TextField
-              label="Buscar"
-              variant="outlined"
-              size="small"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="data-table-search"
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-              className="data-table-button"
-              disabled={loading}
-            >
-              Buscar
-            </Button>
-          </Box>
-        )}
-      </div>
       {loading && (
         <div className="data-table-loading">
           <CircularProgress />
@@ -124,7 +105,7 @@ const DataTable = <T,>({
                       <TableRow key={rowIndex}>
                         {columns.map((column) => (
                           <TableCell key={column.key as string}>
-                            {String(row[column.key])}
+                            {renderCellContent(row, column.key)}
                           </TableCell>
                         ))}
                         {renderActions && (

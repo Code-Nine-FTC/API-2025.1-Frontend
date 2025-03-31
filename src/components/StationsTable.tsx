@@ -16,6 +16,8 @@ import {
   MenuItem,
   Paper,
   Grid,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -44,42 +46,41 @@ const StationTable: React.FC = () => {
   const [uidFilter, setUidFilter] = useState("");
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [status, setStatus] = useState(false);
   const [limit, setLimit] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchStations = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const filters = {
-          name: nameFilter || undefined,
-          uid: uidFilter || undefined,
-          start_date: startDate ? startDate.format("YYYY-MM-DD") : undefined,
-          end_date: endDate ? endDate.format("YYYY-MM-DD") : undefined,
-          limit: limit,
-        };
+  const fetchStations = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filters = {
+        name: nameFilter || undefined,
+        uid: uidFilter || undefined,
+        status: status || undefined,
+      };
 
-        const response = await links.listStations(filters);
-        if (response.success) {
-          setStations(response.data);
-          setFilteredStations(response.data);
-        } else {
-          setError(response.error || "Erro ao carregar as estações.");
-        }
-      } catch (err) {
-        setError("Erro ao carregar as estações.");
-      } finally {
-        setLoading(false);
+      const response = await links.listStations(filters);
+      if (response.success) {
+        setStations(response.data.data);
+        console.log("anhian ", stations);
+      } else {
+        setError(response.error || "Erro ao carregar as estações.");
       }
-    };
+    } catch (err) {
+      setError("Erro ao carregar as estações.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchStations();
-  }, [nameFilter, uidFilter, startDate, endDate, limit]);
+  }, []);
 
   const handleSearch = () => {
-    setShowFilters(false);
+    fetchStations();
   };
 
   const clearFilters = () => {
@@ -92,11 +93,11 @@ const StationTable: React.FC = () => {
 
   const columns = [
     { label: "UID", key: "uid" as keyof Station },
-    { label: "Nome", key: "name" as keyof Station },
+    { label: "Nome", key: "name_station" as keyof Station },
     { label: "Endereço", key: "address" as keyof Station },
     { label: "Latitude", key: "latitude" as keyof Station },
     { label: "Longitude", key: "longitude" as keyof Station },
-    { label: "Última atualização", key: "last_update" as keyof Station },
+    { label: "Data de criação", key: "create_date" as keyof Station },
   ];
 
   return (
@@ -126,13 +127,16 @@ const StationTable: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <IconButton
-                color="primary"
-                onClick={() => setShowFilters(!showFilters)}
-                aria-label="toggle filters"
-              >
-                <FilterListIcon />
-              </IconButton>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={status}
+                    onChange={(e) => setStatus(e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label="Estações ativas"
+              />
               <IconButton
                 color="secondary"
                 onClick={clearFilters}
@@ -144,7 +148,7 @@ const StationTable: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Filtros avançados */}
+        {/* Filtros avançados
         <Collapse in={showFilters}>
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2}>
@@ -195,7 +199,7 @@ const StationTable: React.FC = () => {
               </Grid>
             </Grid>
           </Box>
-        </Collapse>
+        </Collapse> */}
       </Paper>
 
       {/* Botões fora da caixa branca */}
@@ -219,7 +223,7 @@ const StationTable: React.FC = () => {
 
       {/* Data Table */}
       <DataTable<Station>
-        data={filteredStations}
+        data={stations}
         columns={columns}
         loading={loading}
         error={error}
