@@ -231,7 +231,7 @@ const StationTable: React.FC = () => {
         renderActions={(row) => (
           <SearchIcon
             style={{ color: "#ccc", cursor: "pointer" }}
-            onClick={() => navigate(`/station-details/${row.id}`)}
+            onClick={() => navigate(`/visualizarestacao/${row.id}`)}
           />
         )}
       />

@@ -31,7 +31,32 @@ const ViewStation: React.FC = () => {
         setLoading(true);
         const response = await links.getStation(Number(id));
         if (response.success) {
-          setStation(response.data);
+          const apiData = response.data.data;
+
+          const formattedData = {
+            name: apiData.name_station || "",  // Using name_station instead of name
+            uid: apiData.uid || "",
+            // Address fields - extract from address object
+            city: apiData.address?.city || "",
+            state: apiData.address?.state || "",
+            country: apiData.address?.country || "Brasil",
+            // Convert numbers to strings for form fields
+            latitude: String(apiData.latitude || ""),
+            longitude: String(apiData.longitude || ""),
+            // Use parameters array instead of parameter_types
+            parameter_types: Array.isArray(apiData.parameters) 
+              ? apiData.parameters.map((p: any) => ({
+                  type: String(p.id || p),
+                  unit: p.measure_unit || ""
+                }))
+              : [],
+            // Store the is_active status
+            is_active: apiData.status !== undefined ? apiData.status : true,
+            // Preserve original data for comparison when updating
+            original: apiData
+          };
+          // Set the station data to state
+          setStation(formattedData);
         } else {
           alert(response.error || "Erro ao carregar estação.");
         }
@@ -53,26 +78,57 @@ const ViewStation: React.FC = () => {
 
   const handleUpdate = async (form: any) => {
     try {
+      const original = station.original;
       const updatedFields: Partial<any> = {};
 
-      if (form.name && form.name !== station.name) updatedFields.name = form.name;
-      if (form.uid && form.uid !== station.uid) updatedFields.uid = form.uid;
-      if (form.latitude && form.latitude !== String(station.latitude)) {
+      if (form.name && form.name !== original.name_station) {
+        updatedFields.name = form.name;
+      }
+      
+      // Check other fields
+      if (form.uid && form.uid !== original.uid) {
+        updatedFields.uid = form.uid;
+      }
+      
+      if (form.latitude && parseFloat(form.latitude) !== original.latitude) {
         updatedFields.latitude = parseFloat(form.latitude);
       }
-      if (form.longitude && form.longitude !== String(station.longitude)) {
+      
+      if (form.longitude && parseFloat(form.longitude) !== original.longitude) {
         updatedFields.longitude = parseFloat(form.longitude);
       }
-      if (form.address && JSON.stringify(form.address) !== JSON.stringify(station.address)) {
-        updatedFields.address = form.address;
+      
+      // Build address object from form fields
+      const formAddress = {
+        city: form.city || "",
+        state: form.state || "",
+        country: form.country || ""
+      };
+      
+      // Compare address objects
+      if (JSON.stringify(formAddress) !== JSON.stringify(original.address)) {
+        updatedFields.address = formAddress;
       }
-      if (
-        form.parameter_types &&
-        JSON.stringify(form.parameter_types) !== JSON.stringify(station.parameter_types)
-      ) {
-        updatedFields.parameter_types = form.parameter_types;
+      
+      // Handle parameter types/parameters - we need to format these correctly
+      if (form.parameter_types) {
+        // Extract just the IDs from the form parameter_types
+        const paramIds = form.parameter_types
+          .filter((p: any) => p.type) // Filter out any empty entries
+          .map((p: any) => parseInt(p.type, 10)); // Convert to numbers
+        
+        // Check if the parameter IDs have changed
+        const originalParamIds = Array.isArray(original.parameters) 
+          ? original.parameters.map((p: any) => p.id || parseInt(p, 10))
+          : [];
+        
+        if (JSON.stringify(paramIds.sort()) !== JSON.stringify(originalParamIds.sort())) {
+          updatedFields.parameter_types = paramIds;
+        }
       }
-
+  
+      console.log("Fields to update:", updatedFields);
+      
       if (Object.keys(updatedFields).length === 0) {
         alert("Nenhuma alteração foi feita.");
         setIsEditing(false);
