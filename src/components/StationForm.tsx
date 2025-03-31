@@ -16,10 +16,7 @@ import { links } from "../services/api";
 interface FormFields {
   name: string;
   uid: string;
-  zip: string;
-  street: string;
-  number: string;
-  neighborhood: string;
+  country: string;
   city: string;
   state: string;
   latitude: string;
@@ -47,10 +44,7 @@ export const StationForm: React.FC<StationFormProps> = ({
   const [form, setForm] = useState<FormFields>({
     name: "",
     uid: "",
-    zip: "",
-    street: "",
-    number: "",
-    neighborhood: "",
+    country: "",
     city: "",
     state: "",
     latitude: "",
@@ -74,11 +68,11 @@ export const StationForm: React.FC<StationFormProps> = ({
     fetchParameters();
   }, []);
 
-  useEffect(() => {
-    if (initialValues.zip) {
-      fetchAddressByZip(initialValues.zip);
-    }
-  }, [initialValues]);
+  // useEffect(() => {
+  //   if (initialValues.zip) {
+  //     fetchAddressByZip(initialValues.zip);
+  //   }
+  // }, [initialValues]);
 
   const fetchAddressByZip = async (cep: string) => {
     try {
@@ -88,8 +82,7 @@ export const StationForm: React.FC<StationFormProps> = ({
       if (!data.erro) {
         setForm((prev) => ({
           ...prev,
-          street: data.logradouro || "",
-          neighborhood: data.bairro || "",
+          country: "Brasil",
           city: data.localidade || "",
           state: data.uf || "",
         }));
@@ -201,12 +194,9 @@ export const StationForm: React.FC<StationFormProps> = ({
         setForm({
           name: "",
           uid: "",
-          zip: "",
-          street: "",
-          number: "",
-          neighborhood: "",
           city: "",
           state: "",
+          country: "",
           latitude: "",
           longitude: "",
           parameter_types: [],
@@ -230,13 +220,13 @@ export const StationForm: React.FC<StationFormProps> = ({
       <form className="estacao-form" onSubmit={handleFormSubmit}>
         {renderInput("Nome da estação", "name")}
         {renderInput("UID", "uid")}
-        <div className="row">
+        {/* <div className="row">
           {renderInput("Código Postal", "zip", "input-small")}
           {renderInput("Rua", "street", "input-medium")}
           {renderInput("Número", "number", "input-tiny")}
-        </div>
+        </div> */}
         <div className="row">
-          {renderInput("Bairro", "neighborhood", "input-bairro")}
+          {renderInput("País", "country", "input-bairro")}
           {renderInput("Cidade", "city", "input-cidade")}
           {renderInput("Estado", "state", "input-tiny")}
         </div>

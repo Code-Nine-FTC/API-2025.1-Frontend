@@ -111,23 +111,38 @@ const ViewStation: React.FC = () => {
       }
       
       // Handle parameter types/parameters - we need to format these correctly
-      if (form.parameter_types) {
-        // Extract just the IDs from the form parameter_types
-        const paramIds = form.parameter_types
-          .filter((p: any) => p.type) // Filter out any empty entries
-          .map((p: any) => parseInt(p.type, 10)); // Convert to numbers
+      if (form.parameter_types && Array.isArray(form.parameter_types)) {
+        console.log("Raw parameter_types:", JSON.stringify(form.parameter_types));
         
-        // Check if the parameter IDs have changed
-        const originalParamIds = Array.isArray(original.parameters) 
-          ? original.parameters.map((p: any) => p.id || parseInt(p, 10))
-          : [];
+        // Create a new array with only valid parameter IDs
+        const validParams = [];
+        for (const param of form.parameter_types) {
+          if (param && param.type && !isNaN(parseInt(param.type, 10))) {
+            validParams.push(parseInt(param.type, 10));
+          }
+        }
         
-        if (JSON.stringify(paramIds.sort()) !== JSON.stringify(originalParamIds.sort())) {
-          updatedFields.parameter_types = paramIds;
+        console.log("Valid parameters after filtering:", validParams);
+        
+        // Get original parameter IDs with safer approach
+        const originalParamIds = [];
+        if (Array.isArray(original.parameters)) {
+          for (const param of original.parameters) {
+            if (param && (param.id || parseInt(param, 10))) {
+              originalParamIds.push(param.id || parseInt(param, 10));
+            }
+          }
+        }
+
+        console.log("Original parameter IDs:", originalParamIds);
+
+        const sortedValidParams = [...validParams].sort();
+        const sortedOriginalParams = [...originalParamIds].sort();
+        
+        if (JSON.stringify(sortedValidParams) !== JSON.stringify(sortedOriginalParams)) {
+          updatedFields.parameter_types = validParams;
         }
       }
-  
-      console.log("Fields to update:", updatedFields);
       
       if (Object.keys(updatedFields).length === 0) {
         alert("Nenhuma alteração foi feita.");
@@ -140,9 +155,22 @@ const ViewStation: React.FC = () => {
       if (response.success) {
         alert("Estação atualizada com sucesso!");
         setIsEditing(false);
-        setStation({ ...station, ...updatedFields });
+        const updatedStation = {
+          ...station,
+          name: form.name || station.name,
+          uid: form.uid || station.uid,
+          city: form.city || station.city,
+          state: form.state || station.state,
+          country: form.country || station.country,
+          latitude: form.latitude || station.latitude,
+          longitude: form.longitude || station.longitude,
+          parameter_types: form.parameter_types || station.parameter_types,
+        };
+        
+        setStation(updatedStation);
       } else {
-        alert(response.error || "Erro ao atualizar estação.");
+          console.error("Update failed:", response);
+          alert(response.error || "Erro ao atualizar estação.");
       }
     } catch (error) {
       console.error("Erro ao atualizar estação:", error);

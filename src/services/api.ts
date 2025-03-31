@@ -803,7 +803,7 @@ const links = {
         { is_active: false },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+           Authorization: token
           },
         }
       );
@@ -832,7 +832,7 @@ const links = {
         { is_active: true },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
           },
         }
       );
