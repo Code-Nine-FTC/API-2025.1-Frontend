@@ -9,6 +9,7 @@ import EditIcon from "@mui/icons-material/Edit"; // Ícone para editar
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb"; // Ícone para desativar
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
+import ReusableModal from "@components/ReusableModal";
 
 interface AlertType {
   id: number;
@@ -216,40 +217,26 @@ const AlertTypeList: React.FC = () => {
             </Box>
           )}
         />
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              maxWidth: "500px",
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            {modalLoading ? (
-              <CircularProgress />
-            ) : selectedAlert ? (
-              <div>
-                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px" }}>
-                  Detalhes do Alerta
-                </Typography>
-                <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
-                <Typography><strong>Nome:</strong> {selectedAlert.name}</Typography>
-                <Typography><strong>Valor:</strong> {selectedAlert.value}</Typography>
-                <Typography><strong>Sinal Matemático:</strong> {selectedAlert.math_signal}</Typography>
-                <Typography><strong>Status:</strong> {selectedAlert.status}</Typography>
-                <Typography><strong>ID Parâmetro:</strong> {selectedAlert.parameter_id}</Typography>
-              </div>
-            ) : (
-              <Typography>Erro ao carregar os detalhes do alerta.</Typography>
-            )}
-          </Box>
-        </Modal>
+		{/* Modal para detalhes do alerta */}
+		<ReusableModal
+		  open={modalOpen}
+		  onClose={() => setModalOpen(false)}
+		  title="Detalhes do Alerta"
+		  loading={modalLoading}
+		>
+		  {selectedAlert ? (
+			<div>
+			  <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
+			  <Typography><strong>Nome:</strong> {selectedAlert.name}</Typography>
+			  <Typography><strong>Valor:</strong> {selectedAlert.value}</Typography>
+			  <Typography><strong>Sinal Matemático:</strong> {selectedAlert.math_signal}</Typography>
+			  <Typography><strong>Status:</strong> {selectedAlert.status}</Typography>
+			  <Typography><strong>ID Parâmetro:</strong> {selectedAlert.parameter_id}</Typography>
+			</div>
+		  ) : (
+			<Typography>Erro ao carregar os detalhes do alerta.</Typography>
+		  )}
+		</ReusableModal>
       </Box>
     </LoggedLayout>
   );

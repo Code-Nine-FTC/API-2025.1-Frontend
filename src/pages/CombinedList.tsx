@@ -6,6 +6,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import DefaultLayout from "@components/layout/layoutNotLogged";
 import StationTable from "@components/StationsTable";
+import ReusableModal from "@components/ReusableModal";
 
 interface Alert {
     id: number;
@@ -159,38 +160,24 @@ const CombinedList: React.FC = () => {
                         </Box>
                     )}
                 />
-                <Modal open={modalOpen} onClose={handleCloseModal}>
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            width: "90%",
-                            maxWidth: "500px",
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                        }}
-                    >
-                        {selectedAlert ? (
-                            <div>
-                                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px" }}>
-                                    Detalhes do Alerta
-                                </Typography>
-                                <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
-                                <Typography><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
-                                <Typography><strong>Estação:</strong> {selectedAlert.station}</Typography>
-                                <Typography><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
-                                <Typography><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
-                                <Typography><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
-                            </div>
-                        ) : (
-                            <CircularProgress />
-                        )}
-                    </Box>
-                </Modal>
+                <ReusableModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          title="Detalhes do Alerta"
+        >
+          {selectedAlert ? (
+            <div>
+              <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
+              <Typography><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
+              <Typography><strong>Estação:</strong> {selectedAlert.station}</Typography>
+              <Typography><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
+              <Typography><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
+              <Typography><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
+            </div>
+          ) : (
+            <Typography>Carregando...</Typography>
+          )}
+        </ReusableModal>
             </Box>
         </DefaultLayout>
     );
