@@ -21,7 +21,7 @@ export interface FormFields {
   state: string;
   latitude: string;
   longitude: string;
-  parameter_types: { type: string; unit: string } | null;
+  parameter_types: { type: string; unit: string }[];
 }
 
 interface StationFormProps {
@@ -49,9 +49,9 @@ export const StationForm: React.FC<StationFormProps> = ({
     state: "",
     latitude: "",
     longitude: "",
-    parameter_types: null,
+    parameter_types: [],
     ...initialValues,
-  });
+  });  
 
   const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
 
@@ -111,15 +111,14 @@ export const StationForm: React.FC<StationFormProps> = ({
     }
   };
 
-  const handleParameterChange = (event: SelectChangeEvent<number>) => {
+  const handleParameterChange = (event: SelectChangeEvent<string[]>) => {
     if (readOnly) return;
-
-    const selectedId = event.target.value as unknown as number;
+    const selected = event.target.value as string[];
     setForm({
       ...form,
-      parameter_types: { type: selectedId.toString(), unit: "" },
+      parameter_types: selected.map((id) => ({ type: id, unit: "" })),
     });
-  };
+  };  
 
   const renderInput = (label: string, name: keyof FormFields, className = "") => (
     <div className={`input-group-wrapper ${className}`}>
@@ -145,21 +144,23 @@ export const StationForm: React.FC<StationFormProps> = ({
     <FormControl className="input-group-wrapper" disabled={readOnly}>
       <InputLabel>{label}</InputLabel>
       <Select
-        value={form.parameter_types ? parseInt(form.parameter_types.type) : ""}
+        multiple
+        value={form.parameter_types?.map((p) => p.type) || []}
         onChange={handleParameterChange}
-        renderValue={(selected) => {
-          const found = options.find((opt) => opt.id === selected);
-          return found ? found.name : "";
-        }}
+        renderValue={(selected) =>
+          (selected as string[])
+            .map((id) => options.find((opt) => opt.id === parseInt(id))?.name)
+            .join(", ")
+        }
       >
         {options.map((option) => (
-          <MenuItem key={option.id} value={option.id}>
+          <MenuItem key={option.id} value={option.id.toString()}>
             {option.name}
           </MenuItem>
         ))}
       </Select>
     </FormControl>
-  );
+  );  
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();

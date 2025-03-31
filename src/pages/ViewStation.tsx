@@ -24,7 +24,7 @@ type FormFields = {
   city: string;
   state: string;
   country: string;
-  parameter_types: { type: string; unit: string } | null;
+  parameter_types: { type: string; unit: string }[];
 };
 
 type StationFormValues = FormFields & {
@@ -58,9 +58,12 @@ const ViewStation: React.FC = () => {
             country: apiData.address?.country || "Brasil",
             latitude: String(apiData.latitude || ""),
             longitude: String(apiData.longitude || ""),
-            parameter_types: Array.isArray(apiData.parameters) && apiData.parameters.length > 0
-            ? { type: String(apiData.parameters[0].parameter_type_id), unit: "" }
-            : null,                 
+            parameter_types: Array.isArray(apiData.parameters)
+            ? apiData.parameters.map((p: any) => ({
+                type: String(p.parameter_type_id),
+                unit: ""
+              }))
+            : [],                           
             is_active: apiData.status !== undefined ? apiData.status : true,
             original: apiData
           };
@@ -116,16 +119,19 @@ const ViewStation: React.FC = () => {
         updatedFields.address = formAddress;
       }
 
-      if (form.parameter_types && form.parameter_types.type) {
-        const selectedParamId = parseInt(form.parameter_types.type, 10);
+      if (form.parameter_types && form.parameter_types.length > 0) {
+        const selectedParamIds = form.parameter_types.map((p) => parseInt(p.type));
         const originalParamIds = Array.isArray(original.parameters)
-          ? original.parameters.map((p: any) => p?.id || parseInt(p, 10))
+          ? original.parameters.map((p: any) => p.parameter_type_id)
           : [];
       
-        if (!originalParamIds.includes(selectedParamId)) {
-          updatedFields.parameter_types = [selectedParamId];
+        const sortedNew = [...selectedParamIds].sort();
+        const sortedOld = [...originalParamIds].sort();
+      
+        if (JSON.stringify(sortedNew) !== JSON.stringify(sortedOld)) {
+          updatedFields.parameter_types = selectedParamIds;
         }
-      }      
+      }           
 
       const now = new Date();
       const naiveDate = now.toISOString().split(".")[0];
