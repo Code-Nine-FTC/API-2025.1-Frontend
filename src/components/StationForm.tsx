@@ -13,6 +13,7 @@ import {
 import { Cancel as CancelIcon } from "@mui/icons-material";
 import "../pages/styles/registerstation.css";
 import { links } from "../services/api";
+import { useAuth } from "../services/authContext";
 
 export interface FormFields {
   name: string;
@@ -57,6 +58,8 @@ export const StationForm: React.FC<StationFormProps> = ({
   });
 
   const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
+
+  const auth = useAuth();
 
   useEffect(() => {
     const fetchParameters = async () => {
@@ -206,8 +209,12 @@ export const StationForm: React.FC<StationFormProps> = ({
           {renderInput("Longitude", "longitude", "input-coord")}
         </div>
 
-        {renderParameterChips()}
-        {!readOnly && renderParameterSelect()}
+        {auth.isAuthenticated && (
+          <>
+            renderParameterChips()
+            !readOnly && renderParameterSelect()
+          </>
+        )}
 
         {!readOnly && (
           <Box mt={3} textAlign="center">
