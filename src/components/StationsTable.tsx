@@ -29,6 +29,7 @@ interface Station {
 
 const StationTable: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
+  const [filteredStations, setFilteredStations] = useState<Station[]>([]); // Novo estado para estações filtradas
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState({
     name_station: "",
@@ -43,10 +44,12 @@ const StationTable: React.FC = () => {
   const fetchStations = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const response = await links.listStations(filters);
+      const response = await links.listStations();
       if (response.success) {
         setStations(response.data.data);
+        setFilteredStations(response.data.data); // Inicialmente, todas as estações são exibidas
       } else {
         setError(response.error || "Erro ao carregar as estações.");
       }
@@ -55,14 +58,51 @@ const StationTable: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, []);
+
+  const fetchStationsByUid = useCallback(async (uid: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await links.listStations({ uid });
+      if (response.success) {
+        setStations(response.data.data);
+        setFilteredStations(response.data.data); // Atualiza com os resultados do back-end
+      } else {
+        setError(response.error || "Erro ao carregar as estações.");
+      }
+    } catch (err) {
+      setError("Erro ao carregar as estações.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchStations();
   }, [fetchStations]);
 
+  // Filtrar estações no front-end por nome
+  useEffect(() => {
+    const filtered = stations.filter((station) =>
+      station.name_station.toLowerCase().includes(filters.name_station.toLowerCase())
+    );
+    setFilteredStations(filtered);
+  }, [filters.name_station, stations]);
+
+  // Busca por UID no back-end
+  useEffect(() => {
+    if (filters.uid) {
+      fetchStationsByUid(filters.uid);
+    } else {
+      fetchStations(); // Recarrega todas as estações se o UID for limpo
+    }
+  }, [filters.uid, fetchStations, fetchStationsByUid]);
+
   const handleSearch = () => {
-    fetchStations();
+    // Apenas força a atualização do filtro
+    setFilters((prev) => ({ ...prev }));
   };
 
   return (
@@ -77,7 +117,7 @@ const StationTable: React.FC = () => {
                 options={stations.map((station) => station.name_station)}
                 inputValue={filters.name_station}
                 onInputChange={(_, newInputValue) =>
-                  setFilters((prev) => ({ ...prev, name_station: newInputValue || "" }))
+                  setFilters((prev) => ({ ...prev, name_station: newInputValue }))
                 }
                 onChange={(_, selectedValue) =>
                   setFilters((prev) => ({ ...prev, name_station: selectedValue || "" }))
@@ -182,7 +222,7 @@ const StationTable: React.FC = () => {
       )}
 
       <DataTable<Station>
-        data={stations}
+        data={filteredStations} // Use as estações filtradas
         columns={[
           { label: "UID", key: "uid" as keyof Station },
           { label: "Nome", key: "name_station" as keyof Station },
