@@ -3,6 +3,7 @@ import DataTable from "./DataTable";
 import { links } from "../services/api";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
+import "../pages/styles/registerstation.css"
 import {
   Box,
   Button,
@@ -106,7 +107,7 @@ const StationTable: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", mb: 4 }}>
+    <Box sx={{ mb: 4 }} className={"list-box"}>
       <Paper sx={{ p: 2, mb: 2 }}>
         <Stack spacing={2}>
           {/* Filtros */}
