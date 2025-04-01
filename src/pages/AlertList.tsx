@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../components/DataTable";
 import { links } from "../services/api";
-import { Modal, Box, Typography, CircularProgress, Button, TextField, Paper, Stack } from "@mui/material";
+import moment from "moment"; // Importação do moment.js
+import {
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+  Button,
+  TextField,
+  Paper,
+  Stack,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
@@ -31,55 +41,55 @@ const AlertList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-	const fetchAlerts = async () => {
-	  setLoading(true);
-	  setError(null);
-  
-	  try {
-		const response = await links.getFilteredAlerts();
-		if (response.success) {
-		  const alertsData =
-			response.data?.map((item: any) => ({
-			  id: item.id,
-			  measureValue: item.measure_value,
-			  typeAlertName: item.type_alert_name,
-			  station: item.station_name,
-			  startDate: item.create_date,
-			  endDate: item.create_date,
-			})) || [];
-		  setAlerts(alertsData);
-		  setFilteredAlerts(alertsData);
-  
-		  // Atualizar opções para o Autocomplete
-		  setStationOptions([...new Set(alertsData.map((alert) => alert.station))]);
-		  setTypeAlertOptions([...new Set(alertsData.map((alert) => alert.typeAlertName))]);
-		} else {
-		  setError(response.error || "Erro ao carregar os alertas.");
-		}
-	  } catch (err) {
-		setError("Erro ao carregar os alertas.");
-	  } finally {
-		setLoading(false);
-	  }
-	};
-  
-	fetchAlerts();
+    const fetchAlerts = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await links.getFilteredAlerts();
+        if (response.success) {
+          const alertsData =
+            response.data?.map((item: any) => ({
+              id: item.id,
+              measureValue: item.measure_value,
+              typeAlertName: item.type_alert_name,
+              station: item.station_name,
+              startDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"), // Formatação da data inicial
+              endDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"), // Formatação da data final
+            })) || [];
+          setAlerts(alertsData);
+          setFilteredAlerts(alertsData);
+
+    
+          setStationOptions([...new Set(alertsData.map((alert) => alert.station))]);
+          setTypeAlertOptions([...new Set(alertsData.map((alert) => alert.typeAlertName))]);
+        } else {
+          setError(response.error || "Erro ao carregar os alertas.");
+        }
+      } catch (err) {
+        setError("Erro ao carregar os alertas.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlerts();
   }, []);
 
   const handleSearch = () => {
-	const filtered = alerts.filter((alert) => {
-	  const matchesTypeAlert = typeAlertName
-		? alert.typeAlertName === typeAlertName
-		: true;
-  
-	  const matchesStation = stationName
-		? alert.station === stationName
-		: true;
-  
-	  return matchesTypeAlert && matchesStation;
-	});
-  
-	setFilteredAlerts(filtered);
+    const filtered = alerts.filter((alert) => {
+      const matchesTypeAlert = typeAlertName
+        ? alert.typeAlertName === typeAlertName
+        : true;
+
+      const matchesStation = stationName
+        ? alert.station === stationName
+        : true;
+
+      return matchesTypeAlert && matchesStation;
+    });
+
+    setFilteredAlerts(filtered);
   };
 
   const handleOpenModal = (alert: Alert) => {
@@ -180,7 +190,7 @@ const AlertList: React.FC = () => {
             </Box>
           )}
         />
-		<ReusableModal
+        <ReusableModal
           open={modalOpen}
           onClose={handleCloseModal}
           title="Detalhes do Alerta"
