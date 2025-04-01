@@ -910,40 +910,29 @@ const links = {
     }
   },
 
-  disableParameterType: async (
-    parameterTypeId: number
+  removeParameterFromStation: async (
+    stationId: number,
+    parameterId: number
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
-
-      const response = await api.patch(
-        `/parameter_types/${parameterTypeId}/update`,
-        { is_active: false },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        return { success: true };
-      }
-
-      throw new Error("Erro ao desativar o tipo de parâmetro");
+  
+      const response = await api.delete(`/stations/${stationId}/parameters/${parameterId}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+  
+      return { success: true };
     } catch (error: any) {
-      console.error(
-        "Erro ao desativar o tipo de parâmetro:",
-        error.message || error
-      );
+      console.error("Erro ao remover parâmetro da estação:", error.message || error);
       return {
         success: false,
         error:
-          error.response?.data?.detail ||
-          "Erro ao desativar o tipo de parâmetro",
+          error.response?.data?.detail || "Erro ao remover parâmetro da estação",
       };
     }
   },
