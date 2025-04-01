@@ -55,24 +55,19 @@ const links = {
       state: string;
       country: string;
     };
-    parameter_types: Array<any>;
+    parameter_types: number[]
   }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
+      console.log(station);
 
       const response = await api.post(
         "/stations",
-        {
-          name: station.name,
-          uid: station.uid,
-          latitude: station.latitude,
-          longitude: station.longitude,
-          address: station.address,
-          parameter_types: station.parameter_types,
-        },
+          station
+        ,
         {
           headers: {
             Authorization: token,
@@ -87,7 +82,7 @@ const links = {
       console.error("Erro ao criar estação:", error.message || error);
       return {
         success: false,
-        error: error.response?.data?.detail || "Erro ao criar estação",
+        error: error.message || "Erro ao criar estação",
       };
     }
   },
