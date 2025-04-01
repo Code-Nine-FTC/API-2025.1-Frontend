@@ -149,8 +149,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           onChange={handleChange}
           onFocus={onFocus} // Dispara a função ao focar no campo
           className="input-field"
+          required
         >
-          <option value="">Selecione</option>
+          <option disabled selected value="">Selecione</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

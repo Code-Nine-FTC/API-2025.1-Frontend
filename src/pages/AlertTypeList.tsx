@@ -17,6 +17,7 @@ interface AlertType {
   value: number;
   math_signal: string;
   status: string;
+  displayStatus: string;
   parameter_id: number;
   station_id?: number;
 }
@@ -46,11 +47,13 @@ const AlertTypeList: React.FC = () => {
         setAlertTypes(alertsData.map(alert => ({
           ...alert,
           status: alert.status || "unknown", 
+          displayStatus: mapStatusToLabel(alert.status || "Desconhecido"),
           parameter_id: alert.parameter_id ?? 0, 
         })));
         setFilteredAlerts(alertsData.map(alert => ({
           ...alert,
           status: alert.status || "unknown", 
+          displayStatus: mapStatusToLabel(alert.status || "Desconhecido"),
           parameter_id: alert.parameter_id ?? 0, 
         })));
       } else {
@@ -126,12 +129,25 @@ const AlertTypeList: React.FC = () => {
     navigate(`/editaralerta/${alertId}`);
   };
 
+  const mapStatusToLabel = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'g':
+        return 'Seguro';
+      case 'y':
+        return 'Risco moderado';
+      case 'r':
+        return 'Risco Alto';
+      default:
+        return status || 'Desconhecido';
+    }
+  };
+
   const columns = [
     { label: "ID", key: "id" as keyof AlertType },
     { label: "Nome", key: "name" as keyof AlertType },
     { label: "Valor", key: "value" as keyof AlertType },
     { label: "Sinal", key: "math_signal" as keyof AlertType },
-    { label: "Status", key: "status" as keyof AlertType },
+    { label: "Status", key: "displayStatus" as keyof AlertType },
     { label: "Parâmetro ID", key: "parameter_id" as keyof AlertType },
   ];
 
@@ -230,7 +246,7 @@ const AlertTypeList: React.FC = () => {
 			  <Typography><strong>Nome:</strong> {selectedAlert.name}</Typography>
 			  <Typography><strong>Valor:</strong> {selectedAlert.value}</Typography>
 			  <Typography><strong>Sinal Matemático:</strong> {selectedAlert.math_signal}</Typography>
-			  <Typography><strong>Status:</strong> {selectedAlert.status}</Typography>
+			  <Typography><strong>Status:</strong> {selectedAlert.displayStatus}</Typography>
 			  <Typography><strong>ID Parâmetro:</strong> {selectedAlert.parameter_id}</Typography>
 			</div>
 		  ) : (
