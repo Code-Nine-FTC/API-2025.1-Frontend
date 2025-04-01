@@ -29,15 +29,12 @@ interface ParameterType {
 
 const ParameterTypeList: React.FC = () => {
   const [parameterTypes, setParameterTypes] = useState<ParameterType[]>([]);
-  const [filteredParameterTypes, setFilteredParameterTypes] = useState<
-    ParameterType[]
-  >([]);
+  const [filteredParameterTypes, setFilteredParameterTypes] = useState<ParameterType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedParameterType, setSelectedParameterType] =
-    useState<ParameterType | null>(null);
+  const [selectedParameterType, setSelectedParameterType] = useState<ParameterType | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -48,18 +45,17 @@ const ParameterTypeList: React.FC = () => {
     try {
       const response = await links.listParameterTypes(filters || {});
       if (response.success) {
-        const parameterTypesData =
-          response.data
-            ?.filter((item: any) => item.is_active === true)
-            .map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              measureUnit: item.measure_unit,
-              qntDecimals: item.qnt_decimals,
-              offset: item.offset,
-              factor: item.factor,
-              is_active: item.is_active,
-            })) || [];
+        const parameterTypesData = response.data
+          ?.filter((item: any) => item.is_active === true)
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            measureUnit: item.measure_unit,
+            qntDecimals: item.qnt_decimals,
+            offset: item.offset,
+            factor: item.factor,
+            is_active: item.is_active,
+          })) || [];
 
         setParameterTypes(parameterTypesData);
         setFilteredParameterTypes(parameterTypesData);
@@ -79,10 +75,7 @@ const ParameterTypeList: React.FC = () => {
     setError(null);
 
     try {
-      const parameterType = parameterTypes.find(
-        (item) => item.id === parameterTypeId
-      );
-
+      const parameterType = parameterTypes.find((item) => item.id === parameterTypeId);
       if (parameterType) {
         setSelectedParameterType(parameterType);
         setModalOpen(true);
@@ -98,11 +91,7 @@ const ParameterTypeList: React.FC = () => {
   };
 
   const handleDisableParameterType = async (parameterTypeId: number) => {
-    if (
-      !window.confirm(
-        "Tem certeza que deseja desativar este tipo de parâmetro?"
-      )
-    ) {
+    if (!window.confirm("Tem certeza que deseja desativar este tipo de parâmetro?")) {
       return;
     }
 
@@ -170,6 +159,8 @@ const ParameterTypeList: React.FC = () => {
             gap: "10px",
             marginBottom: "20px",
             alignItems: "center",
+            flexDirection: { xs: "column", sm: "row" }, // Ajusta para telas pequenas
+            justifyContent: { xs: "center", sm: "flex-start" }, // Para telas pequenas, centraliza
           }}
         >
           <TextField
@@ -178,12 +169,19 @@ const ParameterTypeList: React.FC = () => {
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}
             fullWidth
+            sx={{ maxWidth: "400px" }}
           />
           <Button
             variant="contained"
             onClick={handleSearch}
             startIcon={<SearchIcon />}
-            sx={{ backgroundColor: "#5f5cd9", color: "white", height: "56px" }}
+            sx={{
+              backgroundColor: "#5f5cd9",
+              color: "white",
+              height: "56px",
+              minWidth: "120px",
+              marginTop: { xs: "10px", sm: "0" }, // Adiciona margem em dispositivos móveis
+            }}
           >
             Buscar
           </Button>
@@ -191,7 +189,13 @@ const ParameterTypeList: React.FC = () => {
             variant="contained"
             onClick={handleRegisterClick}
             startIcon={<AddIcon />}
-            sx={{ backgroundColor: "#4caf50", color: "white", height: "56px" }}
+            sx={{
+              backgroundColor: "#4caf50",
+              color: "white",
+              height: "56px",
+              minWidth: "120px",
+              marginTop: { xs: "10px", sm: "0" }, // Adiciona margem em dispositivos móveis
+            }}
           >
             Cadastrar
           </Button>
@@ -218,25 +222,25 @@ const ParameterTypeList: React.FC = () => {
             </Box>
           )}
         />
-		<ReusableModal
-		  open={modalOpen}
-		  onClose={() => setModalOpen(false)}
-		  title="Detalhes do Tipo de Parâmetro"
-		  loading={modalLoading}
-		>
-		  {selectedParameterType ? (
-			<div>
-			  <Typography><strong>ID:</strong> {selectedParameterType.id}</Typography>
-			  <Typography><strong>Nome:</strong> {selectedParameterType.name}</Typography>
-			  <Typography><strong>Unidade de Medida:</strong> {selectedParameterType.measureUnit}</Typography>
-			  <Typography><strong>Quantidade de Decimais:</strong> {selectedParameterType.qntDecimals}</Typography>
-			  <Typography><strong>Offset:</strong> {selectedParameterType.offset || "N/A"}</Typography>
-			  <Typography><strong>Fator:</strong> {selectedParameterType.factor || "N/A"}</Typography>
-			</div>
-		  ) : (
-			<Typography>Erro ao carregar os detalhes do tipo de parâmetro.</Typography>
-		  )}
-		</ReusableModal>
+        <ReusableModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title="Detalhes do Tipo de Parâmetro"
+          loading={modalLoading}
+        >
+          {selectedParameterType ? (
+          <div>
+            <Typography><strong>ID:</strong> {selectedParameterType.id}</Typography>
+            <Typography><strong>Nome:</strong> {selectedParameterType.name}</Typography>
+            <Typography><strong>Unidade de Medida:</strong> {selectedParameterType.measureUnit}</Typography>
+            <Typography><strong>Quantidade de Decimais:</strong> {selectedParameterType.qntDecimals}</Typography>
+            <Typography><strong>Offset:</strong> {selectedParameterType.offset || "N/A"}</Typography>
+            <Typography><strong>Fator:</strong> {selectedParameterType.factor || "N/A"}</Typography>
+          </div>
+          ) : (
+          <Typography>Erro ao carregar os detalhes do tipo de parâmetro.</Typography>
+          )}
+        </ReusableModal>
       </Box>
     </LoggedLayout>
   );

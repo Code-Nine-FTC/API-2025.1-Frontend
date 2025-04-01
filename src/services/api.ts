@@ -55,24 +55,19 @@ const links = {
       state: string;
       country: string;
     };
-    parameter_types: Array<any>;
+    parameter_types: number[]
   }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
+      console.log(station);
 
       const response = await api.post(
         "/stations",
-        {
-          name: station.name,
-          uid: station.uid,
-          latitude: station.latitude,
-          longitude: station.longitude,
-          address: station.address,
-          parameter_types: station.parameter_types,
-        },
+          station
+        ,
         {
           headers: {
             Authorization: token,
@@ -87,7 +82,7 @@ const links = {
       console.error("Erro ao criar estação:", error.message || error);
       return {
         success: false,
-        error: error.response?.data?.detail || "Erro ao criar estação",
+        error: error.message || "Erro ao criar estação",
       };
     }
   },
@@ -98,11 +93,11 @@ const links = {
     status?: boolean;
   }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const params = new URLSearchParams();
 
@@ -117,9 +112,9 @@ const links = {
       console.log(params);
 
       const response = await api.get("/stations/filters", {
-        headers: {
-          Authorization: token,
-        },
+        // headers: {
+        //   Authorization: token,
+        // },
         params: params,
       });
 
@@ -244,11 +239,11 @@ const links = {
     error?: string;
   }> => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const params = new URLSearchParams();
 
@@ -264,9 +259,9 @@ const links = {
       }
 
       const response = await api.get("/alert/all", {
-        headers: {
-          Authorization: token,
-        },
+        // headers: {
+        //   Authorization: token,
+        // },
         params: params.toString() ? params : undefined,
       });
 
@@ -729,15 +724,15 @@ const links = {
     stationId: number
   ): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // const token = localStorage.getItem("token");
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const response = await api.get(`/stations/${stationId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
       });
 
       console.log("Resposta do backend:", response);
@@ -775,7 +770,7 @@ const links = {
 
       const response = await api.patch(`/stations/${stationId}`, data, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
         },
       });
 
@@ -915,40 +910,29 @@ const links = {
     }
   },
 
-  disableParameterType: async (
-    parameterTypeId: number
+  removeParameterFromStation: async (
+    stationId: number,
+    parameterId: number
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Usuário não autenticado");
       }
-
-      const response = await api.patch(
-        `/parameter_types/${parameterTypeId}/update`, // ⚠️ usa a rota /update
-        { is_active: false }, // ✅ envia no corpo
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        return { success: true };
-      }
-
-      throw new Error("Erro ao desativar o tipo de parâmetro");
+  
+      const response = await api.patch(`/stations/${stationId}/parameter/${parameterId}`, {}, {
+        headers: {
+          Authorization: token,
+        },
+      });
+  
+      return { success: true };
     } catch (error: any) {
-      console.error(
-        "Erro ao desativar o tipo de parâmetro:",
-        error.message || error
-      );
+      console.error("Erro ao remover parâmetro da estação:", error.message || error);
       return {
         success: false,
         error:
-          error.response?.data?.detail ||
-          "Erro ao desativar o tipo de parâmetro",
+          error.response?.data?.detail || "Erro ao remover parâmetro da estação",
       };
     }
   },
