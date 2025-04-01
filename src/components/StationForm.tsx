@@ -211,8 +211,8 @@ export const StationForm: React.FC<StationFormProps> = ({
 
         {auth.isAuthenticated && (
           <>
-            renderParameterChips()
-            !readOnly && renderParameterSelect()
+            {renderParameterChips()}
+            {!readOnly && renderParameterSelect()}
           </>
         )}
 
