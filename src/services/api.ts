@@ -93,11 +93,11 @@ const links = {
     status?: boolean;
   }): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const params = new URLSearchParams();
 
@@ -112,9 +112,9 @@ const links = {
       console.log(params);
 
       const response = await api.get("/stations/filters", {
-        headers: {
-          Authorization: token,
-        },
+        // headers: {
+        //   Authorization: token,
+        // },
         params: params,
       });
 
@@ -239,11 +239,11 @@ const links = {
     error?: string;
   }> => {
     try {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
 
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const params = new URLSearchParams();
 
@@ -259,9 +259,9 @@ const links = {
       }
 
       const response = await api.get("/alert/all", {
-        headers: {
-          Authorization: token,
-        },
+        // headers: {
+        //   Authorization: token,
+        // },
         params: params.toString() ? params : undefined,
       });
 

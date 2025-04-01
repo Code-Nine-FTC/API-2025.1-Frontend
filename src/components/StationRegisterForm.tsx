@@ -88,6 +88,7 @@ export default function StationFormComponent() {
                             name={name}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            required
                             className="input-field"
                             />
                     </div>
@@ -100,6 +101,7 @@ export default function StationFormComponent() {
                             name={uid}
                             value={uid}
                             onChange={(e) => setUid(e.target.value)}
+                            required
                             className="input-field"
                             />
                     </div>
@@ -113,6 +115,7 @@ export default function StationFormComponent() {
                                 name={country}
                                 value={country}
                                 onChange={(e) => setCountry(e.target.value)}
+                                required
                                 className="input-field"
                                 />
                         </div>
@@ -125,6 +128,7 @@ export default function StationFormComponent() {
                                 name={city}
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
+                                required
                                 className="input-field"
                                 />
                         </div>
@@ -137,6 +141,7 @@ export default function StationFormComponent() {
                                 name={state}
                                 value={state}
                                 onChange={(e) => setState(e.target.value)}
+                                required
                                 className="input-field"
                                 />
                         </div>
@@ -151,6 +156,7 @@ export default function StationFormComponent() {
                                 name={latitude}
                                 value={latitude}
                                 onChange={(e) => setLatitude(e.target.value)}
+                                required
                                 className="input-field"
                                 />
                         </div>
@@ -163,6 +169,7 @@ export default function StationFormComponent() {
                                 name={longitude}
                                 value={longitude}
                                 onChange={(e) => setLongitude(e.target.value)}
+                                required
                                 className="input-field"
                                 />
                         </div>
