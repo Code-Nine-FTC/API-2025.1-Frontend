@@ -724,15 +724,15 @@ const links = {
     stationId: number
   ): Promise<{ success: boolean; data?: any; error?: string }> => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Usuário não autenticado");
-      }
+      // const token = localStorage.getItem("token");
+      // if (!token) {
+      //   throw new Error("Usuário não autenticado");
+      // }
 
       const response = await api.get(`/stations/${stationId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
       });
 
       console.log("Resposta do backend:", response);
@@ -920,7 +920,7 @@ const links = {
         throw new Error("Usuário não autenticado");
       }
   
-      const response = await api.delete(`/stations/${stationId}/parameters/${parameterId}`, {
+      const response = await api.patch(`/stations/${stationId}/parameter/${parameterId}`, {}, {
         headers: {
           Authorization: token,
         },
