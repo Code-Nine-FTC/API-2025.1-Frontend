@@ -2,6 +2,7 @@ import React from "react";
 import { AppBar, Toolbar, Button, Box, IconButton, Menu, MenuItem } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import TecsusLogo from '../assets/tecsus_logo.svg'; 
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Navbar: React.FC = () => {
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Logo */}
         <img
-          src="src/assets/tecsus_logo.svg"
+          src={TecsusLogo}
           alt="Logo-Tecsus"
           style={{ width: "120px", height: "auto", cursor: "pointer" }}
           onClick={() => navigate("/")}

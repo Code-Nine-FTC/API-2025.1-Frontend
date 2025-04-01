@@ -15,6 +15,8 @@ import { LoggedLayout } from "@components/layout/layoutLogged";
 import { StationForm } from "../components/StationForm";
 import { links } from "../services/api";
 import "./styles/registerstation.css";
+import { useAuth } from "../services/authContext";
+import DefaultLayout from "@components/layout/layoutNotLogged";
 
 type FormFields = {
   name: string;
@@ -24,7 +26,7 @@ type FormFields = {
   city: string;
   state: string;
   country: string;
-  parameter_types: { type: string; unit: string } | null;
+  parameter_types: { type: string; unit: string }[];
 };
 
 type StationFormValues = FormFields & {
@@ -41,6 +43,7 @@ const ViewStation: React.FC = () => {
   const [showDisablePopup, setShowDisablePopup] = useState(false);
   const [showActivatePopup, setShowActivatePopup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const auth = useAuth()
 
   useEffect(() => {
     const fetchStation = async () => {
@@ -58,9 +61,12 @@ const ViewStation: React.FC = () => {
             country: apiData.address?.country || "Brasil",
             latitude: String(apiData.latitude || ""),
             longitude: String(apiData.longitude || ""),
-            parameter_types: Array.isArray(apiData.parameters) && apiData.parameters.length > 0
-            ? { type: String(apiData.parameters[0].parameter_type_id), unit: "" }
-            : null,                 
+            parameter_types: Array.isArray(apiData.parameters)
+            ? apiData.parameters.map((p: any) => ({
+                type: String(p.parameter_type_id),
+                unit: ""
+              }))
+            : [],                           
             is_active: apiData.status !== undefined ? apiData.status : true,
             original: apiData
           };
@@ -116,16 +122,19 @@ const ViewStation: React.FC = () => {
         updatedFields.address = formAddress;
       }
 
-      if (form.parameter_types && form.parameter_types.type) {
-        const selectedParamId = parseInt(form.parameter_types.type, 10);
+      if (form.parameter_types && form.parameter_types.length > 0) {
+        const selectedParamIds = form.parameter_types.map((p) => parseInt(p.type));
         const originalParamIds = Array.isArray(original.parameters)
-          ? original.parameters.map((p: any) => p?.id || parseInt(p, 10))
+          ? original.parameters.map((p: any) => p.parameter_type_id)
           : [];
       
-        if (!originalParamIds.includes(selectedParamId)) {
-          updatedFields.parameter_types = [selectedParamId];
+        const sortedNew = [...selectedParamIds].sort();
+        const sortedOld = [...originalParamIds].sort();
+      
+        if (JSON.stringify(sortedNew) !== JSON.stringify(sortedOld)) {
+          updatedFields.parameter_types = selectedParamIds;
         }
-      }      
+      }           
 
       const now = new Date();
       const naiveDate = now.toISOString().split(".")[0];
@@ -215,102 +224,115 @@ const ViewStation: React.FC = () => {
       </Typography>
     );
   }
+    const content = (
+      <>
+        <Box className="estacao-wrapper">
+          <Paper className="estacao-card">
+            <Typography variant="h4" align="center" className="estacao-title">
+              {isEditing ? "Editar Estação" : "Visualizar Estação"}
+            </Typography>
 
-  return (
-    <LoggedLayout>
-      <Box className="estacao-wrapper">
-        <Paper className="estacao-card">
-          <Typography variant="h4" align="center" className="estacao-title">
-            {isEditing ? "Editar Estação" : "Visualizar Estação"}
-          </Typography>
+            <Box className="estacao-form">
+              <StationForm
+                initialValues={station}
+                onSubmit={
+                  isEditing
+                    ? (form: FormFields) =>
+                        handleUpdate({
+                          ...form,
+                          original: station.original,
+                        })
+                    : undefined
+                }
+                submitLabel="Salvar Alterações"
+                readOnly={!isEditing}
+                title=""
+                withCardLayout={false}
+              />
 
-          <Box className="estacao-form">
-            <StationForm
-              initialValues={station}
-              onSubmit={
-                isEditing
-                  ? (form: FormFields) =>
-                      handleUpdate({
-                        ...form,
-                        original: station.original,
-                      })
-                  : undefined
-              }
-              submitLabel="Salvar Alterações"
-              readOnly={!isEditing}
-              title=""
-              withCardLayout={false}
-            />
-
-            <Box mt={3} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
-              {isEditing ? (
-                <>
+              <Box mt={3} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="contained"
+                      color="inherit"
+                      onClick={() => setIsEditing(false)}
+                      className="estacao-btn"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() =>
+                        station.is_active ? setShowDisablePopup(true) : setShowActivatePopup(true)
+                      }
+                      style={{
+                        backgroundColor: station.is_active ? "#d32f2f" : "#2e7d32",
+                        color: "#fff",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                      }}
+                      className="estacao-btn"
+                    >
+                      {station.is_active ? "Desativar" : "Ativar"}
+                    </Button>
+                  </>
+                ) : (
+                  auth.isAuthenticated ? (
                   <Button
                     variant="contained"
-                    color="inherit"
-                    onClick={() => setIsEditing(false)}
+                    color="primary"
+                    onClick={() => setIsEditing(true)}
                     className="estacao-btn"
                   >
-                    Cancelar
+                    Editar
                   </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      station.is_active ? setShowDisablePopup(true) : setShowActivatePopup(true)
-                    }
-                    style={{
-                      backgroundColor: station.is_active ? "#d32f2f" : "#2e7d32",
-                      color: "#fff",
-                      fontWeight: "bold",
-                      textTransform: "none",
-                    }}
-                    className="estacao-btn"
-                  >
-                    {station.is_active ? "Desativar" : "Ativar"}
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setIsEditing(true)}
-                  className="estacao-btn"
-                >
-                  Editar
-                </Button>
-              )}
+                  ) :
+                  (
+                    <>
+                    </>
+                  )
+                )}
+              </Box>
             </Box>
-          </Box>
-        </Paper>
-      </Box>
+          </Paper>
+        </Box>
 
-      <Dialog open={showDisablePopup} onClose={() => setShowDisablePopup(false)}>
-        <DialogTitle>Confirmar Desativação</DialogTitle>
-        <DialogContent>Tem certeza de que deseja desativar esta estação?</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDisablePopup(false)} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleDisable} color="secondary">
-            Desativar
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog open={showDisablePopup} onClose={() => setShowDisablePopup(false)}>
+          <DialogTitle>Confirmar Desativação</DialogTitle>
+          <DialogContent>Tem certeza de que deseja desativar esta estação?</DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowDisablePopup(false)} color="primary">
+              Cancelar
+            </Button>
+            <Button onClick={handleDisable} color="secondary">
+              Desativar
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-      <Dialog open={showActivatePopup} onClose={() => setShowActivatePopup(false)}>
-        <DialogTitle>Confirmar Ativação</DialogTitle>
-        <DialogContent>Tem certeza de que deseja ativar esta estação?</DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowActivatePopup(false)} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleActivate} color="success">
-            Ativar
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </LoggedLayout>
-  );
+        <Dialog open={showActivatePopup} onClose={() => setShowActivatePopup(false)}>
+          <DialogTitle>Confirmar Ativação</DialogTitle>
+          <DialogContent>Tem certeza de que deseja ativar esta estação?</DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowActivatePopup(false)} color="primary">
+              Cancelar
+            </Button>
+            <Button onClick={handleActivate} color="success">
+              Ativar
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    );
+
+    return (
+      auth.isAuthenticated ? (
+        <LoggedLayout>{content}</LoggedLayout>
+      ) : (
+        <DefaultLayout>{content}</DefaultLayout>
+      )
+    );
 };
 
 export default ViewStation;
