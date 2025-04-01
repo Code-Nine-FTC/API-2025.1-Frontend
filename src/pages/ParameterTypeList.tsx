@@ -15,6 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DoNotDisturbIcon from "@mui/icons-material/DoNotDisturb";
 import { LoggedLayout } from "@components/layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
+import ReusableModal from "@components/ReusableModal";
 
 interface ParameterType {
   id: number;
@@ -221,52 +222,25 @@ const ParameterTypeList: React.FC = () => {
             </Box>
           )}
         />
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "90%",
-              maxWidth: "500px",
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-            }}
-          >
-            {modalLoading ? (
-              <CircularProgress />
-            ) : selectedParameterType ? (
-              <div>
-                <Typography variant="h6" component="h2" sx={{ marginBottom: "16px" }}>
-                  Detalhes do Tipo de Parâmetro
-                </Typography>
-                <Typography>
-                  <strong>ID:</strong> {selectedParameterType.id}
-                </Typography>
-                <Typography>
-                  <strong>Nome:</strong> {selectedParameterType.name}
-                </Typography>
-                <Typography>
-                  <strong>Unidade de Medida:</strong> {selectedParameterType.measureUnit}
-                </Typography>
-                <Typography>
-                  <strong>Quantidade de Decimais:</strong> {selectedParameterType.qntDecimals}
-                </Typography>
-                <Typography>
-                  <strong>Offset:</strong> {selectedParameterType.offset || "N/A"}
-                </Typography>
-                <Typography>
-                  <strong>Fator:</strong> {selectedParameterType.factor || "N/A"}
-                </Typography>
-              </div>
-            ) : (
-              <Typography>Erro ao carregar os detalhes do tipo de parâmetro.</Typography>
-            )}
-          </Box>
-        </Modal>
+        <ReusableModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title="Detalhes do Tipo de Parâmetro"
+          loading={modalLoading}
+        >
+          {selectedParameterType ? (
+          <div>
+            <Typography><strong>ID:</strong> {selectedParameterType.id}</Typography>
+            <Typography><strong>Nome:</strong> {selectedParameterType.name}</Typography>
+            <Typography><strong>Unidade de Medida:</strong> {selectedParameterType.measureUnit}</Typography>
+            <Typography><strong>Quantidade de Decimais:</strong> {selectedParameterType.qntDecimals}</Typography>
+            <Typography><strong>Offset:</strong> {selectedParameterType.offset || "N/A"}</Typography>
+            <Typography><strong>Fator:</strong> {selectedParameterType.factor || "N/A"}</Typography>
+          </div>
+          ) : (
+          <Typography>Erro ao carregar os detalhes do tipo de parâmetro.</Typography>
+          )}
+        </ReusableModal>
       </Box>
     </LoggedLayout>
   );
