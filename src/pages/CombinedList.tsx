@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import DefaultLayout from "@components/layout/layoutNotLogged";
 import StationTable from "@components/StationsTable";
 import ReusableModal from "@components/ReusableModal";
+import moment from "moment";
 
 interface Alert {
     id: number;
@@ -41,8 +42,8 @@ const CombinedList: React.FC = () => {
                         measureValue: item.measure_value,
                         typeAlertName: item.type_alert_name,
                         station: item.station_name,
-                        startDate: item.create_date,
-                        endDate: item.create_date,
+                        startDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"),
+                        endDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"),
                     })) || [];
                 setAlerts(alertsData);
                 setFilteredAlerts(alertsData);

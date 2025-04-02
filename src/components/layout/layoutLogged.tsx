@@ -6,7 +6,7 @@ export const LoggedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Box sx={{ display: "flex" }}>
       <Sidebar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, my: 5 }}>
         {children}
       </Box>
     </Box>

@@ -214,7 +214,7 @@ const Sidebar = (props: Props) => {
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "block", md: "none" },
+          display: { xs: "fixed", md: "none" },
           "& .MuiDrawer-paper": { width: drawerWidth },
           boxSizing: "border-box",
         }}

@@ -126,6 +126,10 @@
     background-color: #4e4ac7;
 }
 
+.list-box {
+    width: 100%;
+}
+
 @media (max-width: 1024px) {
     .row {
         gap: 20px;
@@ -137,6 +141,12 @@
 
     .estacao-title {
         font-size: 28px;
+    }
+    .alerts-title {
+        text-align: center;
+    }
+    .list-box {
+        width: 85vw;
     }
 }
 
@@ -166,9 +176,15 @@
         font-size: 14px;
         padding: 12px 24px;
     }
+    .list-box {
+        width: 95vw;
+    }
 }
 
 @media (max-width: 480px) {
+    .alerts-container {
+        width: 100%
+    }
     .estacao-card {
         padding: 24px;
     }
@@ -185,5 +201,8 @@
     .estacao-btn {
         font-size: 12px;
         padding: 10px 20px;
+    }
+    .list-box {
+        width: 94vw;
     }
 }

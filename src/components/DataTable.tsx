@@ -87,7 +87,15 @@ const DataTable = <T,>({
       )}
       {!loading && (
         <Paper className="data-table-content">
-          <TableContainer>
+          <TableContainer 
+            sx={{ 
+              overflowX: 'auto',
+              width: '100%',
+              '& .MuiTable-root': {
+                minWidth: '750px'
+              }
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
