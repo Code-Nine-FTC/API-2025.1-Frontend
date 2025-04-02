@@ -1,52 +1,79 @@
 import React, { useState } from "react";
+import { Box, TextField, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import userStore from "../store/user/getters";
+import "./styles/login.css";
 
-const LoginPage = () => {
+export default function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [errorLogin, setErrorLogin] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const response = await userStore.login(email, password);
-    if (response.success) {
-      navigate("/dashboard");
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    // Simulação de login (substitua pela lógica real)
+    if (email === "admin@example.com" && password === "password") {
+      navigate("/listarestacao");
     } else {
-      setError(response.error || "Erro ao fazer login");
+      setErrorLogin("Credenciais inválidas. Tente novamente.");
     }
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
+    <div className="login-page">
+      <Container maxWidth="xs" className="container">
+        <Box
+          component="form"
+          className="login-box"
+          onSubmit={handleLogin}
+          noValidate
+        >
+          <img src="src/assets/tecsus_logo.png" alt="Logo" />
+
+          <TextField
+            fullWidth
             id="email"
-            name="email"
+            label="Email"
+            variant="filled"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setErrorLogin("")}
+            required
           />
-        </div>
-        <div>
-          <label htmlFor="password">Senha:</label>
-          <input
-            type="password"
+
+          <TextField
+            fullWidth
             id="password"
-            name="password"
+            label="Senha"
+            type="password"
+            variant="filled"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setErrorLogin("")}
+            required
           />
-        </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
+
+          {errorLogin && (
+            <p style={{ color: "red", margin: "8px 0" }}>{errorLogin}</p>
+          )}
+
+          <Button
+            fullWidth
+            variant="contained"
+            className="login-button"
+            sx={{
+              color: "white",
+              backgroundColor: "var(--green-maincolor)",
+              "&:hover": { backgroundColor: "var(--green-maincolorhover)" },
+            }}
+            type="submit"
+          >
+            Entrar
+          </Button>
+        </Box>
+      </Container>
     </div>
   );
-};
-
-export default LoginPage;
+}
