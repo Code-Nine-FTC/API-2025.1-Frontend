@@ -1,26 +1,39 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, Paper, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText, SelectChangeEvent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Paper,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Chip,
+} from "@mui/material";
+import { Cancel as CancelIcon } from "@mui/icons-material";
 import "../pages/styles/registerstation.css";
-import { links } from "../services/api"; 
+import { links } from "../services/api";
+import { useAuth } from "../services/authContext";
 
-interface FormFields {
+export interface FormFields {
   name: string;
   uid: string;
+  country: string;
+  city: string;
+  state: string;
   latitude: string;
   longitude: string;
-  address: {
-    city: string;
-    state: string;
-    country: string;
-  };
-  parameter_types: string[];
+  parameter_types: { type: string; unit: string }[];
 }
 
 interface StationFormProps {
   initialValues?: Partial<FormFields>;
-  onSubmit: (form: FormFields) => void;
+  onSubmit?: (form: FormFields) => void;
   title?: string;
   submitLabel?: string;
+  readOnly?: boolean;
+  withCardLayout?: boolean;
+  stationId?: number;
 }
 
 export const StationForm: React.FC<StationFormProps> = ({
@@ -28,123 +41,182 @@ export const StationForm: React.FC<StationFormProps> = ({
   onSubmit,
   title = "Cadastro de Estação",
   submitLabel = "Salvar",
+  readOnly = false,
+  withCardLayout = true,
+  stationId,
 }) => {
   const [form, setForm] = useState<FormFields>({
     name: "",
     uid: "",
+    country: "",
+    city: "",
+    state: "",
     latitude: "",
     longitude: "",
-    address: {
-      city: "",
-      state: "",
-      country: "", 
-    },
-    parameter_types: [], 
+    parameter_types: [],
     ...initialValues,
   });
 
-  const [parameterTypes, setParameterTypes] = useState<Array<{ id: string; name: string }>>([]);
+  const [availableParameters, setAvailableParameters] = useState<Array<{ id: number; name: string }>>([]);
+
+  const auth = useAuth();
 
   useEffect(() => {
-    const fetchParameterTypes = async () => {
+    const fetchParameters = async () => {
       try {
         const response = await links.listParameterTypes();
-        if (response.success && response.data) {
-          setParameterTypes(response.data.map((type: { id: number; name: string; measure_unit: string }) => ({
-            id: type.id.toString(),
-            name: type.name,
-          })));
-        } else {
-          console.error("Erro ao buscar tipos de parâmetros:", response.error);
-        }
+        setAvailableParameters(response.data || []);
       } catch (error) {
-        console.error("Erro ao buscar tipos de parâmetros:", error);
+        console.error("Erro ao buscar parâmetros:", error);
       }
     };
-
-    fetchParameterTypes();
+    fetchParameters();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (readOnly) return;
     const { name, value } = e.target;
+    setForm({ ...form, [name]: value } as FormFields);
+  };
 
-    if (name?.startsWith("address.")) {
-      const addressField = name.split(".")[1];
-      setForm({
-        ...form,
-        address: {
-          ...form.address,
-          [addressField]: value as string,
-        },
-      });
-    } else {
-      setForm({ ...form, [name as keyof FormFields]: value as string });
+  const handleSelectChange = (event: any) => {
+    if (readOnly) return;
+
+    const selectedIds = event.target.value as string[];
+
+    const updated = selectedIds.map((id) => ({ type: id, unit: "" }));
+
+    if (JSON.stringify(updated) !== JSON.stringify(form.parameter_types)) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        parameter_types: updated,
+      }));
     }
   };
 
-  const handleParameterChange = (event: SelectChangeEvent<string[]>) => {
-    setForm({
-      ...form,
-      parameter_types: event.target.value as string[],
-    });
+  const handleRemoveParameter = async (paramId: string) => {
+    if (readOnly) return;
+
+    try {
+      if (stationId) {
+        const result = await links.removeParameterFromStation(stationId, parseInt(paramId));
+        if (!result.success) {
+          throw new Error(result.error || "Erro ao remover");
+        }
+      }
+
+      const updated = form.parameter_types.filter((p) => p.type !== paramId);
+
+      setForm((prevForm) => ({
+        ...prevForm,
+        parameter_types: updated,
+      }));
+    } catch (err) {
+      console.error("Erro ao remover parâmetro:", err);
+      alert("Erro ao remover parâmetro");
+    }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-
-  const renderInput = (label: string, name: keyof FormFields | string, className = "") => (
+  const renderInput = (label: string, name: keyof FormFields, className = "") => (
     <div className={`input-group-wrapper ${className}`}>
       <div className="input-group">
         <label className="input-label"><strong>{label}</strong></label>
         <input
           type="text"
           name={name}
-          value={name.startsWith("address.") ? form.address[name.split(".")[1] as keyof FormFields["address"]] || "" : (form[name as keyof FormFields] as string) || ""}
+          value={typeof form[name] === "string" ? form[name] : ""}
           onChange={handleChange}
           className="input-field"
+          disabled={readOnly}
         />
       </div>
     </div>
   );
 
-  return (
-    <Box className="estacao-wrapper">
-      <Paper className="estacao-card">
+  const renderParameterChips = () => {
+    return (
+      <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
+        {form.parameter_types.map((p) => {
+          const paramName = availableParameters.find((ap) => ap.id === parseInt(p.type))?.name || p.type;
+          return (
+            <Chip
+              key={p.type}
+              label={paramName}
+              onDelete={
+                readOnly
+                  ? undefined
+                  : async () => {
+                      await handleRemoveParameter(p.type);
+                    }
+              }
+              deleteIcon={!readOnly ? <CancelIcon /> : undefined}
+            />
+          );
+        })}
+      </Box>
+    );
+  };
+
+  const renderParameterSelect = () => {
+    return (
+      <FormControl fullWidth className="input-group-wrapper" disabled={readOnly}>
+        <InputLabel>Adicionar Parâmetros</InputLabel>
+        <Select
+          multiple
+          value={form.parameter_types.map((p) => p.type)}
+          onChange={handleSelectChange}
+          renderValue={(selected) =>
+            (selected as string[])
+              .map((id) => availableParameters.find((opt) => opt.id.toString() === id)?.name)
+              .join(", ")
+          }
+        >
+          {availableParameters.map((option) => (
+            <MenuItem key={option.id} value={option.id.toString()}>
+              {option.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (readOnly) return;
+    if (onSubmit) {
+      onSubmit(form);
+    }
+  };
+
+  const content = (
+    <>
+      {title && (
         <Typography variant="h4" align="center" className="estacao-title">
           {title}
         </Typography>
-        <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderInput("Nome da estação", "name")}
-          {renderInput("UID", "uid")}
-          <div className="row">
-            {renderInput("Cidade", "address.city", "input-medium")}
-            {renderInput("Estado", "address.state", "input-tiny")}
-            {renderInput("País", "address.country", "input-medium")}
-          </div>
-          <div className="row">
-            {renderInput("Latitude", "latitude", "input-coord")}
-            {renderInput("Longitude", "longitude", "input-coord")}
-          </div>
-          <Typography variant="h6" className="section-title">Tipos de Parâmetros</Typography>
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="parameter-types-label">Selecione os Tipos de Parâmetros</InputLabel>
-            <Select
-              labelId="parameter-types-label"
-              multiple
-              value={form.parameter_types}
-              onChange={handleParameterChange}
-              renderValue={(selected) => (selected as string[]).join(", ")}
-            >
-              {parameterTypes.map((type) => (
-                <MenuItem key={type.id} value={type.id}>
-                  <Checkbox checked={form.parameter_types.includes(type.id)} />
-                  <ListItemText primary={type.name} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+      )}
+      <form className="estacao-form" onSubmit={handleFormSubmit}>
+        {renderInput("Nome da estação", "name")}
+        {renderInput("UID", "uid")}
+        <div className="row">
+          {renderInput("País", "country", "input-bairro")}
+          {renderInput("Cidade", "city", "input-cidade")}
+          {renderInput("Estado", "state", "input-tiny")}
+        </div>
+        <div className="row">
+          {renderInput("Latitude", "latitude", "input-coord")}
+          {renderInput("Longitude", "longitude", "input-coord")}
+        </div>
+
+        {auth.isAuthenticated && (
+          <>
+            {renderParameterChips()}
+            {!readOnly && renderParameterSelect()}
+          </>
+        )}
+
+        {!readOnly && (
           <Box mt={3} textAlign="center">
             <Button
               variant="contained"
@@ -155,8 +227,14 @@ export const StationForm: React.FC<StationFormProps> = ({
               {submitLabel}
             </Button>
           </Box>
-        </form>
-      </Paper>
+        )}
+      </form>
+    </>
+  );
+
+  return withCardLayout === false ? content : (
+    <Box className="estacao-wrapper">
+      <Paper className="estacao-card">{content}</Paper>
     </Box>
   );
 };

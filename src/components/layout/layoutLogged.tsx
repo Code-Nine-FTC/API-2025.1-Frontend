@@ -1,19 +1,14 @@
-import { ReactNode } from "react";
+import React from "react";
+import { Box } from "@mui/material";
+import Sidebar from "../sidebar";
 
-import {Box} from "@mui/material";
-import Sidebar from "@components/sidebar";
-
-interface LayoutProps {
-  children: ReactNode;
-}
-
-export function LoggedLayout({ children }: LayoutProps) {
+export const LoggedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Box >
-        <Sidebar />
-        <Box flex={1}>
-          {children}
-        </Box>
+    <Box sx={{ display: "flex" }}>
+      <Sidebar />
+      <Box component="main" sx={{ flexGrow: 1, my: 5 }}>
+        {children}
+      </Box>
     </Box>
   );
 };

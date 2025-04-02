@@ -1,33 +1,34 @@
 import * as React from "react";
 import { Box, TextField, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./styles/login.css";
 import { links } from "../services/api";
+import { useAuth } from "../services/authContext"
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errorLogin, setErrorLogin] = useState("");
+  
+  const { login, isAuthenticated, loading, error, clearError } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/listarestacao");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    try {
-      const response = await links.login(email, password);
-      if (response.success) {
-        localStorage.setItem("access_token", response.token || "");
-        navigate("/registrarestacao", { replace: true });
-      } else {
-        setError(response.error || "Erro ao fazer login");
-        setEmail("");
-        setPassword("");
+      const response = await login(email, password);
+
+      if (response) {
+        navigate("/listarestacao");
       }
-    } catch (err) {
-      setError("Erro ao conectar ao servidor");
-    }
-  };
+    };
 
   return (
     <div className="login-page">
@@ -43,7 +44,7 @@ export default function LoginPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onFocus={() => setError("")}
+            onFocus={() => setErrorLogin("")}
           />
 
           <TextField
@@ -54,10 +55,10 @@ export default function LoginPage() {
             variant="filled"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setError("")}
+            onFocus={() => setErrorLogin("")}
           />
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {errorLogin && <p style={{ color: "red" }}>{errorLogin}</p>}
 
           <Button
             fullWidth

@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
 import DataTable from "../components/DataTable";
 import { links } from "../services/api";
+import moment from "moment"; // Importação do moment.js
+import {
+  Modal,
+  Box,
+  Typography,
+  CircularProgress,
+  Button,
+  TextField,
+  Paper,
+  Stack,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom";
 import { LoggedLayout } from "@components/layout/layoutLogged";
+import { useNavigate } from "react-router-dom";
+import ReusableModal from "@components/ReusableModal";
+import Autocomplete from "@mui/material/Autocomplete";
 
 interface Alert {
   id: number;
@@ -19,15 +32,21 @@ const AlertList: React.FC = () => {
   const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
+  const [typeAlertName, setTypeAlertName] = useState("");
+  const [stationName, setStationName] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  const [stationOptions, setStationOptions] = useState<string[]>([]);
+  const [typeAlertOptions, setTypeAlertOptions] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserAlerts = async () => {
+    const fetchAlerts = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const response = await links.listAlerts();
+        const response = await links.getFilteredAlerts();
         if (response.success) {
           const alertsData =
             response.data?.map((item: any) => ({
@@ -35,11 +54,15 @@ const AlertList: React.FC = () => {
               measureValue: item.measure_value,
               typeAlertName: item.type_alert_name,
               station: item.station_name,
-              startDate: item.create_date,
-              endDate: item.create_date,
+              startDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"), // Formatação da data inicial
+              endDate: moment(item.create_date).format("DD/MM/YYYY HH:mm"), // Formatação da data final
             })) || [];
           setAlerts(alertsData);
           setFilteredAlerts(alertsData);
+
+    
+          setStationOptions([...new Set(alertsData.map((alert) => alert.station))]);
+          setTypeAlertOptions([...new Set(alertsData.map((alert) => alert.typeAlertName))]);
         } else {
           setError(response.error || "Erro ao carregar os alertas.");
         }
@@ -50,26 +73,33 @@ const AlertList: React.FC = () => {
       }
     };
 
-    fetchUserAlerts();
+    fetchAlerts();
   }, []);
 
-  const handleSearch = (query: string) => {
-    if (!query.trim()) {
-      setFilteredAlerts(alerts);
-      return;
-    }
+  const handleSearch = () => {
+    const filtered = alerts.filter((alert) => {
+      const matchesTypeAlert = typeAlertName
+        ? alert.typeAlertName === typeAlertName
+        : true;
 
-    const filtered = alerts.filter((alert) =>
-      Object.values(alert).some((value) =>
-        value.toString().toLowerCase().includes(query.toLowerCase())
-      )
-    );
+      const matchesStation = stationName
+        ? alert.station === stationName
+        : true;
+
+      return matchesTypeAlert && matchesStation;
+    });
 
     setFilteredAlerts(filtered);
   };
 
-  const handleAddAlert = () => {
-    console.log("Adicionar alerta");
+  const handleOpenModal = (alert: Alert) => {
+    setSelectedAlert(alert);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedAlert(null);
+    setModalOpen(false);
   };
 
   const columns = [
@@ -83,37 +113,102 @@ const AlertList: React.FC = () => {
 
   return (
     <LoggedLayout>
-      <div className="alerts-container">
-        <h1 className="alerts-title">Alertas</h1>
-        <div className="data-table-header">
-          <input
-            type="text"
-            placeholder="Buscar"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="data-table-search"
-          />
-          <button onClick={() => handleSearch(search)} className="data-table-button">
-            Buscar
-          </button>
-          <button onClick={handleAddAlert} className="data-table-button">
-            + Cadastrar
-          </button>
-        </div>
+      <Box sx={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: "20px",
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#5f5cd9",
+          }}
+        >
+          Alertas
+        </Typography>
+        {/* Campos de busca */}
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <Stack spacing={2}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <Autocomplete
+                fullWidth
+                options={typeAlertOptions}
+                inputValue={typeAlertName}
+                onInputChange={(_, newInputValue) => setTypeAlertName(newInputValue || "")}
+                onChange={(_, selectedValue) => setTypeAlertName(selectedValue || "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Filtrar por Tipo de Alerta"
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              />
+              <Autocomplete
+                fullWidth
+                options={stationOptions}
+                inputValue={stationName}
+                onInputChange={(_, newInputValue) => setStationName(newInputValue || "")}
+                onChange={(_, selectedValue) => setStationName(selectedValue || "")}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Filtrar por Estação"
+                    variant="outlined"
+                    size="small"
+                  />
+                )}
+              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: "var(--purple-maincolor)" }}
+                  onClick={handleSearch}
+                  startIcon={loading ? <CircularProgress size={20} /> : <SearchIcon />}
+                >
+                  Buscar
+                </Button>
+              </Box>
+            </Stack>
+          </Stack>
+        </Paper>
+
         <DataTable<Alert>
           data={filteredAlerts}
           columns={columns}
           loading={loading}
           error={error}
-          title=""
           renderActions={(row) => (
-            <SearchIcon
-              style={{ color: "#ccc", cursor: "pointer" }}
-              onClick={() => navigate(`/alert-details/${row.id}`)}
-            />
+            <Box sx={{ display: "flex", gap: "10px" }}>
+              <Button
+                variant="text"
+                onClick={() => handleOpenModal(row)}
+                sx={{ color: "#5f5cd9" }}
+              >
+                <SearchIcon />
+              </Button>
+            </Box>
           )}
         />
-      </div>
+        <ReusableModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          title="Detalhes do Alerta"
+        >
+          {selectedAlert ? (
+            <div>
+              <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
+              <Typography><strong>Tipo de Alerta:</strong> {selectedAlert.typeAlertName}</Typography>
+              <Typography><strong>Estação:</strong> {selectedAlert.station}</Typography>
+              <Typography><strong>Valor da Medida:</strong> {selectedAlert.measureValue}</Typography>
+              <Typography><strong>Data Inicial:</strong> {selectedAlert.startDate}</Typography>
+              <Typography><strong>Data Final:</strong> {selectedAlert.endDate}</Typography>
+            </div>
+          ) : (
+            <Typography>Carregando...</Typography>
+          )}
+        </ReusableModal>
+      </Box>
     </LoggedLayout>
   );
 };
