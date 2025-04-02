@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashboardPage from "../Dashboard";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import StationPage from "../Station";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -14,6 +15,13 @@ const AuthenticatedRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/listarestacao"
+        element={
+          <ProtectedRoute>
+            <StationPage />
+          </ProtectedRoute>
+        }></Route>
     </Routes>
   );
 };

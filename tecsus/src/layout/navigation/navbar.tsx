@@ -38,8 +38,8 @@ const Navbar: React.FC = () => {
             Sobre nós
           </Button>
           <Button
-            sx={{ color: location.pathname === "/educacao" ? "purple" : "black", fontWeight: "bold" }}
-            onClick={() => navigate("/educacao")}
+            sx={{ color: location.pathname === "/education" ? "purple" : "black", fontWeight: "bold" }}
+            onClick={() => navigate("/education")}
           >
             Educacional
           </Button>

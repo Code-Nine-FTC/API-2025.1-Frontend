@@ -1,34 +1,39 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { Box, TextField, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./styles/login.css";
+import { useAuth } from "../components/authContext";
+import userGetters from "../store/user/getters";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
+  
+  const { login, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/"); // MUDAR PARA A PRIMEIRA ROTA QUANDO LOGADO DEPOIS
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Simulação de login (substitua pela lógica real)
-    if (email === "admin@example.com" && password === "password") {
-      navigate("/listarestacao");
-    } else {
-      setErrorLogin("Credenciais inválidas. Tente novamente.");
-    }
-  };
+      const response = await userGetters.login(email, password);
+
+      if (response) {
+        navigate("/"); // MUDAR PARA A PRIMEIRA ROTA QUANDO LOGADO DEPOIS
+      }
+    };
 
   return (
     <div className="login-page">
       <Container maxWidth="xs" className="container">
-        <Box
-          component="form"
-          className="login-box"
-          onSubmit={handleLogin}
-          noValidate
-        >
+        <Box component="form" className="login-box" onSubmit={handleLogin}>
           <img src="src/assets/tecsus_logo.png" alt="Logo" />
 
           <TextField
@@ -40,7 +45,6 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onFocus={() => setErrorLogin("")}
-            required
           />
 
           <TextField
@@ -52,12 +56,9 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onFocus={() => setErrorLogin("")}
-            required
           />
 
-          {errorLogin && (
-            <p style={{ color: "red", margin: "8px 0" }}>{errorLogin}</p>
-          )}
+          {errorLogin && <p style={{ color: "red" }}>{errorLogin}</p>}
 
           <Button
             fullWidth
