@@ -4,11 +4,11 @@ import AuthenticatedRoutes from "./Authenticated";
 import UnauthenticatedRoutes from "./nonAuthenticated";
 
 const AppRoutes: React.FC = () => {
-  const isAuthenticated = !!localStorage.getItem("token");
 
   return (
     <Router>
-      {isAuthenticated ? <AuthenticatedRoutes /> : <UnauthenticatedRoutes />}
+        <AuthenticatedRoutes />
+        <UnauthenticatedRoutes />
     </Router>
   );
 };
