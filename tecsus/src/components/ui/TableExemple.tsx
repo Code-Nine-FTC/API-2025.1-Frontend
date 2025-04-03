@@ -16,7 +16,7 @@ const columns: GridColDef[] = [
     field: "status",
     headerName: "Status",
     width: 150,
-    renderCell: (params) => <StatusIcon status={params.value} size={24} />, // Renderiza o StatusIcon
+    renderCell: (params) => <StatusIcon status={params.value} size={24} />,
   },
 ];
 

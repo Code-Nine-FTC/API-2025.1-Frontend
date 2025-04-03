@@ -14,13 +14,22 @@ const Education: React.FC = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState<any>(null);
+  
+  interface EducationCard {
+    title?: string;
+    heading?: string;
+    text?: string;
+    imgSrc?: string;
+    fullText?: string;
+  }
+
+  const [selectedCard, setSelectedCard] = useState<EducationCard | null>(null);
 
   const handleChange = (_: unknown, value: number) => {
     setPage(value);
   };
 
-  const handleOpenModal = (card: any) => {
+  const handleOpenModal = (card: EducationCard) => {
     setSelectedCard(card);
     setOpenModal(true);
   };

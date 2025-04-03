@@ -3,6 +3,8 @@ import { Route, Routes } from "react-router-dom";
 import DashboardPage from "../Dashboard";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import StationPage from "../Station";
+import TypeAlertsPage from "../TypeAlerts";
+import TypeParametersPage from "../TypeParameters";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -22,6 +24,22 @@ const AuthenticatedRoutes: React.FC = () => {
             <StationPage />
           </ProtectedRoute>
         }></Route>
+      <Route
+        path="/listatipodealerta"
+        element={
+          <ProtectedRoute>
+            <TypeAlertsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/listatipodeparametro"
+        element={
+          <ProtectedRoute>
+            <TypeParametersPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

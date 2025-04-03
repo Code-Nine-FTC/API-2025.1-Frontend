@@ -44,6 +44,7 @@ export default {
         return { success: false, error: errorMessage };
       }
     },
+    
     logout: async (): Promise<void> => {
         localStorage.removeItem("token");
         delete api.defaults.headers.common["Authorization"];
