@@ -15,6 +15,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     const response = await userStore.login(email, password);
     if (response.success) {
+      localStorage.setItem("token", response.token || "");
+      userStore.userLogged();
       setIsAuthenticated(true);
       return true;
     }

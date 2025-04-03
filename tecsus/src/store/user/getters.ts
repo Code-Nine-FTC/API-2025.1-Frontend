@@ -3,6 +3,16 @@ import api from "../globals";
 import { LoginResponse } from "./state";
 
 export default {
+
+    setToken: (token: string): void => {
+      localStorage.setItem("token", token);
+      api.defaults.headers.common["Authorization"] = token;
+    },
+
+    getToken: (): string | null => {
+      return localStorage.getItem("token");
+    },
+
     login: async function (
       this: any,
       email: string,
@@ -26,7 +36,7 @@ export default {
   
         const fullToken = `${token_type} ${access_token}`;
         this.setToken(fullToken);
-  
+        
         return { success: true, token: fullToken };
       } catch (error: any) {
         console.error("Erro ao autenticar:", error.response?.data || error.message || error);

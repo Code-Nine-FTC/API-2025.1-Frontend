@@ -18,8 +18,8 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import TuneIcon from "@mui/icons-material/Tune";
-import TecsusLogo from "../assets/tecsus_logo.svg";
-import LogoutLogo from "../assets/logout_logo.svg";
+import TecsusLogo from "../../assets/tecsus_logo.png";
+import AppIcon from "../../components/ui/AppIcon";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../components/authContext";
 
@@ -157,7 +157,7 @@ const Sidebar = (props: Props) => {
               cursor: "pointer",
             }}
           >
-            <img src={LogoutLogo} alt="Logout Logo" width="60%" />
+            <AppIcon name="Logout" style={{ fontSize: 30, color: "black" }} />
           </Box>
         </ListItemIcon>
       </Box>

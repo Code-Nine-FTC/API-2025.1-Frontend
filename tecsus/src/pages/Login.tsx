@@ -12,11 +12,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
   
-  const { login, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/"); // MUDAR PARA A PRIMEIRA ROTA QUANDO LOGADO DEPOIS
+      navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
 
@@ -26,7 +26,7 @@ export default function LoginPage() {
       const response = await userGetters.login(email, password);
 
       if (response) {
-        navigate("/"); // MUDAR PARA A PRIMEIRA ROTA QUANDO LOGADO DEPOIS
+        navigate("/dashboard"); 
       }
     };
 
