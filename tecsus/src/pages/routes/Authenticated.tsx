@@ -25,6 +25,13 @@ const AuthenticatedRoutes: React.FC = () => {
           </ProtectedRoute>
         }></Route>
       <Route
+        path="/registarestacao"
+        element={
+          <ProtectedRoute>
+            <StationPage />
+          </ProtectedRoute>
+        }></Route>
+      <Route
         path="/listatipodealerta"
         element={
           <ProtectedRoute>
