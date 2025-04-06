@@ -5,6 +5,7 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 import StationPage from "../Station";
 import TypeAlertsPage from "../TypeAlerts";
 import TypeParametersPage from "../TypeParameters";
+import RegisterStationPage from "../RegisterStation";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -28,7 +29,7 @@ const AuthenticatedRoutes: React.FC = () => {
         path="/registarestacao"
         element={
           <ProtectedRoute>
-            <StationPage />
+            <RegisterStationPage />
           </ProtectedRoute>
         }></Route>
       <Route

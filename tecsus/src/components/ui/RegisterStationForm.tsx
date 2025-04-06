@@ -1,6 +1,6 @@
 import { Box, Button, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Paper, Select, SelectChangeEvent, Typography } from "@mui/material"
 import { useEffect, useState } from "react"
-import "../pages/styles/registerstation.css";
+import "../../pages/styles/registerstation.css"
 import stationGetters from "../../store/station/getters"
 import parameterTypeGetters from "../../store/typeparameters/getters"
 

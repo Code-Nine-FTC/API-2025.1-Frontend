@@ -16,6 +16,9 @@ export default {
             }
         
             const response = await api.get("/parameter_types", {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
                 params: params,
             });
             return { success: true, data: response.data };

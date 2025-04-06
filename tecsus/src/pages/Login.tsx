@@ -24,8 +24,9 @@ export default function LoginPage() {
     event.preventDefault();
 
       const response = await userGetters.login(email, password);
-
-      if (response) {
+      
+      if (response.success) {
+        console.log("logou")
         navigate("/dashboard"); 
       }
     };
