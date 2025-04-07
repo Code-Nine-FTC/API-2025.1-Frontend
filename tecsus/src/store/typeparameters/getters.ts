@@ -21,6 +21,19 @@ export default {
                 },
                 params: params,
             });
+
+            if (response.data && Array.isArray(response.data.data)) {
+                const parameterTypes = response.data.data.map((parameterType: any) => ({
+                  id: parameterType.id,
+                  name: parameterType.name,
+                  measure_unit: parameterType.measure_unit,
+                  is_active: parameterType.is_active ?? true,
+                  qnt_decimals: parameterType.qnt_decimals,
+                  offset: parameterType.offset,
+                  factor: parameterType.factor,
+                }));
+                return { success: true, data: parameterTypes };
+              }
             return { success: true, data: response.data };
         } catch (error: any) {
             console.error("Erro ao listar tipos de parâmetros:", error.message || error);

@@ -5,9 +5,10 @@ export default {
     async registerStation(station: RegisterStation): 
         Promise<{ success: boolean; data?: any ;error?: string }> {
         try {
-            const result = await api.post("/station", station, {
+            console.log("station", station)
+            const result = await api.post("/stations", station, {
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/json",
                 },
             })
             return { success: true, data: result.data };
