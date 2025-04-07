@@ -53,7 +53,7 @@ export default {
     userLogged(): boolean {
         const token = localStorage.getItem("token");
         if (token) {
-            api.defaults.headers.common["Authorization"] = token;
+            // api.defaults.headers.common["Authorization"] = token;
             return true;
         }
         return false;
