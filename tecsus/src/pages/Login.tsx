@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./styles/login.css";
 import { useAuth } from "../components/authContext";
-import userGetters from "../store/user/getters";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
   
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, login } = useAuth();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,9 +22,9 @@ export default function LoginPage() {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-      const response = await userGetters.login(email, password);
-      
-      if (response.success) {
+      const response = await login(email, password);
+
+      if (response) {
         console.log("logou")
         navigate("/dashboard"); 
       }

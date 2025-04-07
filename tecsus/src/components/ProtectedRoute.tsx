@@ -1,5 +1,5 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "./authContext";
 
 interface ProtectedRouteProps {
@@ -8,12 +8,22 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+      }
+    };
 
-  return <>{children}</>;
+    if (!isAuthenticated) {
+      checkToken();
+    }
+  }, [isAuthenticated, navigate]);
+
+  return <> {children} </>;
 };
 
 export default ProtectedRoute;
