@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 export default function StationsListPage() {
     const [stations, setStations] = useState<ListStationsResponse[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [filters, setFilters] = useState<ListStationsFilters>({});
     const [name, setName] = useState<string>("");
     const [uid, setUid] = useState<string>("");
     const [status, setStatus] = useState<boolean>(true);
@@ -28,7 +27,22 @@ export default function StationsListPage() {
     
     async function getListStations() {
         try {
-            const response = await stationGetters.listStations(filters? filters : undefined);
+            const filters: ListStationsFilters = {}
+            if (name && name.trim() !== "") {
+                filters.name = name;
+              }
+              
+              if (uid && uid.trim() !== "") {
+                filters.uid = uid;
+              }
+              
+              if (status === true) {
+                filters.status = status;
+              }
+
+            const hasFilters = filters && Object.keys(filters).length > 0;
+
+            const response = await stationGetters.listStations(hasFilters ? filters : undefined);
             if (response.success) {
                 setStations(response.data as ListStationsResponse[]);
                 console.log("stations", response.data)
@@ -46,29 +60,11 @@ export default function StationsListPage() {
     }
     , []);
 
-    function handleFilterChange (e: React.ChangeEvent<HTMLInputElement>) {
-        const {name, value, type, checked} = e.target;
-        setFilters((prevFilters) => ({
-            ...prevFilters,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-    }
-
-    function handleFilterSubmit () {
-        setFilters({
-            name: name && name,
-            uid: uid && uid,
-            status: status && status
-        });
+    function handleSearch() {
         getListStations();
     }
 
     function handleReset() {
-        setFilters({
-            name: "",
-            uid: "",
-            status: true
-        });
         setName("");
         setUid("");
     }
@@ -157,7 +153,7 @@ export default function StationsListPage() {
                         <Button
                             variant="contained" 
                             startIcon={<Search />}
-                            onClick={handleFilterSubmit}
+                            onClick={handleSearch}
                         >
                             Buscar
                         </Button>
