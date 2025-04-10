@@ -19,21 +19,21 @@ const AuthenticatedRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/listarestacao"
+        path="/list-station"
         element={
           <ProtectedRoute>
             <StationPage />
           </ProtectedRoute>
         }></Route>
       <Route
-        path="/registrarestacao"
+        path="/create-station"
         element={
           <ProtectedRoute>
             <RegisterStationPage />
           </ProtectedRoute>
         }></Route>
       <Route
-        path="/listatipodealerta"
+        path="/list-alert-type"
         element={
           <ProtectedRoute>
             <TypeAlertsPage />
@@ -41,7 +41,7 @@ const AuthenticatedRoutes: React.FC = () => {
         }
       />
       <Route
-        path="/listatipodeparametro"
+        path="/list-parameter-type"
         element={
           <ProtectedRoute>
             <TypeParametersPage />

@@ -8,10 +8,8 @@ export interface ListParameterTypesResponse {
     factor?: number;
 }
 
-export interface listParameterTypesFilters {
+export interface ListParameterTypesFilters {
     name?: string;
     measure_unit?: string;
     is_active?: boolean | string; 
-    page?: number;
-    limit?: number;
 }

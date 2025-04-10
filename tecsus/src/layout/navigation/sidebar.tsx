@@ -29,17 +29,17 @@ const menuItems = [
   {
     text: "Estações",
     icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
-    relatedRoutes: ["/listarestacao", "/registrarestacao"],
+    relatedRoutes: ["/list-station", "/create-station"],
     routePrefix: "/editarestacao/",
   },
   {
     text: "Tipo de Parâmetro",
     icon: <TuneIcon sx={{ fontSize: 40 }} />,
-    relatedRoutes: ["/listartipoparametro", "/registrarparametro"],
+    relatedRoutes: ["/list-parameter-type", "/registrarparametro"],
     routePrefix: "/editarparametrotipo/",
   },
   { text: "Alertas", icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, route: "/listalerts" },
-  { text: "Tipo de Alertas", icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, relatedRoutes:[ "/listartipoalerta", "/registrartipoalerta"],
+  { text: "Tipo de Alertas", icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, relatedRoutes:[ "/list-alert-type", "/registrartipoalerta"],
   routePrefix: "/editartipoalerta/", },
 ];
 

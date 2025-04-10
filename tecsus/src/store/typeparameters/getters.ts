@@ -1,8 +1,8 @@
 import api from "../globals";
-import { listParameterTypesFilters, ListParameterTypesResponse } from "./state";
+import { ListParameterTypesFilters, ListParameterTypesResponse } from "./state";
 
 export default {
-    async listParameterTypes(filters?: listParameterTypesFilters): 
+    async listParameterTypes(filters?: ListParameterTypesFilters): 
         Promise<{ success: boolean; data?: [ListParameterTypesResponse]; error?: string }> {
         try {
             const params = new URLSearchParams();
@@ -10,8 +10,6 @@ export default {
             if (filters) {
                 if (filters.name) params.append("name", filters.name);
                 if (filters.measure_unit) params.append("measure_unit", filters.measure_unit);
-                if (filters.page) params.append("page", filters.page.toString());
-                if (filters.limit) params.append("limit", filters.limit.toString());
                 if (filters.is_active !== undefined) params.append("is_active", String(filters.is_active));
             }
         
