@@ -2,10 +2,10 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashboardPage from "../Dashboard";
 import ProtectedRoute from "../../components/ProtectedRoute";
-import StationPage from "../Station";
 import TypeAlertsPage from "../TypeAlerts";
 import TypeParametersPage from "../TypeParameters";
 import RegisterStationPage from "../RegisterStation";
+import StationsListPage from "../StationsList";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -22,7 +22,7 @@ const AuthenticatedRoutes: React.FC = () => {
         path="/list-station"
         element={
           <ProtectedRoute>
-            <StationPage />
+            <StationsListPage />
           </ProtectedRoute>
         }></Route>
       <Route

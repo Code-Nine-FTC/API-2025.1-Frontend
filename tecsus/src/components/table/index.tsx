@@ -16,16 +16,17 @@ export interface Column<T> {
 interface GenericTableProps<T> {
   columns: Column<T>[];
   rows: T[];
+  renderCell?: (row: T, column: Column<T>) => React.ReactNode;
 }
 
-function GenericTable<T>({ columns, rows }: GenericTableProps<T>) {
-  return (
+function GenericTable<T>({ columns, rows, renderCell }: GenericTableProps<T>) {
+  return (    
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
             {columns.map((column) => (
-              <TableCell key={String(column.field)}>{column.headerName}</TableCell>
+              <TableCell key={String(column.field)}><b>{column.headerName}</b></TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -34,7 +35,9 @@ function GenericTable<T>({ columns, rows }: GenericTableProps<T>) {
             <TableRow key={rowIndex}>
               {columns.map((column) => (
                 <TableCell key={String(column.field)}>
-                  {String(row[column.field])}
+                  {renderCell
+                  ? renderCell(row, column)
+                  : String(row[column.field])}
                 </TableCell>
               ))}
             </TableRow>
