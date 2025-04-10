@@ -21,7 +21,12 @@ interface GenericTableProps<T> {
 
 function GenericTable<T>({ columns, rows, renderCell }: GenericTableProps<T>) {
   return (    
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper}
+      sx={{
+        overflowX: 'auto',
+        maxWidth: { xs: '89VW' }
+      }}
+    >
       <Table>
         <TableHead>
           <TableRow>

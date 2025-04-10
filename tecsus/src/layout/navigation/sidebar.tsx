@@ -30,7 +30,7 @@ const menuItems = [
     text: "Estações",
     icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
     route: "/list-station",
-    relatedRoutes: ["/list-station", "/create-station"],
+    relatedRoutes: ["/list-station", "/register-station"],
     routePrefix: "/editarestacao/",
   },
   {
