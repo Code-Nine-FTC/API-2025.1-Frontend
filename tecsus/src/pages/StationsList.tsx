@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ListStationsFilters, ListStationsResponse } from "../store/station/state";
 import stationGetters from "../store/station/getters";
 import { LoggedLayout } from "../layout/layoutLogged";
-import { Box, Button, Checkbox, FormControlLabel, Grid, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, Paper, Stack, TextField, Typography } from "@mui/material";
 import GenericTable, { Column } from "../components/table";
 import { Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -47,8 +47,6 @@ export default function StationsListPage() {
             const response = await stationGetters.listStations(hasFilters ? filters : undefined);
             if (response.success) {
                 setStations(response.data as ListStationsResponse[]);
-                console.log("stations", response.data)
-                console.log("stations state", stations)
             } else {
                 setError("Erro ao listar estações.");
             }

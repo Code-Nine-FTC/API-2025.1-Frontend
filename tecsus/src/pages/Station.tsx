@@ -12,16 +12,26 @@ import {
   Paper, 
   TextField, 
   Typography,
-  Alert
+  Alert,
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent
 } from "@mui/material";
 import stationGetters from "../store/station/getters";
-import { ListStationsResponse } from "../store/station/state";
+import { ListStationsResponse, UpdateStation } from "../store/station/state";
+import parameterGetters from "../store/typeparameters/getters";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from "../components/authContext";
 import { BlockOutlined, Check } from "@mui/icons-material";
+import DefaultLayout from "../layout/layoutNotLogged";
+import { GridDeleteIcon } from "@mui/x-data-grid";
 
 const StationPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,7 +49,18 @@ const StationPage = () => {
   const[latitude, setLatitude] = useState<number>(0)
   const[longitude, setLongitude] = useState<number>(0)
   const[status, setStatus] = useState<boolean>(true)
-//   const[parameters, setParameters] = useState>([])
+  const[parameters, setParameters] = useState<Array<{
+    parameter_id: number;
+    name_parameter: string;
+    parameter_type_id: number;
+  }>>([]);
+
+  const [allParameters, setAllParameters] = useState<Array<{
+    id: number; 
+    name: string;
+  }>>([]);
+
+  const [selectedParameters, setSelectedParameters] = useState<number[]>([]);
 
   const auth = useAuth();
 
@@ -60,6 +81,13 @@ const StationPage = () => {
             setCountry(response.data.address?.country || "");
             setLatitude(response.data.latitude);
             setLongitude(response.data.longitude);
+
+            if (response.data.parameter_types) {
+              setParameters(response.data.parameter_types);
+              setSelectedParameters(response.data.parameter_types.map((param) => param.parameter_id));
+            }
+
+            setStation(response.data);
             
         } else {
           setError("Não foi possível carregar os detalhes da estação.");
@@ -76,23 +104,57 @@ const StationPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("estacao", station);
+  }, [station]);
+
+  async function fetchAllParameters() {
+    try {
+      const response = await parameterGetters.listParameterTypes();
+      if (response.success) {
+        setAllParameters(response.data || []);
+      } else {
+        setError("Erro ao carregar parâmetros.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
+    }
+  }
+
   const handleSave = async () => {
-    // try {
-    //   setLoading(true);
-    //   // Assuming you have an updateStation method
-    //   const response = await stationGetters);
+    try {
+      setLoading(true);
+
+      const updatedStation: UpdateStation = {}
+
+      const address: {city?: string; state?: string; country?: string} = {}
+
+      if (name != station?.name_station) updatedStation.name = name;
+      if (uid != station?.uid) updatedStation.uid = uid;
+      if (latitude != station?.latitude) updatedStation.latitude = latitude;
+      if (longitude != station?.longitude) updatedStation.longitude = longitude;
+      if (city != station?.address?.city) address.city = city;
+      if (state != station?.address?.state) address.state = state;
+      if (country != station?.address?.country) address.country = country;
+
+      if (Object.keys(address).length > 0) updatedStation.address = address;
+
+      const response = await stationGetters.updateStation(Number(id), updatedStation);
       
-    //   if (response.success) {
-    //     setStation(response.data);
-    //     setEditMode(false);
-    //   } else {
-    //     setError("Erro ao atualizar a estação.");
-    //   }
-    // } catch (err) {
-    //   setError(err instanceof Error ? err.message : "Ocorreu um erro ao salvar as alterações");
-    // } finally {
-    //   setLoading(false);
-    // }
+      if (response.success) {
+        setStation(response.data);
+        setEditMode(false);
+        setLoading(false);
+        setError(null);
+        location.reload()
+      } else {
+        setError("Erro ao atualizar a estação.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocorreu um erro ao salvar as alterações");
+    } finally {
+      setLoading(false);
+    }
   };
 
   async function handleDeactivate() {
@@ -111,6 +173,31 @@ const StationPage = () => {
       setError(err instanceof Error ? err.message : "Ocorreu um erro ao desativar a estação");
     }
   };
+  
+  async function handleRemoveParameter(parameterId: number) {
+    try {
+      setLoading(true);
+      const response = await stationGetters.removeParameter(Number(id), parameterId);
+      
+      if (response.success) {
+        const updatedParameters = parameters.filter(param => param.parameter_id !== parameterId);
+        setParameters(updatedParameters);
+        setSelectedParameters(prev => prev.filter(id => id !== parameterId));
+        setError(null);
+      } else {
+        setError("Erro ao remover o parâmetro.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocorreu um erro ao remover o parâmetro");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleParameterChange(event: SelectChangeEvent<number[]>) {
+    const value = event.target.value as number[];
+    setSelectedParameters(value);
+  }
 
   if (loading) {
     return (
@@ -143,8 +230,7 @@ const StationPage = () => {
     );
   }
 
-  return (
-    <LoggedLayout>
+  const content = (
       <Box className="estacao-wrapper">
         <Paper className="estacao-card">
           <Typography variant="h4" align="center" className="estacao-title">
@@ -265,7 +351,91 @@ const StationPage = () => {
                   />
                 </div>
               </div>
-            </div>
+              
+                <div className={"input-group-wrapper"} style={{ width: "100%" }}>
+                  <div className="input-group">
+                    <label className="input-label">
+                      <strong>Parâmetros</strong>
+                    </label>
+                    
+                    {/* Show parameter badges with X for removal when not in edit mode */}
+                    {!editMode && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                        {parameters.length > 0 ? (
+                          parameters.map((param) => (
+                            <Chip
+                              key={param.parameter_id}
+                              label={param.name_parameter}
+                              sx={{ 
+                                backgroundColor: "#5f5cd9",
+                                color: "white",
+                              }}
+                            />
+                          ))
+                        ) : (
+                          <Typography sx={{ color: '#666' }}>Nenhum parâmetro vinculado</Typography>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Show multi-select dropdown and badges with delete in edit mode */}
+                    {editMode && (
+                      <>
+                        <FormControl fullWidth sx={{ mt: 1, mb: 2 }}>
+                          <InputLabel id="parameter-select-label">Selecione os parâmetros</InputLabel>
+                          <Select
+                            labelId="parameter-select-label"
+                            id="parameter-select"
+                            multiple
+                            onClick={() => fetchAllParameters()}
+                            value={selectedParameters}
+                            onChange={handleParameterChange}
+                            input={<OutlinedInput label="Selecione os parâmetros" />}
+                            renderValue={(selected) => (
+                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                {selected.map((paramTypeId) => {
+                                  const param = allParameters.find(p => p.id === paramTypeId);
+                                  return (
+                                    <Chip 
+                                      key={paramTypeId} 
+                                      label={param?.name || `Parâmetro ${paramTypeId}`} 
+                                      sx={{ backgroundColor: "#5f5cd9", color: "white" }}
+                                    />
+                                  );
+                                })}
+                              </Box>
+                            )}
+                          >
+                            {allParameters.map((param) => (
+                              <MenuItem key={param.id} value={param.id}>
+                                {param.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                          {parameters.map((param) => (
+                            <Chip
+                              key={param.parameter_id}
+                              label={param.name_parameter}
+                              onDelete={() => handleRemoveParameter(param.parameter_type_id)}
+                              deleteIcon={<GridDeleteIcon style={{ color: 'white' }} />}
+                              sx={{ 
+                                backgroundColor: "#5f5cd9",
+                                color: "white",
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            {auth.isAuthenticated && (
+              
             <Box mt={3} textAlign="center">
               {!editMode ? (
                 <Button
@@ -317,11 +487,22 @@ const StationPage = () => {
                 </>
               )}
             </Box>
+          )}
           </form>
         </Paper>
       </Box>
-    </LoggedLayout>
   );
+  
+  return auth.isAuthenticated ? (
+      <LoggedLayout>
+        {content}
+      </LoggedLayout>
+    ):
+    (
+      <DefaultLayout>
+        {content}
+      </DefaultLayout>
+    )
 };
 
 export default StationPage;

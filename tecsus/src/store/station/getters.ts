@@ -24,15 +24,6 @@ export default {
     async listStations(filters?: ListStationsFilters): 
         Promise<{ success: boolean; data?: [ListStationsResponse]; error?: string}> {
         try {
-
-            const params = new URLSearchParams();
-
-            // if (filters) {
-            //     if (filters.uid) params.append("uid", filters.uid);
-            //     if (filters.name) params.append("name", filters.name);
-            //     if (filters.isActive !== undefined) params.append("is_active", String(filters.isActive));
-            // }
-
             const response = await api.get("/stations/filters", {
                 params: filters
             });
@@ -60,7 +51,7 @@ export default {
     async updateStation(id: number, station: UpdateStation):
         Promise<{success: boolean; data?: any; error?: string}> {
         try {
-            const response = await api.put(`/stations/${id}`, station, {
+            const response = await api.patch(`/stations/${id}`, station, {
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -86,6 +77,20 @@ export default {
             return {
                 success: false,
                 error: error.message || "Erro ao desativar estação",
+            };
+        }
+    },
+    
+    async removeParameter(id: number, parameterId: number):
+        Promise<{success: boolean; data?: any; error?: string}> {
+        try {
+            const response = await api.patch(`/stations/${id}/parameter/${parameterId}`);
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao remover parâmetro da estação:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao remover parâmetro da estação",
             };
         }
     }
