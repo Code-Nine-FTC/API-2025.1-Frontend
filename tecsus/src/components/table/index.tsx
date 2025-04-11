@@ -17,9 +17,10 @@ interface GenericTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   renderCell?: (row: T, column: Column<T>) => React.ReactNode;
+  renderActions?: (row: T) => React.ReactNode;
 }
 
-function GenericTable<T>({ columns, rows, renderCell }: GenericTableProps<T>) {
+function GenericTable<T>({ columns, rows, renderCell, renderActions }: GenericTableProps<T>) {
   return (    
     <TableContainer component={Paper}
       sx={{
@@ -45,6 +46,11 @@ function GenericTable<T>({ columns, rows, renderCell }: GenericTableProps<T>) {
                   : String(row[column.field])}
                 </TableCell>
               ))}
+              {renderActions && (
+                <TableCell align="center">
+                  {renderActions(row)}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

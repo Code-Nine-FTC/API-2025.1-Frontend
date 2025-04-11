@@ -44,6 +44,16 @@ export default {
                 error: error.message || "Erro ao listar estações",
             };
         }
-
-    }
+    },
+    
+    async getStation(id: number): 
+        Promise<{success: boolean; data?: ListStationsResponse; error?: string}> {
+        try {
+            const response = await api.get(`/stations/${id}`);
+            return { success: true, data: response.data.data };
+        } catch (error: any) {
+            console.error("Erro ao obter estação:", error.message || error);
+            throw new Error(error.message || "Erro ao obter estação");
+        }
+     }
 }

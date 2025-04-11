@@ -125,6 +125,7 @@ export default function StationsListPage() {
                         </Button>
                         <Button
                             variant="contained" 
+                            color="primary"
                             startIcon={<Search />}
                             onClick={handleSearch}
                         >
@@ -166,12 +167,21 @@ export default function StationsListPage() {
                             }
                             return '';
                           }
-        
+
                         if (column.field === 'create_date') {
                           return new Date(row[column.field] as string).toLocaleDateString();
                         }                        
                         return String(row[column.field]);
                       }}
+                    renderActions={(row) => (
+                        <Button
+                            variant="outlined"
+                            onClick={() => navigate(`/view-station/${row.id}`)}
+                        >
+                            Visualizar
+                        </Button>
+                    )
+                    }
                 />
             </Box>
         </LoggedLayout>
