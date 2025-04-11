@@ -1,5 +1,5 @@
 import api from "../globals";
-import { ListStationsFilters, ListStationsResponse, RegisterStation } from "./state";
+import { ListStationsFilters, ListStationsResponse, RegisterStation, UpdateStation } from "./state";
 
 export default {
     async registerStation(station: RegisterStation): 
@@ -27,11 +27,11 @@ export default {
 
             const params = new URLSearchParams();
 
-            if (filters) {
-                if (filters.uid) params.append("uid", filters.uid);
-                if (filters.name) params.append("name", filters.name);
-                if (filters.status !== undefined) params.append("status", String(filters.status));
-            }
+            // if (filters) {
+            //     if (filters.uid) params.append("uid", filters.uid);
+            //     if (filters.name) params.append("name", filters.name);
+            //     if (filters.isActive !== undefined) params.append("is_active", String(filters.isActive));
+            // }
 
             const response = await api.get("/stations/filters", {
                 params: filters
@@ -55,5 +55,38 @@ export default {
             console.error("Erro ao obter estação:", error.message || error);
             throw new Error(error.message || "Erro ao obter estação");
         }
-     }
+     },
+
+    async updateStation(id: number, station: UpdateStation):
+        Promise<{success: boolean; data?: any; error?: string}> {
+        try {
+            const response = await api.put(`/stations/${id}`, station, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao atualizar estação:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao atualizar estação",
+            };
+        }
+    },
+
+    async deactivateStation(id: number):
+        Promise<{success: boolean; data?: any; error?: string}> {
+        try {
+            const response = await api.patch(`/stations/disable/${id}`);
+            console.log(response)
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao desativar estação:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao desativar estação",
+            };
+        }
+    }
 }

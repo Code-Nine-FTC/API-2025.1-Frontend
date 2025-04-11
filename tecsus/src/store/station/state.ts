@@ -23,12 +23,25 @@ export interface ListStationsResponse {
     latitude: number;
     longitude: number;
     create_date: string;
-    status: boolean;
+    is_active: boolean;
     parameter_types: number[];
 }
 
 export interface ListStationsFilters {
     uid?: string;
     name?: string;
-    status?: boolean;
+    is_active?: boolean;
+}
+
+export interface UpdateStation {
+    name?: string;
+    uid?: string;
+    latitude?: number;
+    longitude?: number;
+    address?: {
+        country?: string;
+        city?: string;
+        state?: string;
+    };
+    parameter_types?: number[];
 }

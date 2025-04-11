@@ -21,6 +21,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from "../components/authContext";
+import { BlockOutlined, Check } from "@mui/icons-material";
 
 const StationPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +54,7 @@ const StationPage = () => {
             setStation(response.data);
             setName(response.data.name_station);
             setUid(response.data.uid);
-            setStatus(response.data.status);
+            setStatus(response.data.is_active);
             setCity(response.data.address?.city || "");
             setState(response.data.address?.state || "");
             setCountry(response.data.address?.country || "");
@@ -92,6 +93,23 @@ const StationPage = () => {
     // } finally {
     //   setLoading(false);
     // }
+  };
+
+  async function handleDeactivate() {
+    try {
+      setLoading(true);
+      const response = await stationGetters.deactivateStation(Number(id));
+      if (response.success) {
+        setEditMode(false);
+        setLoading(false);
+        location.reload()
+
+      } else {
+        setError("Erro ao desativar a estação.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocorreu um erro ao desativar a estação");
+    }
   };
 
   if (loading) {
@@ -266,9 +284,26 @@ const StationPage = () => {
                     startIcon={<CancelIcon />}
                     onClick={() => setEditMode(false)}
                     className="estacao-btn"
-                    style={{ marginRight: "10px" }}
+                    sx={{ 
+                      marginRight: "10px",
+                      "&:hover": { color: "white" },
+                    }}
                   >
                     Cancelar
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color={status? "error" : "success"}
+                    startIcon={status? <BlockOutlined /> : <Check/>}
+                    onClick={() => handleDeactivate()}
+                    className="estacao-btn"
+                    sx={{ 
+                      "&:hover": { backgroundColor: status? "#c9302c" : "rgb(45, 186, 2)" }, 
+                      mr: "10px", 
+                      color: "white" 
+                    }}
+                  >
+                    {status? "Desativar" : "Ativar"}
                   </Button>
                   <Button
                     variant="contained"

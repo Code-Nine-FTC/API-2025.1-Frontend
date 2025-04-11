@@ -13,7 +13,7 @@ export default function StationsListPage() {
     const [error, setError] = useState<string | null>(null);
     const [name, setName] = useState<string>("");
     const [uid, setUid] = useState<string>("");
-    const [status, setStatus] = useState<boolean>(true);
+    const [isActive, setIsActive] = useState<boolean>(true);
 
     const navigate = useNavigate();
     const auth = useAuth();
@@ -38,8 +38,8 @@ export default function StationsListPage() {
                 filters.uid = uid;
               }
               
-              if (status === true) {
-                filters.status = status;
+              if (isActive === true) {
+                filters.is_active = isActive;
               }
 
             const hasFilters = filters && Object.keys(filters).length > 0;
@@ -104,8 +104,8 @@ export default function StationsListPage() {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={status}
-                                    onChange={(e) => setStatus(e.target.checked)}
+                                    checked={isActive}
+                                    onChange={(e) => setIsActive(e.target.checked)}
                                     name="status"
                                 />
                             }
