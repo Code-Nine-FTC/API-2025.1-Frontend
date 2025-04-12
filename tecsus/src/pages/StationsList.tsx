@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ListStationsFilters, ListStationsResponse } from "../store/station/state";
 import stationGetters from "../store/station/getters";
 import { LoggedLayout } from "../layout/layoutLogged";
-import { Box, Button, Checkbox, FormControlLabel, Grid, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, Paper, Stack, TextField, Typography } from "@mui/material";
 import GenericTable, { Column } from "../components/table";
 import { Search } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ export default function StationsListPage() {
     const [error, setError] = useState<string | null>(null);
     const [name, setName] = useState<string>("");
     const [uid, setUid] = useState<string>("");
-    const [status, setStatus] = useState<boolean>(true);
+    const [isActive, setIsActive] = useState<boolean>(true);
 
     const navigate = useNavigate();
     const auth = useAuth();
@@ -38,8 +38,8 @@ export default function StationsListPage() {
                 filters.uid = uid;
               }
               
-              if (status === true) {
-                filters.status = status;
+              if (isActive === true) {
+                filters.is_active = isActive;
               }
 
             const hasFilters = filters && Object.keys(filters).length > 0;
@@ -47,8 +47,6 @@ export default function StationsListPage() {
             const response = await stationGetters.listStations(hasFilters ? filters : undefined);
             if (response.success) {
                 setStations(response.data as ListStationsResponse[]);
-                console.log("stations", response.data)
-                console.log("stations state", stations)
             } else {
                 setError("Erro ao listar estações.");
             }
@@ -104,8 +102,8 @@ export default function StationsListPage() {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={status}
-                                    onChange={(e) => setStatus(e.target.checked)}
+                                    checked={isActive}
+                                    onChange={(e) => setIsActive(e.target.checked)}
                                     name="status"
                                 />
                             }

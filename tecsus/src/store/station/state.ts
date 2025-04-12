@@ -8,7 +8,7 @@ export interface RegisterStation {
         city: string;
         state: string;
     };
-    parameter_types: number[];
+    parameter_types?: number[]
 }
 
 export interface ListStationsResponse {
@@ -23,12 +23,29 @@ export interface ListStationsResponse {
     latitude: number;
     longitude: number;
     create_date: string;
-    status: boolean;
-    parameter_types: number[];
+    is_active: boolean;
+    parameter_types:[{
+        parameter_id: number;
+        name_parameter: string;
+        parameter_type_id: number;
+    }];
 }
 
 export interface ListStationsFilters {
     uid?: string;
     name?: string;
-    status?: boolean;
+    is_active?: boolean;
+}
+
+export interface UpdateStation {
+    name?: string;
+    uid?: string;
+    latitude?: number;
+    longitude?: number;
+    address?: {
+        country?: string;
+        city?: string;
+        state?: string;
+    };
+    parameter_types?: number[];
 }
