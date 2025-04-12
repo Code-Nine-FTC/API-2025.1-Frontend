@@ -9,10 +9,12 @@ export const LoggedLayout = ({ children }: { children: React.ReactNode }) => {
       <Box
         component="main"
         sx={{
-          bgcolor: "#f5f5f5",
           flex: 1,
-          height: "100vh",
+          minHeight: "100vh",
           width: "100vw",
+          bgcolor: "#f5f5f5",
+          py: 5,
+          flexGrow: 1
         }}
       >
         {children}

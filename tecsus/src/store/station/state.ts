@@ -24,7 +24,7 @@ export interface ListStationsResponse {
     longitude: number;
     create_date: string;
     is_active: boolean;
-    parameter_types:[{
+    parameters: [{
         parameter_id: number;
         name_parameter: string;
         parameter_type_id: number;

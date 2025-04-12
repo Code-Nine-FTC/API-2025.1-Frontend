@@ -82,9 +82,9 @@ const StationPage = () => {
             setLatitude(response.data.latitude);
             setLongitude(response.data.longitude);
 
-            if (response.data.parameter_types) {
-              setParameters(response.data.parameter_types);
-              setSelectedParameters(response.data.parameter_types.map((param) => param.parameter_id));
+            if (response.data.parameters) {
+              setParameters(response.data.parameters);
+              setSelectedParameters(response.data.parameters.map((param) => param.parameter_type_id));
             }
 
             setStation(response.data);
@@ -104,10 +104,6 @@ const StationPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    console.log("estacao", station);
-  }, [station]);
-
   async function fetchAllParameters() {
     try {
       const response = await parameterGetters.listParameterTypes();
@@ -120,6 +116,12 @@ const StationPage = () => {
       setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
     }
   }
+
+  useEffect(() => {
+    if (editMode) {
+      fetchAllParameters()
+    }
+  }, [editMode]);
 
   const handleSave = async () => {
     try {
@@ -138,11 +140,12 @@ const StationPage = () => {
       if (country != station?.address?.country) address.country = country;
 
       if (Object.keys(address).length > 0) updatedStation.address = address;
+      
+      updatedStation.parameter_types = selectedParameters;
 
       const response = await stationGetters.updateStation(Number(id), updatedStation);
       
       if (response.success) {
-        setStation(response.data);
         setEditMode(false);
         setLoading(false);
         setError(null);
@@ -173,26 +176,6 @@ const StationPage = () => {
       setError(err instanceof Error ? err.message : "Ocorreu um erro ao desativar a estação");
     }
   };
-  
-  async function handleRemoveParameter(parameterId: number) {
-    try {
-      setLoading(true);
-      const response = await stationGetters.removeParameter(Number(id), parameterId);
-      
-      if (response.success) {
-        const updatedParameters = parameters.filter(param => param.parameter_id !== parameterId);
-        setParameters(updatedParameters);
-        setSelectedParameters(prev => prev.filter(id => id !== parameterId));
-        setError(null);
-      } else {
-        setError("Erro ao remover o parâmetro.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocorreu um erro ao remover o parâmetro");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function handleParameterChange(event: SelectChangeEvent<number[]>) {
     const value = event.target.value as number[];
@@ -358,7 +341,6 @@ const StationPage = () => {
                       <strong>Parâmetros</strong>
                     </label>
                     
-                    {/* Show parameter badges with X for removal when not in edit mode */}
                     {!editMode && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
                         {parameters.length > 0 ? (
@@ -378,7 +360,6 @@ const StationPage = () => {
                       </div>
                     )}
                     
-                    {/* Show multi-select dropdown and badges with delete in edit mode */}
                     {editMode && (
                       <>
                         <FormControl fullWidth sx={{ mt: 1, mb: 2 }}>
@@ -387,7 +368,6 @@ const StationPage = () => {
                             labelId="parameter-select-label"
                             id="parameter-select"
                             multiple
-                            onClick={() => fetchAllParameters()}
                             value={selectedParameters}
                             onChange={handleParameterChange}
                             input={<OutlinedInput label="Selecione os parâmetros" />}
@@ -413,21 +393,6 @@ const StationPage = () => {
                             ))}
                           </Select>
                         </FormControl>
-                        
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                          {parameters.map((param) => (
-                            <Chip
-                              key={param.parameter_id}
-                              label={param.name_parameter}
-                              onDelete={() => handleRemoveParameter(param.parameter_type_id)}
-                              deleteIcon={<GridDeleteIcon style={{ color: 'white' }} />}
-                              sx={{ 
-                                backgroundColor: "#5f5cd9",
-                                color: "white",
-                              }}
-                            />
-                          ))}
-                        </div>
                       </>
                     )}
                   </div>
