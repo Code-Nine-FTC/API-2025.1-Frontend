@@ -53,4 +53,37 @@ export default {
             };
         }
     },
+
+    async deleteAlert(alertId: number): 
+        Promise<{ success: boolean; error?: string }> {
+        try {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("Usuário não autenticado");
+            }
+
+            console.log("Token enviado:", token);
+
+            const response = await api.delete(`/alert/${alertId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log("Resposta do backend:", response);
+
+            if (response.status === 204 || response.status === 200) {
+                return { success: true };
+            }
+
+            throw new Error("Erro ao deletar o alerta");
+        } catch (error: any) {
+            console.error("Erro ao deletar o alerta:", error.message || error);
+            return {
+                success: false,
+                error: error.response?.data?.detail || "Erro ao deletar o alerta",
+            };
+        }
+    },
 };
