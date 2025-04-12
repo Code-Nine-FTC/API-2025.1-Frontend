@@ -6,6 +6,7 @@ import TypeAlertsPage from "../TypeAlerts";
 import TypeParametersPage from "../TypeParameters";
 import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
+import AlertsPage from "../Alerts";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -45,6 +46,14 @@ const AuthenticatedRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <TypeParametersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route  
+        path="/list-alerts"
+        element={
+          <ProtectedRoute>
+            <AlertsPage />
           </ProtectedRoute>
         }
       />

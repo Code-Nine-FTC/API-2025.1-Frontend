@@ -44,7 +44,7 @@ const menuItems = [
   },
   { text: "Alertas", 
     icon: <NotificationImportantIcon sx={{ fontSize: 40 }} />, 
-    route: "/listalerts" 
+    route: "/list-alerts" 
   },
   { text: "Tipo de Alertas", 
     icon: <NotificationsActiveIcon sx={{ fontSize: 40 }} />, 
