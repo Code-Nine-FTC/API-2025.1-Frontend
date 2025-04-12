@@ -1,22 +1,18 @@
 import api from "../globals";
-import { ListParameterTypesFilters, ListParameterTypesResponse } from "./state";
+import { ListParameterTypesFilters, ParameterTypesResponse } from "./state";
 
 export default {
     async listParameterTypes(filters?: ListParameterTypesFilters): 
-        Promise<{ success: boolean; data?: [ListParameterTypesResponse]; error?: string }> {
+        Promise<{ success: boolean; data?: [ParameterTypesResponse]; error?: string }> {
         try {
             const params = new URLSearchParams();
   
             if (filters) {
                 if (filters.name) params.append("name", filters.name);
-                if (filters.measure_unit) params.append("measure_unit", filters.measure_unit);
                 if (filters.is_active !== undefined) params.append("is_active", String(filters.is_active));
             }
         
-            const response = await api.get("/parameter_types", {
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
+            const response = await api.get("/parameter_types/", {
                 params: params,
             });
 
@@ -30,6 +26,7 @@ export default {
                   offset: parameterType.offset,
                   factor: parameterType.factor,
                 }));
+                console.log("Data", parameterTypes)
                 return { success: true, data: parameterTypes };
               }
             return { success: true, data: response.data };

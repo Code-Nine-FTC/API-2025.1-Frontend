@@ -1,6 +1,7 @@
-export interface ListParameterTypesResponse {
+export interface ParameterTypesResponse {
     id: number;
     name: string;
+    json: Record<string, any>;
     measure_unit: string;
     is_active: boolean;
     qnt_decimals: number;
@@ -10,6 +11,5 @@ export interface ListParameterTypesResponse {
 
 export interface ListParameterTypesFilters {
     name?: string;
-    measure_unit?: string;
-    is_active?: boolean | string; 
+    is_active?: boolean 
 }

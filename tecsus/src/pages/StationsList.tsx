@@ -73,7 +73,7 @@ export default function StationsListPage() {
 
     return (
         <LoggedLayout>
-            <Box margin={2}>
+            <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="h6" mb={2}>Filtros de Busca</Typography>
                 <Box
