@@ -106,7 +106,7 @@ const StationPage = () => {
 
   async function fetchAllParameters() {
     try {
-      const response = await parameterGetters.listParameterTypes();
+      const response = await parameterGetters.listParameterTypes({ is_active: true });
       if (response.success) {
         setAllParameters(response.data || []);
       } else {
@@ -142,6 +142,8 @@ const StationPage = () => {
       if (Object.keys(address).length > 0) updatedStation.address = address;
       
       updatedStation.parameter_types = selectedParameters;
+
+      console.log(updatedStation)
 
       const response = await stationGetters.updateStation(Number(id), updatedStation);
       
