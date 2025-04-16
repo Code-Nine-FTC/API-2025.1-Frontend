@@ -23,3 +23,13 @@ export interface ParameterTypeCreate{
     offset?: number;
     factor?: number;
 }
+
+export interface UpdatedParameterType{
+	name?: string;
+	detect_type?: string;
+	measure_unit?: string;
+	is_active?: boolean;
+	qnt_decimals?: number;
+	offset?: number;
+	factor?: number;
+}

@@ -4,6 +4,7 @@ import About from "../About";
 import LoginPage from "../Login";
 import Education from "../Education";
 import StationPage from "../Station";
+import TypeParameterPage from "../TypeParameter"
 
 const nonAuthenticatedRoutes: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const nonAuthenticatedRoutes: React.FC = () => {
       <Route path="/about" element={<About />} />
       <Route path="/education" element={<Education />} />
       <Route path="/view-station/:id" element={<StationPage />} />
+	  <Route path="/view-type-parameter/:id" element={<TypeParameterPage />} />
     </Routes>
   );
 };

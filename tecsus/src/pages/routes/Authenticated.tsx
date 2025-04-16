@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import DashboardPage from "../Dashboard";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import TypeAlertsPage from "../TypeAlerts";
-import TypeParametersPage from "../TypeParameters";
+import TypeParametersPage from "../TypeParametersList";
 import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
 import AlertsPage from "../Alerts";

@@ -19,11 +19,11 @@ import {
   ParameterTypesResponse,
   ListParameterTypesFilters,
 } from "../store/typeparameters/state";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authContext";
 
-function TypeParametersPage() {
+function TypeParametersList() {
   const navigate = useNavigate();
   const auth = useAuth();
   const [typeParameters, setTypeParameters] = useState<
@@ -42,29 +42,7 @@ function TypeParametersPage() {
     { field: "detect_type", headerName: "Sigla" },
   ];
 
-  useEffect(() => {
-    getListTypeParameter();
-  }, []);
-
-  useEffect(() => {
-    handleFilter();
-  }, [showInactive]);
-
-  async function getListTypeParameter() {
-    try {
-      const response = await typeParameterGetters.listParameterTypes();
-      if (response.success) {
-        setTypeParameters(response.data as ParameterTypesResponse[]);
-      }
-      console.log(response.data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
-      );
-    }
-  }
-
-  async function handleFilter() {
+  const handleFilter = useCallback(async () => {
     try {
       const filters: ListParameterTypesFilters = {};
       if (name && name.trim() !== "") {
@@ -83,7 +61,11 @@ function TypeParametersPage() {
         err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
       );
     }
-  }
+  }, [name, showInactive]);
+
+  useEffect(() => {
+    handleFilter();
+  }, [handleFilter]);
 
   async function handleDelete(id: number) {
     try {
@@ -238,8 +220,9 @@ function TypeParametersPage() {
                 <Switch
                   checked={showInactive}
                   onChange={(e) => {
+                    const newShowInactive = e.target.checked;
+                    setShowInactive(newShowInactive);
                     handleFilter();
-                    setShowInactive(e.target.checked);
                   }}
                   color="primary"
                   size="medium"
@@ -290,7 +273,7 @@ function TypeParametersPage() {
               <>
                 <Box display="flex" gap={1} alignItems={"center"}>
                   <IconButton
-                    onClick={() => navigate(`/view-station/${row.id}`)}
+                    onClick={() => navigate(`/view-type-parameter/${row.id}`)}
                     sx={{
                       color: "rgb(39, 235, 65)",
                     }}
@@ -318,4 +301,4 @@ function TypeParametersPage() {
     </LoggedLayout>
   );
 }
-export default TypeParametersPage;
+export default TypeParametersList;
