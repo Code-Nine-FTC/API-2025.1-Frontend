@@ -7,6 +7,7 @@ import TypeParametersPage from "../TypeParameters";
 import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
 import AlertsPage from "../Alerts";
+import RegisterParameterType from "../RegisterParameterType";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -54,6 +55,14 @@ const AuthenticatedRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <AlertsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/register-parameter-type"
+        element={
+          <ProtectedRoute>
+            <RegisterParameterType/>
           </ProtectedRoute>
         }
       />

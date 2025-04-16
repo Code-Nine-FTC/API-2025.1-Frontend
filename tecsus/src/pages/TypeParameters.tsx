@@ -6,10 +6,12 @@ import {
   Container,
   Switch,
   TextField,
+  IconButton,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import SearchIcon from "@mui/icons-material/Search";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { LoggedLayout } from "../layout/layoutLogged";
 import GenericTable, { Column } from "../components/table";
 import typeParameterGetters from "../store/typeparameters/getters";
@@ -37,7 +39,7 @@ function TypeParametersPage() {
     { field: "qnt_decimals", headerName: "Quantidade de Decimais" },
     { field: "offset", headerName: "OffSett" },
     { field: "factor", headerName: "Factor" },
-    { field: "json", headerName: "JSON" },
+    { field: "detect_type", headerName: "Sigla" },
   ];
 
   useEffect(() => {
@@ -54,6 +56,7 @@ function TypeParametersPage() {
       if (response.success) {
         setTypeParameters(response.data as ParameterTypesResponse[]);
       }
+      console.log(response.data);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
@@ -82,19 +85,61 @@ function TypeParametersPage() {
     }
   }
 
+  async function handleDelete(id: number) {
+    try {
+      const response = await typeParameterGetters.deleteParameterType(id);
+      if (response.success) {
+        setTypeParameters((prev) =>
+          prev.filter((typeParameter) => typeParameter.id !== id)
+        );
+      } else {
+        setError("Erro ao excluir tipo de parâmetro.");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
+      );
+    }
+  }
+
   return (
     <LoggedLayout>
       <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
         <Box
-          sx={{
-            maxWidth: 600,
-            "& .MuiTypography-h4": {
-              fontWeight: 700,
-              color: "primary.main",
-            },
-          }}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
         >
-          <Typography variant="h4" >Tipos de Parâmetros</Typography>
+          <Box
+            sx={{
+              maxWidth: 600,
+              "& .MuiTypography-h4": {
+                fontWeight: 700,
+                color: "primary.main",
+              },
+            }}
+          >
+            <Typography variant="h4">Tipos de Parâmetros</Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
+            onClick={() => navigate("/register-parameter-type")}
+            sx={{
+              minHeight: 42,
+              borderRadius: "8px",
+              px: 3,
+              py: 1.2,
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              background:
+                "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
+              color: "#fff",
+            }}
+          >
+            Novo Cadastro
+          </Button>
         </Box>
         <Paper sx={{ p: 2 }}>
           <Typography variant="h6" mb={2} sx={{ color: "gray" }}>
@@ -108,7 +153,7 @@ function TypeParametersPage() {
             sx={{
               flexDirection: { xs: "column", sm: "row" },
               mb: 2,
-            }}  
+            }}
           >
             <TextField
               label="Pesquisar Tipo de Parâmetro"
@@ -159,25 +204,6 @@ function TypeParametersPage() {
                 justifyContent: { xs: "flex-end", sm: "normal" },
               }}
             >
-              <Button
-                variant="contained"
-                startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
-                onClick={() => navigate("/register-station")}
-                sx={{
-                  minHeight: 42,
-                  borderRadius: "8px",
-                  px: 3,
-                  py: 1.2,
-                  fontSize: "0.95rem",
-                  fontWeight: 600,
-                  background:
-                    "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
-                  color: "#fff",
-                }}
-              >
-                Novo Cadastro
-              </Button>
-
               <Box
                 sx={{
                   display: "flex",
@@ -246,28 +272,45 @@ function TypeParametersPage() {
           <GenericTable
             columns={columns}
             rows={typeParameters}
+            renderCell={(row, column) => {
+              if (column.field === "offset") {
+                return row.offset !== undefined ? row.offset : "Não Definido";
+              }
+              if (column.field === "factor") {
+                return row.factor !== undefined ? row.factor : "Não Definido";
+              }
+              if (column.field === "detect_type") {
+                return row.detect_type !== undefined
+                  ? row.detect_type
+                  : "Não Definido";
+              }
+              return String(row[column.field]);
+            }}
             renderActions={(row) => (
-              <Button
-                variant="outlined"
-                startIcon={<VisibilityIcon />}
-                onClick={() => navigate(`/view-station/${row.id}`)}
-                sx={{
-                  borderRadius: "8px",
-                  borderColor: "rgb(39, 235, 65)",
-                  color: "rgb(39, 235, 65)",
-                  textTransform: "none",
-                  px: 2.5,
-                  py: 1,
-                  borderWidth: 2,
-                  "&:hover": {
-                    borderWidth: 2,
-                    borderColor: "rgb(39, 235, 65)",
-                    color: "rgb(39, 235, 65)",
-                  },
-                }}
-              >
-                Detalhes
-              </Button>
+              <>
+                <Box display="flex" gap={1} alignItems={"center"}>
+                  <IconButton
+                    onClick={() => navigate(`/view-station/${row.id}`)}
+                    sx={{
+                      color: "rgb(39, 235, 65)",
+                    }}
+                  >
+                    <VisibilityIcon />
+                  </IconButton>
+
+                  <IconButton
+                    onClick={() => handleDelete(row.id)}
+                    sx={{
+                      color: "red",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                      },
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </>
             )}
           />
         </Box>

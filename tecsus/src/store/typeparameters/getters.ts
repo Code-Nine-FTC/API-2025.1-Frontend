@@ -1,5 +1,5 @@
 import api from "../globals";
-import { ListParameterTypesFilters, ParameterTypesResponse } from "./state";
+import { ListParameterTypesFilters, ParameterTypeCreate, ParameterTypesResponse } from "./state";
 
 export default {
     async listParameterTypes(filters?: ListParameterTypesFilters): 
@@ -35,6 +35,36 @@ export default {
             return {
                 success: false,
                 error: error.message || "Erro ao listar tipos de parâmetros",
+            };
+        }
+    },
+    async deleteParameterType(id: number): Promise<{ success: boolean; error?: string }> {
+        try {
+            const response = await api.patch(`/parameter_types/${id}/`);
+            if (response.status === 200) {
+                return { success: true };
+            } 
+            return { success: false, error: "Erro ao deletar tipo de parâmetro" };
+        } catch (error: any) {
+            console.error("Erro ao deletar tipo de parâmetro:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao deletar tipo de parâmetro",
+            };
+        }
+    },
+    async createParameterType(data: ParameterTypeCreate): Promise<{ success: boolean; error?: string }> {
+        try {
+            const response = await api.post("/parameter_types/", data);
+            if (response.status === 200) {
+                return { success: true };
+            } 
+            return { success: false, error: "Erro ao criar tipo de parâmetro" };
+        } catch (error: any) {
+            console.error("Erro ao criar tipo de parâmetro:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao criar tipo de parâmetro",
             };
         }
     }

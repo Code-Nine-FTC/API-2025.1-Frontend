@@ -1,7 +1,7 @@
 export interface ParameterTypesResponse {
     id: number;
     name: string;
-    json: Record<string, any>;
+    detect_type: string;
     measure_unit: string;
     is_active: boolean;
     qnt_decimals: number;
@@ -12,4 +12,14 @@ export interface ParameterTypesResponse {
 export interface ListParameterTypesFilters {
     name?: string;
     is_active?: boolean 
+}
+
+export interface ParameterTypeCreate{
+    name: string;
+    detect_type: string;
+    measure_unit: string;
+    is_active: boolean;
+    qnt_decimals: number;
+    offset?: number;
+    factor?: number;
 }
