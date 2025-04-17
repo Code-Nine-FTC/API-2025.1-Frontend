@@ -1,0 +1,36 @@
+
+export interface AlertTypeResponse {
+    id: number;
+    parameter_id: number;
+    name: string;
+    value: number;
+    math_signal: string;
+    status: string;
+    is_active: boolean;
+    create_date: string;
+    last_update: string;
+  }
+  
+
+  export interface AlertTypeUpdate {
+    name?: string;
+    value?: number;
+    math_signal?: string;
+    status?: string;
+    is_active?: boolean;
+  }
+  
+ 
+  export interface AlertTypeState {
+    alertTypes: AlertTypeResponse[];
+    loading: boolean;
+    error?: string; 
+  }
+  
+  export interface AlertTypeState {
+    parameter_id: number;
+    name: string;
+    value: number;
+    math_signal: string;
+    status: string;
+  }

@@ -7,7 +7,7 @@ import TypeParametersPage from "../TypeParametersList";
 import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
 import AlertsPage from "../Alerts";
-import RegisterParameterType from "../RegisterParameterType";
+import RegisterParameterType from "../RegisterParameterType";// Importe o componente de cadastro/edição
 
 const AuthenticatedRoutes: React.FC = () => {
   return (

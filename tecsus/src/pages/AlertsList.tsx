@@ -105,16 +105,6 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
               fullWidth
             />
           </Box>
-          <Box display="flex" gap={2}>
-            <TextField
-              label="Data Inicial"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-          </Box>
           <Box display="flex" justifyContent="flex-end" gap={2}>
             <Button variant="outlined" onClick={handleResetFilters}>
               Limpar
