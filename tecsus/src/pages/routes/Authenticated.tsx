@@ -8,6 +8,7 @@ import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
 import AlertsPage from "../Alerts";
 import RegisterParameterType from "../RegisterParameterType";// Importe o componente de cadastro/edição
+import ProfilePage from "../Profile";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -66,6 +67,15 @@ const AuthenticatedRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 };
