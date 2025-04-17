@@ -1,5 +1,5 @@
 import api from "../globals";
-import { ListParameterTypesFilters, ParameterTypeCreate, ParameterTypesResponse, UpdateParameterType } from "./state";
+import { ListParameterTypesFilters, ParameterTypeCreate, ParameterTypesResponse, UpdatedParameterType } from "./state";
 
 export default {
     async listParameterTypes(filters?: ListParameterTypesFilters): 
@@ -84,7 +84,7 @@ export default {
 			};
 		}
 	},
-	async updateParameterType(id: number, typeParameter: UpdateParameterType): Promise<{ success: boolean; error?: string}> {
+	async updateParameterType(id: number, typeParameter: UpdatedParameterType): Promise<{ success: boolean; error?: string}> {
 		try {
 			const response = await api.patch(`/parameter_types/${id}`, typeParameter, {
 				headers: {

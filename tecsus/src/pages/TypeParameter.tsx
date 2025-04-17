@@ -268,15 +268,26 @@ const TypeParameterPage = () => {
 					</div>
 					<Box mt={3} textAlign="center">
 						{!editMode ? (
+							<>
 							<Button
 								variant="contained"
 								startIcon={<EditIcon />}
 								onClick={() => setEditMode(true)}
 								className="type-parameter-btn"
-								style={{ backgroundColor: "#5f5cd9", color: "white" }}
+								sx={{ backgroundColor: "#5f5cd9", color: "white", marginRight: 2 }}
 							>
 								Editar
 							</Button>
+							<Button
+								variant="outlined"
+								startIcon={<CancelIcon />}
+								onClick={() => window.history.back()}
+								className="type-parameter-btn"
+								sx={{ marginRight: "10px", }}
+							>
+								Voltar
+							</Button>
+						  </>
 						) : (
 							<>
 								<Button
@@ -284,7 +295,7 @@ const TypeParameterPage = () => {
 									startIcon={<CancelIcon />}
 									onClick={() => setEditMode(false)}
 									className="type-parameter-btn"
-									sx={{ marginRight: "10px", "&:hover": { color: "white" } }}
+									sx={{ marginRight: "10px", }}
 								>
 									Cancelar
 								</Button>

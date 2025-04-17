@@ -172,6 +172,22 @@ function RegisterParameterType() {
               >
                 Cadastrar
               </Button>
+              <Button
+                variant="outlined"
+                onClick={() => window.history.back()}
+                sx={{
+                  color: "rgb(39, 235, 65)",
+                  borderColor: "rgb(39, 235, 65)",
+                  px: 6,
+                  py: 1.5,
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  fontSize: "1.1rem",
+                  
+                }}
+              >
+                Cancelar
+              </Button>
             </Box>
           </form>
         </Paper>
