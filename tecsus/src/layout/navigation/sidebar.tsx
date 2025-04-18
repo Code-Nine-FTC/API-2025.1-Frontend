@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   CssBaseline,
@@ -11,7 +11,6 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import SensorsIcon from "@mui/icons-material/Sensors";
@@ -21,9 +20,8 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import TuneIcon from "@mui/icons-material/Tune";
 import TecsusLogo from "../../assets/tecsus_logo.png";
 import AppIcon from "../../components/ui/AppIcon";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../components/authContext";
-import userStore from "../../store/profile/getters";
 
 const drawerWidth = 260;
 
@@ -64,30 +62,16 @@ interface Props {
 const Sidebar = (props: Props) => {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userName, setUserName] = useState<string>("");
+  const [userName] = useState("Adm");
 
   const { logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const isProfileActive = location.pathname === "/perfil";
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const fetchUserData = async () => {
-    try {
-      const profile = await userStore.getProfile();
-      setUserName(profile.name);
-    } catch (error) {
-      console.error("Erro ao carregar informações do usuário:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  const isProfileActive = location.pathname === "/perfil"; // Verifica se a rota atual é "/perfil"
 
   const drawer = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -154,34 +138,28 @@ const Sidebar = (props: Props) => {
           alignItems: "center",
         }}
       >
-        <Avatar
-          sx={{
-            width: 48,
-            height: 48,
-            bgcolor: "#BDBDBD",
-            cursor: "pointer",
-            border: isProfileActive ? "2px solid var(--purple-maincolor)" : "2px solid gray",
-            "&:hover": {
-              borderColor: "var(--purple-maincolor)",
-            },
-          }}
-          onClick={() => navigate("/perfil")}
-        />
+        <Link to="/perfil" className="image-link" style={{ textDecoration: "none" }}>
+          <ListItemIcon
+            sx={{
+              color: isProfileActive ? "var(--purple-maincolor)" : "gray", // Ícone roxo se ativo
+              "&:hover": {
+                color: "var(--purple-maincolor)", // Ícone roxo ao passar o mouse
+              },
+            }}
+          >
+            <AccountCircleIcon sx={{ fontSize: 40 }} />
+          </ListItemIcon>
+        </Link>
         <Typography
           variant="body1"
           fontWeight="bold"
           fontSize="1.1em"
           sx={{
-            color: isProfileActive ? "var(--purple-maincolor)" : "black",
-            ml: 1,
-            cursor: "pointer",
-            "&:hover": {
-              color: "var(--purple-maincolor)",
-            },
+            color: isProfileActive ? "var(--purple-maincolor)" : "black", // Texto roxo se ativo
+            ml: 1, // Adiciona margem à esquerda para espaçamento
           }}
-          onClick={() => navigate("/perfil")}
         >
-          {userName || "Carregando..."}
+          {userName}
         </Typography>
         <ListItemIcon sx={{ ml: 9 }}>
           <Box
