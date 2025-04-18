@@ -34,7 +34,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const auth = useAuth(); // Verifica se o usuário está logado
+  const auth = useAuth()
 
   const handleSearch = () => {
     onSearch({ typeAlertName, stationName, startDate });
@@ -52,11 +52,11 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
       const result = await alertGetters.deleteAlert(selectedAlertId);
       if (result.success) {
         alert("Alerta deletado com sucesso!");
-        onSearch({ typeAlertName: "", stationName: "", startDate: "" }); // Atualiza a lista de alertas
+        onSearch({ typeAlertName: "", stationName: "", startDate: "" }); 
       } else {
         alert(`Erro ao deletar o alerta: ${result.error}`);
       }
-      setIsModalOpen(false); // Fecha o modal após a exclusão
+      setIsModalOpen(false);
     }
   };
 
@@ -74,7 +74,6 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
     { field: "type_alert_name", headerName: "Tipo de Alerta" },
     { field: "station_name", headerName: "Estação" },
     { field: "measure_value", headerName: "Valor Medido" },
-    { field: "create_date", headerName: "Data de Criação" },
   ];
 
   return (
@@ -141,7 +140,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
               >
                 Visualizar
               </Button>
-              {auth.isAuthenticated && ( // Mostra o botão de deletar apenas para usuários logados
+              {auth.isAuthenticated && ( 
                 <IconButton
                   color="error"
                   onClick={() => openDeleteModal(row.id)}
@@ -153,8 +152,6 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
           )}
         />
       )}
-
-      {/* Modal de Confirmação */}
       <Dialog open={isModalOpen} onClose={closeDeleteModal}>
         <DialogTitle>Confirmar Exclusão</DialogTitle>
         <DialogContent>

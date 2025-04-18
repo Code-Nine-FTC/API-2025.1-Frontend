@@ -2,13 +2,14 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import DashboardPage from "../Dashboard";
 import ProtectedRoute from "../../components/ProtectedRoute";
-import TypeAlertsPage from "../TypeAlerts";
+import TypeAlertsPage from "../TypeAlertsList";
 import TypeParametersPage from "../TypeParametersList";
 import RegisterStationPage from "../RegisterStation";
 import StationsListPage from "../StationsList";
 import AlertsPage from "../Alerts";
 import RegisterParameterType from "../RegisterParameterType";// Importe o componente de cadastro/edição
 import ProfilePage from "../Profile";
+import RegisterAlertType from "../RegisterTypeAlert";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -51,7 +52,7 @@ const AuthenticatedRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-      <Route  
+      <Route
         path="/list-alerts"
         element={
           <ProtectedRoute>
@@ -63,7 +64,7 @@ const AuthenticatedRoutes: React.FC = () => {
         path="/register-parameter-type"
         element={
           <ProtectedRoute>
-            <RegisterParameterType/>
+            <RegisterParameterType />
           </ProtectedRoute>
         }
       />
@@ -76,6 +77,23 @@ const AuthenticatedRoutes: React.FC = () => {
         }
       />
 
+      <Route
+        path="/register-type-alert"
+        element={
+          <ProtectedRoute>
+            <RegisterAlertType />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/register-type-alert/:id"
+        element={
+          <ProtectedRoute>
+            <RegisterAlertType />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

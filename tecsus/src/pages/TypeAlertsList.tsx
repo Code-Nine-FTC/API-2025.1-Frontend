@@ -25,11 +25,9 @@ const TypeAlertsPage = () => {
   const [filteredTypeAlerts, setFilteredTypeAlerts] = useState<AlertTypeResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Filtros
   const [nameFilter, setNameFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  // Modal
   const [selectedAlert, setSelectedAlert] = useState<AlertTypeResponse | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -45,7 +43,7 @@ const TypeAlertsPage = () => {
       const response = await typeAlertGetters.listAlertTypes();
       if (response.success && response.data) {
         setTypeAlerts(response.data);
-        setFilteredTypeAlerts(response.data); // Inicializa a lista filtrada
+        setFilteredTypeAlerts(response.data);
       } else {
         console.error("Erro ao buscar tipos de alertas:", response.error);
       }
@@ -75,7 +73,7 @@ const TypeAlertsPage = () => {
   const handleResetFilters = () => {
     setNameFilter("");
     setStatusFilter("");
-    setFilteredTypeAlerts(typeAlerts); // Restaura a lista completa
+    setFilteredTypeAlerts(typeAlerts);
   };
 
   const handleOpenModal = (alert: AlertTypeResponse) => {
@@ -110,34 +108,35 @@ const TypeAlertsPage = () => {
         <Paper sx={{ p: 3, mb: 3 }}>
           <Box display="flex" flexDirection="column" gap={2}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box display="flex" gap={2}>
+              <Box display="flex" gap={2} flexWrap="wrap">
                 <TextField
                   label="Nome"
                   value={nameFilter}
                   onChange={(e) => setNameFilter(e.target.value)}
-                  fullWidth
+                  sx={{ width: "500px" }} // Define um tamanho fixo
                 />
                 <TextField
                   label="Status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  fullWidth
                   select
+                  sx={{ width: "500px" }} // Define um tamanho fixo
                 >
                   <MenuItem value="">Todos</MenuItem>
-                  <MenuItem value="active">Ativo</MenuItem>
-                  <MenuItem value="inactive">Inativo</MenuItem>
+                  <MenuItem value="G">Seguro</MenuItem>
+                  <MenuItem value="Y">Risco Moderado</MenuItem>
+                  <MenuItem value="R">Risco Alto</MenuItem>
                 </TextField>
               </Box>
               <Button
                 variant="contained"
                 sx={{
-                  backgroundColor: "rgb(39, 235, 65)",
+                  backgroundColor: "#74DA23",
                   color: "white",
                   textTransform: "none",
                   fontWeight: "bold",
                   "&:hover": {
-                    backgroundColor: "rgb(30, 200, 50)",
+                    backgroundColor: "#5dab1d",
                   },
                 }}
                 onClick={() => navigate("/register-type-alert")}
@@ -168,7 +167,7 @@ const TypeAlertsPage = () => {
           ) : (
             <GenericTable
               columns={columns}
-              rows={filteredTypeAlerts} // Usa a lista filtrada
+              rows={filteredTypeAlerts}
               renderCell={(row, column) => {
                 if (column.field === "create_date") {
                   return new Date(row[column.field] as string).toLocaleDateString();

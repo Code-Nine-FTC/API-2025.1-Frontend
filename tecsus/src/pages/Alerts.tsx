@@ -42,7 +42,7 @@ const AlertsPage = () => {
       const result = await alertGetters.deleteAlert(alertId);
       if (result.success) {
         alert("Alerta deletado com sucesso!");
-        fetchAlerts({ typeAlertName: "", stationName: "", startDate: "" }); // Atualiza a lista de alertas
+        fetchAlerts({ typeAlertName: "", stationName: "", startDate: "" });
       } else {
         alert(`Erro ao deletar o alerta: ${result.error}`);
       }

@@ -91,7 +91,6 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
           name: alertTypeData.name,
           value: alertTypeData.value,
           math_signal: alertTypeData.math_signal,
-          status: alertTypeData.status,
         },
         {
           headers: {
@@ -110,6 +109,53 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
       return {
         success: false,
         error: error.response?.data?.detail || "Erro ao criar o tipo de alerta",
+      };
+    }
+  },
+  getParametersByStation: async (
+    parameterTypeId: number
+  ): Promise<{
+    success: boolean;
+    data?: Array<{ id: number; name_station: string }>;
+    error?: string;
+  }> => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      const response = await api.get(
+        `/stations/parameters/${parameterTypeId}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+          params: {
+            type_paramter_id: parameterTypeId,
+          },
+        }
+      );
+
+      console.log("Resposta do backend:", response);
+
+      // Verifica se a resposta contém a propriedade `data` com um array
+      if (response.data && Array.isArray(response.data.data)) {
+        return { success: true, data: response.data.data };
+      }
+
+      throw new Error("Resposta inválida do servidor");
+    } catch (error: any) {
+      console.error(
+        "Erro ao buscar estações por parâmetro:",
+        error.message || error
+      );
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          "Erro ao buscar estações por parâmetro",
       };
     }
   },
