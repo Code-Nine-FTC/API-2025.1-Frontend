@@ -53,6 +53,12 @@ const menuItems = [
       "/registrartipoalerta"
     ],
     routePrefix: "/editartipoalerta/", },
+  { text: "Dashboard",
+    icon: <AppIcon name="Dashboard" style={{ fontSize: 40 }} />,
+    route: "/dashboard",
+    relatedRoutes: ["/dashboard"],
+    routePrefix: "/dashboard",
+  },
 ];
 
 interface Props {

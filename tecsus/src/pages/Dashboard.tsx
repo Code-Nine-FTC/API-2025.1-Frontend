@@ -1,5 +1,4 @@
 import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import { Grid } from "@mui/material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import InfoIcon from "@mui/icons-material/Info";
@@ -88,7 +87,7 @@ const DashboardPage = () => {
                         sx={{
                             flex: 1,
                             minWidth: 220,
-                            width: { xs: "100%", md: "30%" },
+                            width: { xs: "100%", md: "50%" },
                             mb: { xs: 2, md: 0 }
                         }}
                     >
@@ -101,7 +100,7 @@ const DashboardPage = () => {
                             </CardContent>
                         </Card>
                     </Box>
-                    <Box sx={{ flex: 3, width: { xs: "100%", md: "70%" } }}>
+                    <Box sx={{ flex: 1, width: { xs: "100%", md: "50%" } }}>
                         <Card sx={{ boxShadow: 3, height: "100%", borderRadius: 3, p: 1 }}>
                             <CardHeader
                                 title={<Typography variant="h6">Impacto de cada medida</Typography>}
@@ -130,7 +129,7 @@ const DashboardPage = () => {
                         justifyContent: { xs: "flex-start", md: "center" }
                     }}
                 >
-                    <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "80%" } }}>
+                    <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "100%" } }}>
                         <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>} />
                         <CardContent>
                             <StationHistoric data={historicData} />

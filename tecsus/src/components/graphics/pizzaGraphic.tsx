@@ -6,7 +6,7 @@ interface props {
 
 export default function PizzaGraphic(props: props) {
     return (
-        <div style={{ width: "100%", height: "100%" }}>
+        <div style={{ width: "100%", maxWidth: 500, minHeight: 250 }}>
             <PieChart
                 series={[
                     {
@@ -16,9 +16,9 @@ export default function PizzaGraphic(props: props) {
                         valueFormatter: (value) => `${value}%`,
                     },
                 ]}                    
-                width={400}
-                height={350}
-                margin={{ top: 10, right: 120, left: 30, bottom: 10 }}
+                // width={400}
+                // height={350}
+                // margin={{ top: 10, right: 120, left: 30, bottom: 10 }}
                 
                 slotProps={{
                     legend: {
