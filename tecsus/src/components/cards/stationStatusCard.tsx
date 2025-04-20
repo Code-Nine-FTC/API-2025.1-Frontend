@@ -9,9 +9,9 @@ export const StationStatusCard = ({ active, total }: StationStatusProps) => {
   return (
     <Card sx={{ minWidth: 200, bgcolor: '#2196f3', color: 'white' }}>
       <CardContent>
-        <Typography variant="h6">Estações Stations</Typography>
+        <Typography variant="h6"> Estações ativas</Typography>
         <Typography variant="h4">
-          {active}/{total}
+          {active} de {total}
         </Typography>
       </CardContent>
     </Card>

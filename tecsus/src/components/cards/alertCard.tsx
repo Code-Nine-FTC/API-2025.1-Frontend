@@ -19,7 +19,7 @@ const getColor = (type: 'R' | 'Y' | 'G') => {
       <Card sx={{ minWidth: 200, bgcolor: getColor(type), color: 'white' }}>
         <CardContent>
           <Typography variant="h6">
-            {type === 'R' ? 'Crítico' : type === 'Y' ? 'Alerta' : 'Seguro'}
+            {type === 'R' ? 'Crítico' : type === 'Y' ? 'Atenção' : 'Seguro'}
           </Typography>
           <Typography variant="h4">{count}</Typography>
         </CardContent>
