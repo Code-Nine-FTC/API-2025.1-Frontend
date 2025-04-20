@@ -1,36 +1,87 @@
 import React, { useEffect, useState } from "react";
 import { AlertTypeForm } from "../components/ui/AlertTypeForm";
 import typeAlertGetters from "../store/typealerts/getters";
+import stationGetters from "../store/station/getters";
 import { LoggedLayout } from "../layout/layoutLogged";
 import { useNavigate, useParams } from "react-router-dom";
 
 const RegisterAlertType = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Obtém o ID da URL
+  const { id } = useParams<{ id: string }>();
+
   const [initialValues, setInitialValues] = useState<{
     parameter_id: number;
     name: string;
     value: number;
     math_signal: string;
     status: string;
+    station_id?: number;
   } | null>(null);
-  const [loading, setLoading] = useState<boolean>(!!id); // Carrega os dados apenas se estiver no modo de edição
+
+  const [loading, setLoading] = useState<boolean>(!!id);
+  const [stations, setStations] = useState<
+    Array<{
+      id: number;
+      name_station: string;
+      parameters: Array<{
+        parameter_id: number;
+        name_parameter: string;
+      }>;
+    }>
+  >([]);
+  const [parameters, setParameters] = useState<
+    Array<{ id: number; name_parameter: string }>
+  >([]);
 
   useEffect(() => {
-    if (id) {
+    const fetchStations = async () => {
+      const res = await stationGetters.listStations();
+      if (res.success && res.data) {
+        setStations(res.data);
+      }
+    };
+    fetchStations();
+  }, []);
+
+  useEffect(() => {
+    if (id && stations.length > 0) {
       const fetchAlertType = async () => {
         try {
           const response = await typeAlertGetters.getAlertType(Number(id));
-          console.log("Dados carregados:", response.data); // Verifica os dados carregados
           if (response.success && response.data) {
-            setInitialValues(response.data);
+            const alertData = response.data;
+
+            const foundStation = stations.find((station) =>
+              station.parameters?.some(
+                (p) => p.parameter_id === alertData.parameter_id
+              )
+            );
+
+            const stationId = foundStation?.id;
+            const paramList = foundStation
+              ? foundStation.parameters.map((p) => ({
+                  id: p.parameter_id,
+                  name_parameter: p.name_parameter,
+                }))
+              : [];
+
+            setInitialValues({
+              parameter_id: alertData.parameter_id,
+              name: alertData.name,
+              value: alertData.value,
+              math_signal: alertData.math_signal,
+              status: alertData.status,
+              station_id: stationId,
+            });
+
+            setParameters(paramList);
           } else {
-            alert("Erro ao carregar os dados do tipo de alerta.");
+            alert("Erro ao carregar dados do tipo de alerta.");
             navigate("/list-alert-type");
           }
         } catch (error) {
-          console.error("Erro ao carregar tipo de alerta:", error);
-          alert("Erro ao carregar os dados do tipo de alerta.");
+          console.error(error);
+          alert("Erro ao carregar dados do tipo de alerta.");
           navigate("/list-alert-type");
         } finally {
           setLoading(false);
@@ -38,8 +89,10 @@ const RegisterAlertType = () => {
       };
 
       fetchAlertType();
+    } else {
+      setLoading(false);
     }
-  }, [id, navigate]);
+  }, [id, navigate, stations]);
 
   const handleSubmit = async (form: {
     parameter_id: number;
@@ -59,14 +112,11 @@ const RegisterAlertType = () => {
         return;
       }
 
-      let response;
       if (id) {
-        response = await typeAlertGetters.updateAlertType(Number(id), formattedForm);
-        console.log("Tipo de alerta atualizado com sucesso:", response);
+        await typeAlertGetters.updateAlertType(Number(id), formattedForm);
         alert("Tipo de alerta atualizado com sucesso!");
       } else {
-        response = await typeAlertGetters.createAlertType(formattedForm);
-        console.log("Tipo de alerta cadastrado com sucesso:", response);
+        await typeAlertGetters.createAlertType(formattedForm);
         alert("Tipo de alerta cadastrado com sucesso!");
       }
 
@@ -92,6 +142,9 @@ const RegisterAlertType = () => {
         title={id ? "Editar Tipo de Alerta" : "Cadastro de Tipo de Alerta"}
         submitLabel={id ? "Salvar" : "Cadastrar"}
         initialValues={initialValues || undefined}
+        stations={stations}
+        parameters={parameters}
+        setParameters={setParameters}
       />
     </LoggedLayout>
   );

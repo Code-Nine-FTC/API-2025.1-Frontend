@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Typography, Paper } from "@mui/material";
 import "../../pages/styles/registerstation.css";
-import typeAlertGetters from "../../store/typealerts/getters";
 
 interface FormFields {
   parameter_id: number;
@@ -17,6 +16,16 @@ interface AlertTypeFormProps {
   onSubmit: (form: FormFields) => void;
   title?: string;
   submitLabel?: string;
+  stations: Array<{
+    id: number;
+    name_station: string;
+    parameters: Array<{
+      parameter_id: number;
+      name_parameter: string;
+    }>;
+  }>;
+  parameters: Array<{ id: number; name_parameter: string }>;
+  setParameters: React.Dispatch<React.SetStateAction<Array<{ id: number; name_parameter: string }>>>;
 }
 
 export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
@@ -24,6 +33,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   onSubmit,
   title = "Cadastro de Tipo de Alerta",
   submitLabel = "Salvar",
+  stations,
+  parameters,
+  setParameters,
 }) => {
   const [form, setForm] = useState<FormFields>({
     parameter_id: 0,
@@ -31,97 +43,53 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     value: 0,
     math_signal: "",
     status: "",
+    station_id: undefined,
     ...initialValues,
   });
 
-  const [parameters, setParameters] = useState<Array<{ value: string; label: string }>>([]);
-  const [stations, setStations] = useState<Array<{ value: string; label: string }>>([]);
-  const [loadingStations, setLoadingStations] = useState(false);
-
   useEffect(() => {
     if (initialValues) {
-      console.log("Valores iniciais recebidos no formulário:", initialValues);
-      setForm((prevForm) => {
-        const updatedForm = { ...prevForm, ...initialValues };
-        if (JSON.stringify(prevForm) !== JSON.stringify(updatedForm)) {
-          return updatedForm;
-        }
-        return prevForm;
-      });
+      setForm((prevForm) => ({ ...prevForm, ...initialValues }));
     }
   }, [initialValues]);
 
-  useEffect(() => {
-    const fetchParameters = async () => {
-      try {
-        const response = await typeAlertGetters.listAlertTypes();
-        if (response.success && response.data) {
-          const parameterOptions = response.data.map((parameter: { id: number; name: string }) => ({
-            value: parameter.id.toString(),
-            label: parameter.name,
-          }));
-          setParameters(parameterOptions);
-        } else {
-          console.error("Erro ao buscar parâmetros:", response.error);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar parâmetros:", error);
-      }
-    };
-
-    fetchParameters();
-  }, []);
-
-  const fetchStationsByParameter = useCallback(
-    async (parameterId: number) => {
-      if (!parameterId) return;
-      setLoadingStations(true);
-      try {
-        const response = await typeAlertGetters.getParametersByStation(parameterId);
-        if (response.success && response.data) {
-          const stationOptions = response.data.map((station: { id: number; name_station: string }) => ({
-            value: station.id.toString(),
-            label: station.name_station,
-          }));
-          setStations(stationOptions);
-        } else {
-          console.error("Erro ao buscar estações:", response.error);
-        }
-      } catch (error) {
-        console.error("Erro ao buscar estações:", error);
-      } finally {
-        setLoadingStations(false);
-      }
-    },
-    []
-  );
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    console.log(`Campo alterado: ${name}, Valor: ${value}`);
-
     let maskedValue: string | number = value;
 
-    if (name === "parameter_id" || name === "value" || name === "station_id") {
+    if (["parameter_id", "station_id", "value"].includes(name)) {
       maskedValue = parseInt(value, 10) || 0;
     }
 
-    setForm((prevForm) => ({
-      ...prevForm,
+    const updatedForm = {
+      ...form,
       [name]: maskedValue,
-    }));
+    };
+
+    if (name === "station_id") {
+      const selectedStation = stations.find((s) => s.id === Number(value));
+      if (selectedStation && selectedStation.parameters) {
+        const params = selectedStation.parameters.map((p) => ({
+          id: p.parameter_id,
+          name_parameter: p.name_parameter,
+        }));
+        setParameters(params);
+      } else {
+        setParameters([]);
+      }
+    }
+
+    setForm(updatedForm);
   };
 
-  const renderInput = (label: string, name: keyof FormFields, className = "") => (
-    <div className={`input-group-wrapper ${className}`}>
+  const renderInput = (label: string, name: keyof FormFields) => (
+    <div className="input-group-wrapper">
       <div className="input-group">
-        <label className="input-label">
-          <strong>{label}</strong>
-        </label>
+        <label className="input-label"><strong>{label}</strong></label>
         <input
           type="text"
           name={name}
-          value={form[name]}
+          value={form[name] ?? ""}
           onChange={handleChange}
           className="input-field"
         />
@@ -132,29 +100,21 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   const renderSelect = (
     label: string,
     name: keyof FormFields,
-    options: Array<{ value: string; label: string }>,
-    onFocus?: () => void
+    options: Array<{ value: string | number; label: string }>
   ) => (
     <div className="input-group-wrapper">
       <div className="input-group">
-        <label className="input-label">
-          <strong>{label}</strong>
-        </label>
+        <label className="input-label"><strong>{label}</strong></label>
         <select
           name={name}
-          value={form[name]}
+          value={form[name] ?? ""}
           onChange={handleChange}
-          onFocus={onFocus}
           className="input-field"
           required
         >
-          <option disabled value="">
-            Selecione
-          </option>
+          <option disabled value="">Selecione</option>
           {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
+            <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </div>
@@ -163,12 +123,10 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!form.parameter_id || !form.name || !form.value || !form.math_signal || !form.status) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
-
     onSubmit(form);
   };
 
@@ -179,17 +137,16 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {title}
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderSelect("Tipo de Parâmetro", "parameter_id", parameters)}
-          {renderSelect(
-            "Estações",
-            "station_id",
-            stations,
-            () => {
-              if (form.parameter_id && !loadingStations) {
-                fetchStationsByParameter(form.parameter_id);
-              }
-            }
-          )}
+          {renderSelect("Estação", "station_id", stations.map((s) => ({
+            value: s.id,
+            label: s.name_station,
+          })))}
+
+          {renderSelect("Tipo de Parâmetro", "parameter_id", parameters.map((p) => ({
+            value: p.id,
+            label: p.name_parameter,
+          })))}
+
           {renderInput("Nome", "name")}
           {renderInput("Valor", "value")}
           {renderSelect("Sinal Matemático", "math_signal", [
