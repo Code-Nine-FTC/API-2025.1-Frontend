@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import userStore from "../store/user/getters";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -15,16 +16,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-          setIsAuthenticated(true);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
+	const token = localStorage.getItem("token");
+  
+	if (token) {
+	  const decoded = jwtDecode<JwtPayload>(token);
+    const expiresIn = decoded.exp ? decoded.exp * 1000 - Date.now() : 0;
+  
+	  if (expiresIn > 0) {
+		setIsAuthenticated(true);
+		const timeout = setTimeout(() => {
+		  userStore.logout();
+		  setIsAuthenticated(false);
+		  navigate("/login");
+		}, expiresIn);
+  
+		return () => clearTimeout(timeout);
+	  } else {
+		localStorage.removeItem("token");
+		setIsAuthenticated(false);
+	  }
+	}
+  }, [navigate]);
+  
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
