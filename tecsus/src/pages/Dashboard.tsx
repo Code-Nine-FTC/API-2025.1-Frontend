@@ -1,48 +1,103 @@
 import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip, Typography } from "@mui/material";
-import { Grid } from "@mui/material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import InfoIcon from "@mui/icons-material/Info";
 import { StationStatusCard } from "../components/cards/stationStatusCard";
 import { StationHistoric } from "../components/graphics/stationHistoric";
 import { AlertCard } from "../components/cards/alertCard";
+import { useEffect, useState } from "react";
+import { StationStatusResponse, StationHistoricResponse, AlertCountsResponse, MeasuresStatusResponse} from "../store/dashboard/state"
+import dashboardGetters from "../store/dashboard/getters";
 
-const dadosTeste = [
-    {
-        label: "Medida 1",
-        value: 10,
-    },
-    {
-        label: "Medida 2",
-        value: 20,
-    },
-    {
-        label: "Medida 3",
-        value: 30,
-    },
-    {
-        label: "Medida 4",
-        value: 40,
-    }
-]
+// const measureStatus = [
+//     {
+//         label: "Medida 1",
+//         value: 10,
+//     },
+//     {
+//         label: "Medida 2",
+//         value: 20,
+//     },
+//     {
+//         label: "Medida 3",
+//         value: 30,
+//     },
+//     {
+//         label: "Medida 4",
+//         value: 40,
+//     }
+// ]
 
-const alertCounts = {
-    R: 5,
-    Y: 8,
-    G: 15
-  };
+// const alertCounts = {
+//     R: 5,
+//     Y: 8,
+//     G: 15
+//   };
 
-const stationStatus = {
-enabled: 12,
-total: 15
-};
+// const stationStatus = {
+// enabled: 12,
+// total: 15
+// };
 
-const historicData = Array.from({ length: 50 }, (_, i) => ([
-    { name: "Temperatura", value: (20 + Math.random() * 10).toFixed(1), measure_unit: "C", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 },
-    { name: "Pressão", value: (95 + Math.random() * 10).toFixed(1), measure_unit: "Bar", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 }
-])).flat();
+// const historicData = Array.from({ length: 50 }, (_, i) => ([
+//     { name: "Temperatura", value: (20 + Math.random() * 10).toFixed(1), measure_unit: "C", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 },
+//     { name: "Pressão", value: (95 + Math.random() * 10).toFixed(1), measure_unit: "Bar", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 }
+// ])).flat();
 
 const DashboardPage = () => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [alertCounts, setAlertCounts] = useState<AlertCountsResponse>();
+    const [stationStatus, setStationStatus] = useState<StationStatusResponse>();
+    const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
+    const [measureStatus, setMeasureStatus] = useState<MeasuresStatusResponse[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    
+    const fetchData = async () => {
+        try {
+            const [
+                alertCountsResponse,
+                stationStatusResponse,
+                historicDataResponse,
+                measureStatusResponse
+            ] = await Promise.all([
+                dashboardGetters.getAlertCounts(),
+                dashboardGetters.getStationStatus(),
+                dashboardGetters.getStationHistoric(),
+                dashboardGetters.getMeasuresStatus()
+            ]);
+    
+            setAlertCounts(alertCountsResponse.data ?? {R: 0, Y: 0, G: 0});
+            setStationStatus(stationStatusResponse.data ?? {enabled: 0, total: 0});
+            setHistoricData(historicDataResponse.data ?? []);
+            setMeasureStatus(measureStatusResponse.data ?? []);
+        } catch (error: any) {
+            console.error("Error fetching data:", error);
+            setError(error.message || "Erro ao carregar dados");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <Typography variant="h6">Carregando...</Typography>
+            </Box>
+        )
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <Typography variant="h6" color="error">{error}</Typography>
+            </Box>
+        )
+    }
+
     return (
         <LoggedLayout>
             <Box
@@ -111,7 +166,7 @@ const DashboardPage = () => {
                                 }
                             />
                             <CardContent>
-                                <PizzaGraphic data={dadosTeste} />
+                                <PizzaGraphic data={measureStatus} />
                             </CardContent>
                         </Card>
                     </Box>

@@ -1,0 +1,56 @@
+import api from "../globals";
+import { AlertCountsResponse, MeasuresStatusResponse, StationHistoricResponse, StationStatusResponse } from "./state";
+
+export default {
+    async getStationStatus(): Promise<{ success: boolean; data?: StationStatusResponse; error?: string }> {
+        try {
+            const response = await api.get("/dashboard/stations-status");
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao obter status das estações:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter status das estações",
+            };
+        }
+    },
+
+    async getStationHistoric(): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+        try {
+            const response = await api.get(`/dashboard/stations-historic`);
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao obter histórico das estações", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter histórico das estações",
+            };
+        }
+    },
+
+    async getAlertCounts(): Promise<{ success: boolean; data?: AlertCountsResponse; error?: string }> {
+        try {
+            const response = await api.get("/dashboard/alerts-counts");
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao obter contagem de alertas:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter contagem de alertas",
+            };
+        }
+    },
+    
+    async getMeasuresStatus(): Promise<{ success: boolean; data?: [MeasuresStatusResponse]; error?: string }> {
+        try {
+            const response = await api.get("/dashboard/measures-status");
+            return { success: true, data: response.data };
+        } catch (error: any) {
+            console.error("Erro ao obter status das medidas:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter status das medidas",
+            };
+        }
+    },
+}
