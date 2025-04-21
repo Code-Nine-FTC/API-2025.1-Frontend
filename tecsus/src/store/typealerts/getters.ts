@@ -84,31 +84,29 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
         throw new Error("Usuário não autenticado");
       }
 
-      const response = await api.post(
-        "/alert_type",
-        {
-          parameter_id: alertTypeData.parameter_id,
-          name: alertTypeData.name,
-          value: alertTypeData.value,
-          math_signal: alertTypeData.math_signal,
+      const response = await api.post("/alert_type", alertTypeData, {
+        headers: {
+          Authorization: token,
         },
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-
+        validateStatus: (status) => status < 500,
+      });
+  
       if (response.status === 201) {
         return { success: true };
       }
 
-      throw new Error("Erro ao criar o tipo de alerta");
-    } catch (error: any) {
-      console.error("Erro ao criar o tipo de alerta:", error.message || error);
       return {
         success: false,
-        error: error.response?.data?.detail || "Erro ao criar o tipo de alerta",
+        error: response.data?.detail || "Erro ao criar o tipo de alerta",
+      };
+    } catch (error: any) {
+      console.error("Erro ao criar o tipo de alerta:", error);
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          error.message ||
+          "Erro ao criar o tipo de alerta",
       };
     }
   },

@@ -113,14 +113,14 @@ const TypeAlertsPage = () => {
                   label="Nome"
                   value={nameFilter}
                   onChange={(e) => setNameFilter(e.target.value)}
-                  sx={{ width: "500px" }} // Define um tamanho fixo
+                  sx={{ width: "500px" }}
                 />
                 <TextField
                   label="Status"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   select
-                  sx={{ width: "500px" }} // Define um tamanho fixo
+                  sx={{ width: "500px" }}
                 >
                   <MenuItem value="">Todos</MenuItem>
                   <MenuItem value="G">Seguro</MenuItem>
@@ -156,13 +156,14 @@ const TypeAlertsPage = () => {
         </Paper>
         <Paper sx={{ p: 3, mb: 3 }}>
           {loading ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              minHeight="200px"
-            >
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
               <CircularProgress />
+            </Box>
+          ) : filteredTypeAlerts.length === 0 ? (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+              <Typography variant="h6" color="textSecondary">
+                Nenhum registro encontrado.
+              </Typography>
             </Box>
           ) : (
             <GenericTable
@@ -170,16 +171,16 @@ const TypeAlertsPage = () => {
               rows={filteredTypeAlerts}
               renderCell={(row, column) => {
                 if (column.field === "create_date") {
-                  return new Date(row[column.field] as string).toLocaleDateString();
+                  const timestamp = Number(row[column.field]);
+                  return isNaN(timestamp)
+                    ? "Data inválida"
+                    : new Date(timestamp * 1000).toLocaleDateString();
                 }
                 return String(row[column.field]);
               }}
               renderActions={(row) => (
                 <Box display="flex" gap={1}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleOpenModal(row)}
-                  >
+                  <Button variant="outlined" onClick={() => handleOpenModal(row)}>
                     Visualizar
                   </Button>
                   <IconButton

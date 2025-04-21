@@ -65,6 +65,8 @@ const RegisterAlertType = () => {
                 }))
               : [];
 
+            setParameters(paramList);
+            
             setInitialValues({
               parameter_id: alertData.parameter_id,
               name: alertData.name,
@@ -73,8 +75,6 @@ const RegisterAlertType = () => {
               status: alertData.status,
               station_id: stationId,
             });
-
-            setParameters(paramList);
           } else {
             alert("Erro ao carregar dados do tipo de alerta.");
             navigate("/list-alert-type");
@@ -92,7 +92,7 @@ const RegisterAlertType = () => {
     } else {
       setLoading(false);
     }
-  }, [id, navigate, stations]);
+  }, [id, stations, navigate]);
 
   const handleSubmit = async (form: {
     parameter_id: number;
@@ -107,7 +107,10 @@ const RegisterAlertType = () => {
         value: Number(form.value),
       };
 
-      if (formattedForm.value < -2147483648 || formattedForm.value > 2147483647) {
+      if (
+        formattedForm.value < -2147483648 ||
+        formattedForm.value > 2147483647
+      ) {
         alert("O valor deve estar entre -2.147.483.648 e 2.147.483.647.");
         return;
       }

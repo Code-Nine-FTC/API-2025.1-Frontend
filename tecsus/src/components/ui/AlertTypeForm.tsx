@@ -77,6 +77,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
       } else {
         setParameters([]);
       }
+      updatedForm.parameter_id = 0;
     }
 
     setForm(updatedForm);
@@ -112,7 +113,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           className="input-field"
           required
         >
-          <option disabled value="">Selecione</option>
+          <option value="">Selecione</option>
           {options.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
@@ -142,7 +143,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             label: s.name_station,
           })))}
 
-          {renderSelect("Tipo de Parâmetro", "parameter_id", parameters.map((p) => ({
+          {renderSelect("Parâmetro", "parameter_id", parameters.map((p) => ({
             value: p.id,
             label: p.name_parameter,
           })))}

@@ -7,7 +7,7 @@ export interface AlertTypeResponse {
     math_signal: string;
     status: string;
     is_active: boolean;
-    create_date: string;
+    create_date: number;
     last_update: string;
   }
   
