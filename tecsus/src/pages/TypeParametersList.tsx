@@ -89,21 +89,22 @@ function TypeParametersList() {
       <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
         <Box
           display="flex"
-          flexDirection="row"
+          flexDirection={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
           alignItems="center"
+          gap={2}
         >
-          <Box
+          <Typography
+            variant="h4"
+            gutterBottom
             sx={{
-              maxWidth: 600,
-              "& .MuiTypography-h4": {
-                fontWeight: 700,
-                color: "primary.main",
-              },
+              color: "var(--purple-maincolor)",
+              fontWeight: "bold",
+              textAlign: { xs: "center", sm: "left" },
             }}
           >
-            <Typography variant="h4">Tipos de Parâmetros</Typography>
-          </Box>
+            Tipos de Parâmetros
+          </Typography>
           <Button
             variant="contained"
             startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
@@ -118,24 +119,35 @@ function TypeParametersList() {
               background:
                 "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
               color: "#fff",
+              textAlign: "center",
+              "&:hover": {
+                background:
+                  "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
+              },
             }}
           >
             Novo Cadastro
           </Button>
         </Box>
+
         <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" mb={2} sx={{ color: "gray" }}>
+          <Typography
+            variant="h6"
+            mb={2}
+            sx={{
+              color: "gray",
+              textAlign: { xs: "center", sm: "left" },
+            }}
+          >
             Filtros de Busca
           </Typography>
           <Box
             display="flex"
+            flexDirection={{ xs: "column", sm: "row" }}
             justifyContent="space-between"
             alignItems="center"
             gap={3}
-            sx={{
-              flexDirection: { xs: "column", sm: "row" },
-              mb: 2,
-            }}
+            sx={{ mb: 2 }}
           >
             <TextField
               label="Pesquisar Tipo de Parâmetro"
@@ -152,7 +164,7 @@ function TypeParametersList() {
                     backgroundColor: "rgb(146, 123, 230)",
                   },
                   "&:hover fieldset": {
-                    borderColor: "rgb(146, 123, 230)", // cor da linha ao passar o mouse
+                    borderColor: "rgb(146, 123, 230)",
                   },
                 },
               }}
@@ -180,10 +192,11 @@ function TypeParametersList() {
             <Box
               display="flex"
               gap={2}
+              flexDirection={{ xs: "column", sm: "row" }}
               sx={{
                 flexShrink: 0,
                 width: { xs: "100%", sm: "auto" },
-                justifyContent: { xs: "flex-end", sm: "normal" },
+                justifyContent: { xs: "center", sm: "normal" },
               }}
             >
               <Box
@@ -251,6 +264,7 @@ function TypeParametersList() {
             </Box>
           </Box>
         </Paper>
+
         <Box>
           <GenericTable
             columns={columns}
@@ -270,30 +284,28 @@ function TypeParametersList() {
               return String(row[column.field]);
             }}
             renderActions={(row) => (
-              <>
-                <Box display="flex" gap={1} alignItems={"center"}>
-                  <IconButton
-                    onClick={() => navigate(`/view-type-parameter/${row.id}`)}
-                    sx={{
-                      color: "rgb(39, 235, 65)",
-                    }}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
+              <Box display="flex" gap={1} alignItems={"center"}>
+                <IconButton
+                  onClick={() => navigate(`/view-type-parameter/${row.id}`)}
+                  sx={{
+                    color: "rgb(39, 235, 65)",
+                  }}
+                >
+                  <VisibilityIcon />
+                </IconButton>
 
-                  <IconButton
-                    onClick={() => handleDelete(row.id)}
-                    sx={{
-                      color: "red",
-                      "&:hover": {
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                      },
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </>
+                <IconButton
+                  onClick={() => handleDelete(row.id)}
+                  sx={{
+                    color: "red",
+                    "&:hover": {
+                      backgroundColor: "rgba(255, 0, 0, 0.1)",
+                    },
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
             )}
           />
         </Box>

@@ -78,49 +78,130 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
 
   return (
     <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ color: "var(--purple-maincolor)", fontWeight: "bold" }}
+      <Box
+        display="flex"
+        flexDirection={{ xs: "column", sm: "row" }}
+        justifyContent="space-between"
+        alignItems="center"
+        gap={2}
       >
-        Alertas
-      </Typography>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            color: "var(--purple-maincolor)",
+            fontWeight: "bold",
+            textAlign: { xs: "center", sm: "left" },
+          }}
+        >
+          Alertas
+        </Typography>
+      </Box>
+
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
+        <Typography
+          variant="h6"
+          gutterBottom
+          sx={{
+            color: "gray",
+            textAlign: { xs: "center", sm: "left" },
+          }}
+        >
           Filtros de Busca
         </Typography>
-        <Box display="flex" flexDirection="column" gap={2}>
-          <Box display="flex" gap={2}>
-            <TextField
-              label="Tipo de Alerta"
-              value={typeAlertName}
-              onChange={(e) => setTypeAlertName(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Nome da Estação"
-              value={stationName}
-              onChange={(e) => setStationName(e.target.value)}
-              fullWidth
-            />
-          </Box>
-          <Box display="flex" justifyContent="flex-end" gap={2}>
-            <Button variant="outlined" onClick={handleResetFilters}>
-              Limpar
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-            >
-              Buscar
-            </Button>
-          </Box>
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          gap={2}
+          alignItems="center"
+        >
+          <TextField
+            label="Tipo de Alerta"
+            value={typeAlertName}
+            onChange={(e) => setTypeAlertName(e.target.value)}
+            fullWidth
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "8px",
+                backgroundColor: "rgb(146, 123, 230)",
+                "&:hover": {
+                  backgroundColor: "rgb(146, 123, 230)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgb(146, 123, 230)",
+                },
+              },
+            }}
+          />
+          <TextField
+            label="Nome da Estação"
+            value={stationName}
+            onChange={(e) => setStationName(e.target.value)}
+            fullWidth
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "8px",
+                backgroundColor: "rgb(146, 123, 230)",
+                "&:hover": {
+                  backgroundColor: "rgb(146, 123, 230)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgb(146, 123, 230)",
+                },
+              },
+            }}
+          />
+        </Box>
+        <Box
+          display="flex"
+          justifyContent={{ xs: "center", sm: "flex-end" }}
+          gap={2}
+          mt={2}
+        >
+          <Button
+            variant="outlined"
+            onClick={handleResetFilters}
+            sx={{
+              borderRadius: "8px",
+              fontWeight: "bold",
+              color: "rgb(146, 123, 230)",
+              borderColor: "rgb(146, 123, 230)",
+              "&:hover": {
+                backgroundColor: "rgba(146, 123, 230, 0.1)",
+                borderColor: "rgb(146, 123, 230)",
+              },
+            }}
+          >
+            Limpar
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            onClick={handleSearch}
+            sx={{
+              borderRadius: "8px",
+              fontWeight: "bold",
+              backgroundColor: "rgb(146, 123, 230)",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "rgb(126, 103, 210)",
+              },
+            }}
+          >
+            Buscar
+          </Button>
         </Box>
       </Paper>
+
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
           <CircularProgress />
+        </Box>
+      ) : alerts.length === 0 ? (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Typography variant="h6" color="textSecondary">
+            Nenhum registro encontrado.
+          </Typography>
         </Box>
       ) : (
         <GenericTable
@@ -140,7 +221,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
               >
                 Visualizar
               </Button>
-              {auth.isAuthenticated && ( 
+              {auth.isAuthenticated && (
                 <IconButton
                   color="error"
                   onClick={() => openDeleteModal(row.id)}
@@ -152,6 +233,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
           )}
         />
       )}
+
       <Dialog open={isModalOpen} onClose={closeDeleteModal}>
         <DialogTitle>Confirmar Exclusão</DialogTitle>
         <DialogContent>

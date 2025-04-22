@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, Paper } from "@mui/material";
+import { Box, Button, Typography, Paper, TextField } from "@mui/material";
 import "../../pages/styles/registerstation.css";
 
 interface FormFields {
@@ -83,6 +83,10 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     setForm(updatedForm);
   };
 
+  const onStationsFocus = () => {
+    console.log("Estação field focused");
+  };
+
   const renderInput = (label: string, name: keyof FormFields) => (
     <div className="input-group-wrapper">
       <div className="input-group">
@@ -138,10 +142,12 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {title}
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
-          {renderSelect("Estação", "station_id", stations.map((s) => ({
-            value: s.id,
-            label: s.name_station,
-          })))}
+          <TextField
+            label="Estação"
+            onFocus={onStationsFocus} // Chama a função ao focar no campo
+            fullWidth
+            margin="normal"
+          />
 
           {renderSelect("Parâmetro", "parameter_id", parameters.map((p) => ({
             value: p.id,

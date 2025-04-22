@@ -14,6 +14,8 @@ import {
   IconButton,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import GenericTable, { Column } from "../components/table";
 import typeAlertGetters from "../store/typealerts/getters";
 import { AlertTypeResponse } from "../store/typealerts/state";
@@ -98,102 +100,190 @@ const TypeAlertsPage = () => {
   return (
     <LoggedLayout>
       <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ color: "var(--purple-maincolor)", fontWeight: "bold" }}
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          gap={2}
         >
-          Tipos de Alertas
-        </Typography>
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Box display="flex" flexDirection="column" gap={2}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box display="flex" gap={2} flexWrap="wrap">
-                <TextField
-                  label="Nome"
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                  sx={{ width: "500px" }}
-                />
-                <TextField
-                  label="Status"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  select
-                  sx={{ width: "500px" }}
-                >
-                  <MenuItem value="">Todos</MenuItem>
-                  <MenuItem value="G">Seguro</MenuItem>
-                  <MenuItem value="Y">Risco Moderado</MenuItem>
-                  <MenuItem value="R">Risco Alto</MenuItem>
-                </TextField>
-              </Box>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#74DA23",
-                  color: "white",
-                  textTransform: "none",
-                  fontWeight: "bold",
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              color: "var(--purple-maincolor)",
+              fontWeight: "bold",
+              textAlign: { xs: "center", sm: "left" },
+            }}
+          >
+            Tipos de Alertas
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
+            onClick={() => navigate("/register-type-alert")}
+            sx={{
+              minHeight: 42,
+              borderRadius: "8px",
+              px: 3,
+              py: 1.2,
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              background:
+                "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
+              color: "#fff",
+              "&:hover": {
+                background:
+                  "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
+              },
+            }}
+          >
+           Novo Cadastrar
+          </Button>
+        </Box>
+
+        <Paper sx={{ p: 2 }}>
+          <Typography
+            variant="h6"
+            mb={2}
+            sx={{
+              color: "gray",
+              textAlign: { xs: "center", sm: "left" },
+            }}
+          >
+            Filtros de Busca
+          </Typography>
+          <Box
+            display="flex"
+            flexDirection={{ xs: "column", sm: "row" }}
+            justifyContent="space-between"
+            alignItems="center"
+            gap={3}
+            sx={{ mb: 2 }}
+          >
+            <TextField
+              label="Pesquisar Tipo de Alerta"
+              name="nameFilter"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              variant="outlined"
+              fullWidth
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                  backgroundColor: "rgb(146, 123, 230)",
                   "&:hover": {
-                    backgroundColor: "#5dab1d",
+                    backgroundColor: "rgb(146, 123, 230)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "rgb(146, 123, 230)", // cor da linha ao passar o mouse
+                  },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <Button
+                    onClick={applyFilters}
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "transparent",
+                      boxShadow: "none",
+                      "&:hover": {
+                        backgroundColor: "transparent",
+                        boxShadow: "none",
+                      },
+                      minWidth: 0,
+                    }}
+                  >
+                    <SearchIcon sx={{ fontSize: 22, color: "white" }} />
+                  </Button>
+                ),
+              }}
+            />
+
+            <Box
+              display="flex"
+              gap={2}
+              flexDirection={{ xs: "column", sm: "row" }}
+              sx={{
+                flexShrink: 0,
+                width: { xs: "100%", sm: "auto" },
+                justifyContent: { xs: "center", sm: "normal" },
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleResetFilters}
+                sx={{
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  color: "rgb(146, 123, 230)",
+                  borderColor: "rgb(146, 123, 230)",
+                  "&:hover": {
+                    backgroundColor: "rgba(146, 123, 230, 0.1)",
+                    borderColor: "rgb(146, 123, 230)",
                   },
                 }}
-                onClick={() => navigate("/register-type-alert")}
               >
-                + Adicionar
-              </Button>
-            </Box>
-            <Box display="flex" justifyContent="flex-end" gap={2}>
-              <Button variant="outlined" onClick={handleResetFilters}>
                 Limpar
               </Button>
-              <Button variant="contained" onClick={applyFilters}>
+              <Button
+                variant="contained"
+                onClick={applyFilters}
+                sx={{
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  backgroundColor: "rgb(146, 123, 230)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "rgb(126, 103, 210)",
+                  },
+                }}
+              >
                 Buscar
               </Button>
             </Box>
           </Box>
         </Paper>
-        <Paper sx={{ p: 3, mb: 3 }}>
-          {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-              <CircularProgress />
-            </Box>
-          ) : filteredTypeAlerts.length === 0 ? (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-              <Typography variant="h6" color="textSecondary">
-                Nenhum registro encontrado.
-              </Typography>
-            </Box>
-          ) : (
-            <GenericTable
-              columns={columns}
-              rows={filteredTypeAlerts}
-              renderCell={(row, column) => {
-                if (column.field === "create_date") {
-                  const timestamp = Number(row[column.field]);
-                  return isNaN(timestamp)
-                    ? "Data inválida"
-                    : new Date(timestamp * 1000).toLocaleDateString();
-                }
-                return String(row[column.field]);
-              }}
-              renderActions={(row) => (
-                <Box display="flex" gap={1}>
-                  <Button variant="outlined" onClick={() => handleOpenModal(row)}>
-                    Visualizar
-                  </Button>
-                  <IconButton
-                    color="primary"
-                    onClick={() => navigate(`/register-type-alert/${row.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Box>
-              )}
-            />
-          )}
-        </Paper>
+
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <CircularProgress />
+          </Box>
+        ) : filteredTypeAlerts.length === 0 ? (
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+            <Typography variant="h6" color="textSecondary">
+              Nenhum registro encontrado.
+            </Typography>
+          </Box>
+        ) : (
+          <GenericTable
+            columns={columns}
+            rows={filteredTypeAlerts}
+            renderCell={(row, column) => {
+              if (column.field === "create_date") {
+                const timestamp = Number(row[column.field]);
+                return isNaN(timestamp)
+                  ? "Data inválida"
+                  : new Date(timestamp * 1000).toLocaleDateString();
+              }
+              return String(row[column.field]);
+            }}
+            renderActions={(row) => (
+              <Box display="flex" gap={1}>
+                <Button variant="outlined" onClick={() => handleOpenModal(row)}>
+                  Visualizar
+                </Button>
+                <IconButton
+                  color="primary"
+                  onClick={() => navigate(`/register-type-alert/${row.id}`)}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Box>
+            )}
+          />
+        )}
 
         <Dialog open={isModalOpen} onClose={handleCloseModal}>
           <DialogTitle>Detalhes do Tipo de Alerta</DialogTitle>
