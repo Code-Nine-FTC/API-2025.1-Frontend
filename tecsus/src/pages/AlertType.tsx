@@ -12,7 +12,6 @@ import {
   Cancel as CancelIcon,
   Save as SaveIcon,
   BlockOutlined,
-  Check,
 } from "@mui/icons-material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import typeAlertGetters from "../store/typealerts/getters";
@@ -156,15 +155,19 @@ const AlertTypePage = () => {
               >
                 Cancelar
               </Button>
-              <Button
-                variant="contained"
-                color={initialValues.status === "G" ? "error" : "success"}
-                startIcon={initialValues.status === "G" ? <BlockOutlined /> : <Check />}
-                onClick={handleToggleStatus}
-                sx={{ mr: 1, color: "white" }}
-              >
-                {initialValues.status === "G" ? "Desativar" : "Ativar"}
-              </Button>
+
+              {initialValues.is_active && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<BlockOutlined />}
+                  onClick={handleToggleStatus}
+                  sx={{ mr: 1, color: "white" }}
+                >
+                  Desativar
+                </Button>
+              )}
+
               <Button
                 variant="contained"
                 startIcon={<SaveIcon />}

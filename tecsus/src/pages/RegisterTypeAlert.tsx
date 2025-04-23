@@ -117,24 +117,30 @@ const RegisterAlertType = () => {
         alert("O valor deve estar entre -2.147.483.648 e 2.147.483.647.");
         return;
       }
-
+  
+      let res;
+  
       if (id) {
-        const res = await typeAlertGetters.updateAlertType(Number(id), formattedForm);
-        if (!res.success) {
+        res = await typeAlertGetters.updateAlertType(Number(id), formattedForm);
+        if (res.success) {
+          alert("Tipo de alerta atualizado com sucesso!");
+          navigate("/list-alert-type");
+        } else {
           alert(res.error || "Erro ao atualizar tipo de alerta.");
-          return;
         }
-        alert("Tipo de alerta atualizado com sucesso!");
       } else {
-        const res = await typeAlertGetters.createAlertType(formattedForm);
-        if (!res.success) {
-          alert(res.error || "Erro ao criar tipo de alerta.");
-          return;
+        res = await typeAlertGetters.createAlertType(formattedForm);
+        if (res.success) {
+          alert("Tipo de alerta cadastrado com sucesso!");
+          navigate("/list-alert-type");
+        } else {
+          if (res.error?.toLowerCase().includes("já cadastrado")) {
+            alert("Tipo de alerta já cadastrado.");
+          } else {
+            alert(res.error || "Erro ao criar tipo de alerta.");
+          }
         }
-        alert("Tipo de alerta cadastrado com sucesso!");
       }
-
-      navigate("/list-alert-type");
     } catch (error) {
       console.error("Erro ao salvar tipo de alerta:", error);
       alert("Erro ao salvar tipo de alerta.");

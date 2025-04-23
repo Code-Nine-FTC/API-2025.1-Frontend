@@ -12,9 +12,12 @@ export default {
       });
   
       return { success: true, data: response.data.data };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao buscar tipo de alerta:", error);
-      return { success: false, error: "Erro ao buscar tipo de alerta" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message || "Erro ao buscar tipo de alerta",
+      };
     }
   },
   
@@ -24,13 +27,25 @@ export default {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
-      await api.patch(`/alert_type/${id}`, data, {
+      const response = await api.patch(`/alert_type/${id}`, data, {
         headers: { Authorization: token },
+        validateStatus: (status) => status < 500,
       });
-      return { success: true };
-    } catch (error) {
+  
+      if (response.status === 200) {
+        return { success: true };
+      }
+  
+      return {
+        success: false,
+        error: response.data?.detail || "Erro ao atualizar tipo de alerta",
+      };
+    } catch (error: any) {
       console.error("Erro ao atualizar tipo de alerta:", error);
-      return { success: false, error: "Erro ao atualizar tipo de alerta" };
+      return {
+        success: false,
+        error: error.response?.data?.detail || error.message || "Erro ao atualizar tipo de alerta",
+      };
     }
   },
 
@@ -162,15 +177,24 @@ export default {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
-      await api.patch(`/alert_type/disables/${id}`, null, {
+      const response = await api.patch(`/alert_type/disables/${id}`, null, {
         headers: { Authorization: token },
+        validateStatus: (status) => status < 500,
       });
-      return { success: true };
-    } catch (error) {
+  
+      if (response.status === 200) {
+        return { success: true };
+      }
+  
+      return {
+        success: false,
+        error: response.data?.detail || "Erro ao alterar status do tipo de alerta",
+      };
+    } catch (error: any) {
       console.error("Erro ao alterar status do tipo de alerta:", error);
       return {
         success: false,
-        error: "Erro ao alterar status do tipo de alerta",
+        error: error.response?.data?.detail || error.message || "Erro ao alterar status do tipo de alerta",
       };
     }
   },  
