@@ -3,7 +3,6 @@ import {
   Typography,
   Button,
   Paper,
-  Container,
   Switch,
   TextField,
   IconButton,
@@ -26,13 +25,11 @@ import { useAuth } from "../components/authContext";
 function TypeParametersList() {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [typeParameters, setTypeParameters] = useState<
-    ParameterTypesResponse[]
-  >([]);
+  const [typeParameters, setTypeParameters] = useState<ParameterTypesResponse[]>([]);
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [showInactive, setShowInactive] = useState(true);
-  const [filters, setFilters] = useState<ListParameterTypesFilters>();
+
   const columns: Column<ParameterTypesResponse>[] = [
     { field: "name", headerName: "Nome" },
     { field: "measure_unit", headerName: "Unidade de Medida" },
@@ -45,11 +42,8 @@ function TypeParametersList() {
   const handleFilter = useCallback(async () => {
     try {
       const filters: ListParameterTypesFilters = {};
-      if (name && name.trim() !== "") {
-        filters.name = name;
-      }
+      if (name.trim()) filters.name = name;
       filters.is_active = showInactive;
-      setFilters(filters);
       const response = await typeParameterGetters.listParameterTypes(filters);
       if (response.success) {
         setTypeParameters(response.data as ParameterTypesResponse[]);
@@ -57,9 +51,7 @@ function TypeParametersList() {
         setError("Erro ao listar tipos de parâmetros.");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
-      );
+      setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
     }
   }, [name, showInactive]);
 
@@ -78,15 +70,13 @@ function TypeParametersList() {
         setError("Erro ao excluir tipo de parâmetro.");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Ocorreu um erro desconhecido"
-      );
+      setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
     }
   }
 
   return (
     <LoggedLayout>
-      <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
+      <Box display="flex" flexDirection="column" gap={2} p={2} m={5}>
         <Box
           display="flex"
           flexDirection={{ xs: "column", sm: "row" }}
@@ -265,7 +255,16 @@ function TypeParametersList() {
           </Box>
         </Paper>
 
-        <Box>
+        {typeParameters.length === 0 ? (
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            textAlign="center"
+            sx={{ mt: 2 }}
+          >
+            Nenhum registro encontrado.
+          </Typography>
+        ) : (
           <GenericTable
             columns={columns}
             rows={typeParameters}
@@ -284,16 +283,13 @@ function TypeParametersList() {
               return String(row[column.field]);
             }}
             renderActions={(row) => (
-              <Box display="flex" gap={1} alignItems={"center"}>
+              <Box display="flex" gap={1} alignItems="center">
                 <IconButton
                   onClick={() => navigate(`/view-type-parameter/${row.id}`)}
-                  sx={{
-                    color: "rgb(39, 235, 65)",
-                  }}
+                  sx={{ color: "rgb(39, 235, 65)" }}
                 >
                   <VisibilityIcon />
                 </IconButton>
-
                 <IconButton
                   onClick={() => handleDelete(row.id)}
                   sx={{
@@ -308,7 +304,7 @@ function TypeParametersList() {
               </Box>
             )}
           />
-        </Box>
+        )}
       </Box>
     </LoggedLayout>
   );
