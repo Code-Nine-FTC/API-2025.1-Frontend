@@ -18,5 +18,5 @@ export interface AlertCountsResponse {
 
 export interface MeasuresStatusResponse {
     label: string;
-    number: number;
+    value: number;
 }
