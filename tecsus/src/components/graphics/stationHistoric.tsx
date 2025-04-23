@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 interface DataPoint {
   name: string;
-  value: string;
+  value: number;
   measure_unit: string;
   measure_date: number;
 }
@@ -21,7 +21,7 @@ export const StationHistoric = ({ data }: StationHistoricProps) => {
             showMark: false,
           };
         }
-        acc[item.name].data.push(parseFloat(item.value));
+        acc[item.name].data.push(Number(item.value.toFixed(2)));
         return acc;
       }, {} as Record<string, { label: string; data: number[]; showMark: boolean }>);
     

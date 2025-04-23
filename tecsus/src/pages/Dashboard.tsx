@@ -40,8 +40,8 @@ import dashboardGetters from "../store/dashboard/getters";
 // };
 
 // const historicData = Array.from({ length: 50 }, (_, i) => ([
-//     { name: "Temperatura", value: (20 + Math.random() * 10).toFixed(1), measure_unit: "C", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 },
-//     { name: "Pressão", value: (95 + Math.random() * 10).toFixed(1), measure_unit: "Bar", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 }
+//     { name: "Temperatura", value: (20 + Math.random() * 10), measure_unit: "C", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 },
+//     { name: "Pressão", value: (95 + Math.random() * 10), measure_unit: "Bar", measure_date: 1743537102 + i * 3 * 24 * 60 * 60 }
 // ])).flat();
 
 const DashboardPage = () => {
@@ -120,13 +120,13 @@ const DashboardPage = () => {
                     alignItems="stretch"
                 >
                     <Box sx={{ flex: 1 }}>
-                        <AlertCard type="R" count={alertCounts.R} />
+                        <AlertCard type="R" count={alertCounts?.R ?? 0} />
                     </Box>
                     <Box sx={{ flex: 1 }}>
-                        <AlertCard type="Y" count={alertCounts.Y} />
+                        <AlertCard type="Y" count={alertCounts?.Y ?? 0} />
                     </Box>
                     <Box sx={{ flex: 1 }}>
-                        <AlertCard type="G" count={alertCounts.G} />
+                        <AlertCard type="G" count={alertCounts?.G ?? 0} />
                     </Box>
                 </Stack>
 
@@ -149,7 +149,7 @@ const DashboardPage = () => {
                                 title={<Typography variant="h6">Quantidade de estações</Typography>}
                             />
                             <CardContent>
-                                <StationStatusCard active={stationStatus.enabled} total={stationStatus.total} />
+                                <StationStatusCard active={stationStatus?.enabled ?? 0} total={stationStatus?.total ?? 0} />
                             </CardContent>
                         </Card>
                     </Box>
