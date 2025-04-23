@@ -10,6 +10,7 @@ import AlertsPage from "../Alerts";
 import RegisterParameterType from "../RegisterParameterType";// Importe o componente de cadastro/edição
 import ProfilePage from "../Profile";
 import RegisterAlertType from "../RegisterTypeAlert";
+import AlertTypePage from "../AlertType";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -91,6 +92,14 @@ const AuthenticatedRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <RegisterAlertType />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/view-type-alert/:id"
+        element={
+          <ProtectedRoute>
+            <AlertTypePage />
           </ProtectedRoute>
         }
       />

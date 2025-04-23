@@ -2,19 +2,22 @@ import api from "../globals"
 import { AlertTypeResponse, AlertTypeUpdate } from "./state";
 
 export default {
-getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeResponse; error?: string }> => {
+  getAlertType: async (
+    id: number
+  ): Promise<{ success: boolean; data?: AlertTypeResponse; error?: string }> => {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get(`/alert_type/${id}`, {
         headers: { Authorization: token },
       });
-      return { success: true, data: response.data };
+  
+      return { success: true, data: response.data.data };
     } catch (error) {
       console.error("Erro ao buscar tipo de alerta:", error);
       return { success: false, error: "Erro ao buscar tipo de alerta" };
     }
   },
-
+  
   updateAlertType: async (
     id: number,
     data: AlertTypeUpdate
@@ -45,8 +48,6 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
         params: filters,
       });
 
-      console.log("Resposta da API (listAlertTypes):", response.data);
-
       const alertTypes = Array.isArray(response.data.data)
         ? response.data.data.map((item: any) => ({
             id: item.id,
@@ -70,6 +71,7 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
       };
     }
   },
+  
   createAlertType: async (alertTypeData: {
     parameter_id: number;
     name: string;
@@ -90,7 +92,7 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
         },
         validateStatus: (status) => status < 500,
       });
-  
+
       if (response.status === 201) {
         return { success: true };
       }
@@ -110,11 +112,12 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
       };
     }
   },
+
   getParametersByStation: async (
     parameterTypeId: number
   ): Promise<{
     success: boolean;
-    data?: Array<{ id: number; name_station: string }>;
+    data?: Array<{ id: number; name_parameter: string }>;
     error?: string;
   }> => {
     try {
@@ -136,9 +139,6 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
         }
       );
 
-      console.log("Resposta do backend:", response);
-
-      // Verifica se a resposta contém a propriedade `data` com um array
       if (response.data && Array.isArray(response.data.data)) {
         return { success: true, data: response.data.data };
       }
@@ -146,15 +146,32 @@ getAlertType: async (id: number): Promise<{ success: boolean; data?: AlertTypeRe
       throw new Error("Resposta inválida do servidor");
     } catch (error: any) {
       console.error(
-        "Erro ao buscar estações por parâmetro:",
+        "Erro ao buscar parâmetros da estação:",
         error.message || error
       );
       return {
         success: false,
         error:
           error.response?.data?.detail ||
-          "Erro ao buscar estações por parâmetro",
+          "Erro ao buscar parâmetros da estação",
       };
     }
   },
-}
+  deactivateAlertType: async (
+    id: number
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const token = localStorage.getItem("token");
+      await api.patch(`/alert_type/disables/${id}`, null, {
+        headers: { Authorization: token },
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Erro ao alterar status do tipo de alerta:", error);
+      return {
+        success: false,
+        error: "Erro ao alterar status do tipo de alerta",
+      };
+    }
+  },  
+};

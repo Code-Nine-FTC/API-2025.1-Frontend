@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, Typography, Paper, TextField } from "@mui/material";
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Button, Typography, Paper } from "@mui/material";
 import "../../pages/styles/registerstation.css";
 
 interface FormFields {
@@ -13,7 +13,7 @@ interface FormFields {
 
 interface AlertTypeFormProps {
   initialValues?: Partial<FormFields>;
-  onSubmit: (form: FormFields) => void;
+  onSubmit: (form: Omit<FormFields, "station_id">) => void;
   title?: string;
   submitLabel?: string;
   stations: Array<{
@@ -26,6 +26,8 @@ interface AlertTypeFormProps {
   }>;
   parameters: Array<{ id: number; name_parameter: string }>;
   setParameters: React.Dispatch<React.SetStateAction<Array<{ id: number; name_parameter: string }>>>;
+  disabled?: boolean;
+  actionButtons?: React.ReactNode;
 }
 
 export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
@@ -36,6 +38,8 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   stations,
   parameters,
   setParameters,
+  disabled = false,
+  actionButtons,
 }) => {
   const [form, setForm] = useState<FormFields>({
     parameter_id: 0,
@@ -47,13 +51,30 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     ...initialValues,
   });
 
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
-    if (initialValues) {
+    if (initialValues && !hasInitialized.current) {
       setForm((prevForm) => ({ ...prevForm, ...initialValues }));
+
+      if (initialValues.station_id) {
+        const station = stations.find(s => s.id === initialValues.station_id);
+        if (station) {
+          const params = station.parameters.map(p => ({
+            id: p.parameter_id,
+            name_parameter: p.name_parameter,
+          }));
+          setParameters(params);
+        }
+      }
+
+      hasInitialized.current = true;
     }
-  }, [initialValues]);
+  }, [initialValues, stations, setParameters]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (disabled) return;
+
     const { name, value } = e.target;
     let maskedValue: string | number = value;
 
@@ -67,9 +88,11 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
     };
 
     if (name === "station_id") {
-      const selectedStation = stations.find((s) => s.id === Number(value));
-      if (selectedStation && selectedStation.parameters) {
-        const params = selectedStation.parameters.map((p) => ({
+      updatedForm.parameter_id = 0;
+
+      const station = stations.find((s) => s.id === Number(value));
+      if (station) {
+        const params = station.parameters.map((p) => ({
           id: p.parameter_id,
           name_parameter: p.name_parameter,
         }));
@@ -77,14 +100,9 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
       } else {
         setParameters([]);
       }
-      updatedForm.parameter_id = 0;
     }
 
     setForm(updatedForm);
-  };
-
-  const onStationsFocus = () => {
-    console.log("Estação field focused");
   };
 
   const renderInput = (label: string, name: keyof FormFields) => (
@@ -97,6 +115,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           value={form[name] ?? ""}
           onChange={handleChange}
           className="input-field"
+          disabled={disabled}
         />
       </div>
     </div>
@@ -105,7 +124,8 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
   const renderSelect = (
     label: string,
     name: keyof FormFields,
-    options: Array<{ value: string | number; label: string }>
+    options: Array<{ value: string | number; label: string }>,
+    forceDisabled: boolean = false
   ) => (
     <div className="input-group-wrapper">
       <div className="input-group">
@@ -116,6 +136,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           onChange={handleChange}
           className="input-field"
           required
+          disabled={disabled || forceDisabled}
         >
           <option value="">Selecione</option>
           {options.map((option) => (
@@ -128,11 +149,14 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const { station_id, ...safeData } = form;
+
     if (!form.parameter_id || !form.name || !form.value || !form.math_signal || !form.status) {
       alert("Por favor, preencha todos os campos obrigatórios.");
       return;
     }
-    onSubmit(form);
+
+    onSubmit(safeData);
   };
 
   return (
@@ -142,17 +166,20 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {title}
         </Typography>
         <form className="estacao-form" onSubmit={handleFormSubmit}>
-          <TextField
-            label="Estação"
-            onFocus={onStationsFocus} // Chama a função ao focar no campo
-            fullWidth
-            margin="normal"
-          />
-
-          {renderSelect("Parâmetro", "parameter_id", parameters.map((p) => ({
-            value: p.id,
-            label: p.name_parameter,
+          {renderSelect("Estação", "station_id", stations.map((station) => ({
+            value: station.id,
+            label: station.name_station,
           })))}
+
+          {renderSelect(
+            "Parâmetro",
+            "parameter_id",
+            parameters.map((p) => ({
+              value: p.id,
+              label: p.name_parameter,
+            })),
+            !form.station_id
+          )}
 
           {renderInput("Nome", "name")}
           {renderInput("Valor", "value")}
@@ -168,16 +195,23 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
             { value: "Y", label: "Risco Moderado" },
             { value: "R", label: "Risco Alto" },
           ])}
-          <Box mt={3} textAlign="center">
-            <Button
-              variant="contained"
-              type="submit"
-              className="estacao-btn"
-              style={{ backgroundColor: "#5f5cd9", color: "white" }}
-            >
-              {submitLabel}
-            </Button>
-          </Box>
+
+          {actionButtons ? (
+            <Box mt={3} textAlign="center">{actionButtons}</Box>
+          ) : (
+            !disabled && (
+              <Box mt={3} textAlign="center">
+                <Button
+                  variant="contained"
+                  type="submit"
+                  className="estacao-btn"
+                  style={{ backgroundColor: "#5f5cd9", color: "white" }}
+                >
+                  {submitLabel}
+                </Button>
+              </Box>
+            )
+          )}
         </form>
       </Paper>
     </Box>

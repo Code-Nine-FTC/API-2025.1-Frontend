@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AlertTypeForm } from "../components/ui/AlertTypeForm";
 import typeAlertGetters from "../store/typealerts/getters";
 import stationGetters from "../store/station/getters";
@@ -33,6 +33,8 @@ const RegisterAlertType = () => {
     Array<{ id: number; name_parameter: string }>
   >([]);
 
+  const hasFetchedAlert = useRef(false);
+
   useEffect(() => {
     const fetchStations = async () => {
       const res = await stationGetters.listStations();
@@ -44,7 +46,7 @@ const RegisterAlertType = () => {
   }, []);
 
   useEffect(() => {
-    if (id && stations.length > 0) {
+    if (id && stations.length > 0 && !hasFetchedAlert.current) {
       const fetchAlertType = async () => {
         try {
           const response = await typeAlertGetters.getAlertType(Number(id));
@@ -75,6 +77,7 @@ const RegisterAlertType = () => {
               status: alertData.status,
               station_id: stationId,
             });
+            hasFetchedAlert.current = true;
           } else {
             alert("Erro ao carregar dados do tipo de alerta.");
             navigate("/list-alert-type");
@@ -89,7 +92,7 @@ const RegisterAlertType = () => {
       };
 
       fetchAlertType();
-    } else {
+    } else if (!id) {
       setLoading(false);
     }
   }, [id, stations, navigate]);
@@ -116,10 +119,18 @@ const RegisterAlertType = () => {
       }
 
       if (id) {
-        await typeAlertGetters.updateAlertType(Number(id), formattedForm);
+        const res = await typeAlertGetters.updateAlertType(Number(id), formattedForm);
+        if (!res.success) {
+          alert(res.error || "Erro ao atualizar tipo de alerta.");
+          return;
+        }
         alert("Tipo de alerta atualizado com sucesso!");
       } else {
-        await typeAlertGetters.createAlertType(formattedForm);
+        const res = await typeAlertGetters.createAlertType(formattedForm);
+        if (!res.success) {
+          alert(res.error || "Erro ao criar tipo de alerta.");
+          return;
+        }
         alert("Tipo de alerta cadastrado com sucesso!");
       }
 

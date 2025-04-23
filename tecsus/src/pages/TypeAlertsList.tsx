@@ -176,7 +176,7 @@ const TypeAlertsPage = () => {
                     backgroundColor: "rgb(146, 123, 230)",
                   },
                   "&:hover fieldset": {
-                    borderColor: "rgb(146, 123, 230)", // cor da linha ao passar o mouse
+                    borderColor: "rgb(146, 123, 230)",
                   },
                 },
               }}
@@ -276,7 +276,7 @@ const TypeAlertsPage = () => {
                 </Button>
                 <IconButton
                   color="primary"
-                  onClick={() => navigate(`/register-type-alert/${row.id}`)}
+                  onClick={() => navigate(`/view-type-alert/${row.id}`)}
                 >
                   <EditIcon />
                 </IconButton>
@@ -295,7 +295,7 @@ const TypeAlertsPage = () => {
                 <Typography><strong>Valor:</strong> {selectedAlert.value}</Typography>
                 <Typography><strong>Sinal Matemático:</strong> {selectedAlert.math_signal}</Typography>
                 <Typography><strong>Status:</strong> {selectedAlert.status}</Typography>
-                <Typography><strong>Data de Criação:</strong> {new Date(selectedAlert.create_date).toLocaleDateString()}</Typography>
+                <Typography><strong>Data de Criação:</strong>{" "} {selectedAlert.create_date ? new Date(selectedAlert.create_date * 1000).toLocaleDateString() : "Data inválida"}</Typography>
               </Box>
             )}
           </DialogContent>

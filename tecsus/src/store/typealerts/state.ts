@@ -27,10 +27,20 @@ export interface AlertTypeResponse {
     error?: string; 
   }
   
-  export interface AlertTypeState {
+  export interface AlertTypeFormData {
     parameter_id: number;
     name: string;
     value: number;
     math_signal: string;
     status: string;
   }
+
+  export interface AlertTypeUpdate {
+    parameter_id?: number;
+    name?: string;
+    value?: number;
+    math_signal?: string;
+    status?: string;
+    is_active?: boolean;
+  }
+  
