@@ -21,14 +21,15 @@ export default function LoginPage() {
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-
-      const response = await login(email, password);
-
-      if (response) {
-        console.log("logou")
-        navigate("/dashboard"); 
-      }
-    };
+  
+    const response = await login(email, password);
+  
+    if (response) {
+      navigate("/dashboard");
+    } else {
+      setErrorLogin("Credenciais incorretas. Verifique e tente novamente.");
+    }
+  };  
 
   return (
     <div className="login-page">
@@ -58,7 +59,7 @@ export default function LoginPage() {
             onFocus={() => setErrorLogin("")}
           />
 
-          {errorLogin && <p style={{ color: "red" }}>{errorLogin}</p>}
+          {errorLogin && (<Box mt={1} color="error.main" fontSize="0.9rem"> {errorLogin}</Box>)}
 
           <Button
             fullWidth
