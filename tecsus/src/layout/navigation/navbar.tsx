@@ -44,8 +44,8 @@ const Navbar: React.FC = () => {
             Educacional
           </Button>
           <Button
-            sx={{ color: location.pathname === "/listagem-combinada" ? "purple" : "black", fontWeight: "bold" }}
-            onClick={() => navigate("/listagem-combinada")}
+            sx={{ color: location.pathname === "/public-lists" ? "purple" : "black", fontWeight: "bold" }}
+            onClick={() => navigate("/public-lists")}
           >
             Listagem Estação/Alerta
           </Button>
