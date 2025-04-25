@@ -108,7 +108,7 @@ export default {
         validateStatus: (status) => status < 500,
       });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         return { success: true };
       }
 
