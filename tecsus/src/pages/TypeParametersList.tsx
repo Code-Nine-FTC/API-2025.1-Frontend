@@ -3,6 +3,7 @@ import {
   Typography,
   Button,
   Paper,
+  Container,
   Switch,
   TextField,
   IconButton,
@@ -29,6 +30,7 @@ function TypeParametersList() {
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [showInactive, setShowInactive] = useState(true);
+  const [filters, setFilters] = useState<ListParameterTypesFilters>();
 
   const columns: Column<ParameterTypesResponse>[] = [
     { field: "name", headerName: "Nome" },
@@ -42,8 +44,11 @@ function TypeParametersList() {
   const handleFilter = useCallback(async () => {
     try {
       const filters: ListParameterTypesFilters = {};
-      if (name.trim()) filters.name = name;
+      if (name && name.trim() !== "") {
+        filters.name = name;
+      }
       filters.is_active = showInactive;
+      setFilters(filters);
       const response = await typeParameterGetters.listParameterTypes(filters);
       if (response.success) {
         setTypeParameters(response.data as ParameterTypesResponse[]);
@@ -63,9 +68,7 @@ function TypeParametersList() {
     try {
       const response = await typeParameterGetters.deleteParameterType(id);
       if (response.success) {
-        setTypeParameters((prev) =>
-          prev.filter((typeParameter) => typeParameter.id !== id)
-        );
+        setTypeParameters((prev) => prev.filter((typeParameter) => typeParameter.id !== id));
       } else {
         setError("Erro ao excluir tipo de parâmetro.");
       }
@@ -76,7 +79,7 @@ function TypeParametersList() {
 
   return (
     <LoggedLayout>
-      <Box display="flex" flexDirection="column" gap={2} p={2} m={5}>
+      <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
         <Box
           display="flex"
           flexDirection={{ xs: "column", sm: "row" }}
@@ -283,10 +286,12 @@ function TypeParametersList() {
               return String(row[column.field]);
             }}
             renderActions={(row) => (
-              <Box display="flex" gap={1} alignItems="center">
+              <Box display="flex" gap={1} alignItems={"center"}>
                 <IconButton
                   onClick={() => navigate(`/view-type-parameter/${row.id}`)}
-                  sx={{ color: "rgb(39, 235, 65)" }}
+                  sx={{
+                    color: "rgb(39, 235, 65)",
+                  }}
                 >
                   <VisibilityIcon />
                 </IconButton>
