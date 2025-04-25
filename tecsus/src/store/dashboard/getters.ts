@@ -4,8 +4,8 @@ import { AlertCountsResponse, MeasuresStatusResponse, StationHistoricResponse, S
 export default {
     async getStationStatus(): Promise<{ success: boolean; data?: StationStatusResponse; error?: string }> {
         try {
-            const response = await api.get("/dashboard/stations-status");
-            return { success: true, data: response.data };
+            const response = await api.get("/dashboard/station-status");
+            return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter status das estações:", error.message || error);
             return {
@@ -15,10 +15,11 @@ export default {
         }
     },
 
-    async getStationHistoric(): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+    async getStationHistoric(stationId: number | undefined): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
         try {
-            const response = await api.get(`/dashboard/stations-historic`);
-            return { success: true, data: response.data };
+            const url = stationId !== undefined ? `/dashboard/station-history/${stationId}` : "/dashboard/station-history";
+            const response = await api.get(url);
+            return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter histórico das estações", error.message || error);
             return {
@@ -30,8 +31,8 @@ export default {
 
     async getAlertCounts(): Promise<{ success: boolean; data?: AlertCountsResponse; error?: string }> {
         try {
-            const response = await api.get("/dashboard/alerts-counts");
-            return { success: true, data: response.data };
+            const response = await api.get("/dashboard/alert-counts");
+            return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter contagem de alertas:", error.message || error);
             return {
@@ -43,8 +44,8 @@ export default {
     
     async getMeasuresStatus(): Promise<{ success: boolean; data?: [MeasuresStatusResponse]; error?: string }> {
         try {
-            const response = await api.get("/dashboard/measures-status");
-            return { success: true, data: response.data };
+            const response = await api.get("/dashboard/alert-types");
+            return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter status das medidas:", error.message || error);
             return {

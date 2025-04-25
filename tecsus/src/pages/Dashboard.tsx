@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tooltip, Typography } from "@mui/material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import InfoIcon from "@mui/icons-material/Info";
@@ -8,6 +8,8 @@ import { AlertCard } from "../components/cards/alertCard";
 import { useEffect, useState } from "react";
 import { StationStatusResponse, StationHistoricResponse, AlertCountsResponse, MeasuresStatusResponse} from "../store/dashboard/state"
 import dashboardGetters from "../store/dashboard/getters";
+import stationGetters from "../store/station/getters"
+import {ListStationsResponse} from "../store/station/state"
 
 // const measureStatus = [
 //     {
@@ -49,27 +51,48 @@ const DashboardPage = () => {
     const [alertCounts, setAlertCounts] = useState<AlertCountsResponse>();
     const [stationStatus, setStationStatus] = useState<StationStatusResponse>();
     const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
-    const [measureStatus, setMeasureStatus] = useState<MeasuresStatusResponse[]>([]);
+    const [formattedMeasure, setFormattedMeasure] = useState<{ label: string; value: number }[]>([]);
     const [error, setError] = useState<string | null>(null);
     
+    const [stations, setStations] = useState<ListStationsResponse[]>([]);
+    const [selectedStation, setSelectedStation] = useState<string>("Todas");
+    
+    const fetchHistoricData = async () => {
+        try {
+            const historicResponse = await dashboardGetters.getStationHistoric(selectedStation === "Todas" ? undefined : Number(selectedStation));
+            setHistoricData(historicResponse.data ?? []);
+        } catch (err: any) {
+            console.error("Error fetching historic data:", err);
+            setError(err.message || "Erro ao carregar histórico");
+        }
+    };
+
     const fetchData = async () => {
         try {
             const [
                 alertCountsResponse,
                 stationStatusResponse,
-                historicDataResponse,
-                measureStatusResponse
+                measureStatusResponse,
+                stationsResponse
             ] = await Promise.all([
                 dashboardGetters.getAlertCounts(),
                 dashboardGetters.getStationStatus(),
-                dashboardGetters.getStationHistoric(),
-                dashboardGetters.getMeasuresStatus()
+                dashboardGetters.getMeasuresStatus(),
+                stationGetters.listStations(),
             ]);
     
             setAlertCounts(alertCountsResponse.data ?? {R: 0, Y: 0, G: 0});
-            setStationStatus(stationStatusResponse.data ?? {enabled: 0, total: 0});
-            setHistoricData(historicDataResponse.data ?? []);
-            setMeasureStatus(measureStatusResponse.data ?? []);
+            setStationStatus(stationStatusResponse.data ?? {total: 0, active: 0});
+            setStations(stationsResponse.data ?? []);
+
+            const formattedData = measureStatusResponse.data?.map(item => ({
+                label: item.name,  
+                value: item.total  
+            }));
+            setFormattedMeasure(formattedData ?? []);
+
+            await fetchHistoricData()
+
         } catch (error: any) {
             console.error("Error fetching data:", error);
             setError(error.message || "Erro ao carregar dados");
@@ -81,6 +104,16 @@ const DashboardPage = () => {
     useEffect(() => {
         fetchData();
     }, []);
+    
+    useEffect(() => {
+        if (!isLoading) {
+            fetchHistoricData();
+        }
+    }, [selectedStation, isLoading]);
+    
+    function handleStationChange (event: SelectChangeEvent<string>) {
+        setSelectedStation(event.target.value.toString());
+    };
 
     if (isLoading) {
         return (
@@ -149,7 +182,7 @@ const DashboardPage = () => {
                                 title={<Typography variant="h6">Quantidade de estações</Typography>}
                             />
                             <CardContent>
-                                <StationStatusCard active={stationStatus?.enabled ?? 0} total={stationStatus?.total ?? 0} />
+                                <StationStatusCard active={stationStatus?.active ?? 0} total={stationStatus?.total ?? 0} />
                             </CardContent>
                         </Card>
                     </Box>
@@ -166,7 +199,7 @@ const DashboardPage = () => {
                                 }
                             />
                             <CardContent>
-                                <PizzaGraphic data={measureStatus} />
+                                <PizzaGraphic data={formattedMeasure} />
                             </CardContent>
                         </Card>
                     </Box>
@@ -182,7 +215,28 @@ const DashboardPage = () => {
                     }}
                 >
                     <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
-                        <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>} />
+                        <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>}
+                         action={
+                            <FormControl sx={{ m: 1, minWidth: 180 }} size="small">
+                                <InputLabel id="station-select-label">Estação</InputLabel>
+                                <Select
+                                    labelId="station-select-label"
+                                    id="station-select"
+                                    value={selectedStation}
+                                    label="Estação"
+                                    onChange={handleStationChange}
+                                >
+                                    <MenuItem value="all">
+                                        <em>Todas as Estações</em>
+                                    </MenuItem>
+                                    {stations.map((station) => (
+                                        <MenuItem key={station.id} value={station.id}>
+                                            {station.name_station}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        }/>
                         <CardContent>
                             <StationHistoric data={historicData} />
                         </CardContent>

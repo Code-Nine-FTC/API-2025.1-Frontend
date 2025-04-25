@@ -1,6 +1,6 @@
 export interface StationStatusResponse {
-    enabled: number;
     total: number;
+    active: number;
 }
 
 export interface StationHistoricResponse {
@@ -17,6 +17,6 @@ export interface AlertCountsResponse {
 }
 
 export interface MeasuresStatusResponse {
-    label: string;
-    value: number;
+    name: string;
+    total: number;
 }

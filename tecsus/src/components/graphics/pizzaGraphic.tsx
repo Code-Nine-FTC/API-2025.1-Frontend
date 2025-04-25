@@ -1,5 +1,5 @@
 import { PieChart } from "@mui/x-charts/PieChart";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface props {
     data: { label: string; value: number }[];
@@ -18,10 +18,14 @@ export default function PizzaGraphic(props: props) {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
     
+    const totalSum = useMemo(() => {
+        return props.data.reduce((sum, item) => sum + item.value, 0);
+    }, [props.data]);
+    
     const margin =
         width < 500
             ? { top: 10, right: 10, left: 10, bottom: 80 }
-            : { top: 10, right: 120, left: 30, bottom: 10 };
+            : { top: 10, right: 145, left: 30, bottom: 10 };
 
     const legendDirection = width < 500 ? "row" : "column";
     
@@ -38,7 +42,11 @@ export default function PizzaGraphic(props: props) {
                         data: props.data,
                         highlightScope: { fade: 'global', highlight: 'item' },
                         faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-                        valueFormatter: (value) => `${value}%`,
+                        valueFormatter: (item) => {
+                            if (totalSum === 0) return "0%";
+                            const percentage = (item.value / totalSum) * 100;
+                            return `${percentage.toFixed(2)}%`;
+                        },
                     },
                 ]}                    
                 width={width}
