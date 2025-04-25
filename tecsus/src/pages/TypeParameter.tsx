@@ -280,10 +280,10 @@ const TypeParameterPage = () => {
 							</Button>
 							<Button
 								variant="outlined"
-								startIcon={<CancelIcon />}
+								startIcon={<ArrowBackIcon />}
 								onClick={() => window.history.back()}
 								className="type-parameter-btn"
-								sx={{ marginRight: "10px", }}
+								sx={{ marginRight: "10px" }}
 							>
 								Voltar
 							</Button>

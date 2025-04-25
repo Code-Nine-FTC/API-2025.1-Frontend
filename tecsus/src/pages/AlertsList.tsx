@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import DeleteIcon from "@mui/icons-material/Delete";
+import CheckIcon from "@mui/icons-material/Check";
 import GenericTable, { Column } from "../components/table";
 import { Alert } from "../store/alerts/state";
 import { useAuth } from "../components/authContext";
@@ -214,7 +214,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
             return String(row[column.field]);
           }}
           renderActions={(row) => (
-            <Box display="flex" gap={1}>
+            <Box display="flex" gap={1} alignItems="center" justifyContent="center">
               <Button
                 variant="outlined"
                 onClick={() => console.log("Visualizar alerta:", row)}
@@ -223,10 +223,15 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
               </Button>
               {auth.isAuthenticated && (
                 <IconButton
-                  color="error"
+                  sx={{
+                    color: "rgb(146, 123, 230)",
+                    "&:hover": {
+                      backgroundColor: "rgba(146, 123, 230, 0.1)",
+                    },
+                  }}
                   onClick={() => openDeleteModal(row.id)}
                 >
-                  <DeleteIcon />
+                  <CheckIcon />
                 </IconButton>
               )}
             </Box>

@@ -161,100 +161,117 @@ function TypeParametersList() {
                   },
                 },
               }}
-              InputProps={{
-                endAdornment: (
-                  <Button
-                    onClick={handleFilter}
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "transparent",
-                      boxShadow: "none",
-                      "&:hover": {
-                        backgroundColor: "transparent",
-                        boxShadow: "none",
-                      },
-                      minWidth: 0,
-                    }}
-                  >
-                    <SearchIcon sx={{ fontSize: 22, color: "white" }} />
-                  </Button>
-                ),
-              }}
             />
 
             <Box
-              display="flex"
-              gap={2}
-              flexDirection={{ xs: "column", sm: "row" }}
               sx={{
-                flexShrink: 0,
-                width: { xs: "100%", sm: "auto" },
-                justifyContent: { xs: "center", sm: "normal" },
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid",
+                borderColor: "rgba(146, 123, 230, 0.5)",
+                borderRadius: "8px",
+                px: 2,
+                py: 0.8,
+                height: "56px",
+                backgroundColor: "rgba(146, 123, 230, 0.05)",
+                backdropFilter: "blur(8px)",
+                boxShadow: (theme) => theme.shadows[1],
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "rgba(146, 123, 230, 0.5)",
+                  boxShadow: (theme) => theme.shadows[1],
+                },
               }}
             >
-              <Box
+              <Typography
+                variant="body2"
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  border: "1px solid",
-                  borderColor: "rgba(146, 123, 230, 0.5)",
-                  borderRadius: "8px",
-                  px: 2,
-                  py: 0.8,
-                  backgroundColor: "rgba(146, 123, 230, 0.05)",
-                  backdropFilter: "blur(8px)",
-                  boxShadow: (theme) => theme.shadows[1],
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    borderColor: "rgba(146, 123, 230, 0.5)",
-                    boxShadow: (theme) => theme.shadows[1],
-                  },
+                  mr: 1.5,
+                  color: "text.secondary",
+                  fontWeight: 500,
+                  fontSize: "0.9rem",
+                  whiteSpace: "nowrap",
+                  minWidth: "100px",
+                  textAlign: "center",
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    mr: 1.5,
-                    color: "text.secondary",
-                    fontWeight: 500,
-                    fontSize: "0.9rem",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {showInactive ? "Exibir Ativos" : "Exibir Inativos"}
-                </Typography>
-                <Switch
-                  checked={showInactive}
-                  onChange={(e) => {
-                    const newShowInactive = e.target.checked;
-                    setShowInactive(newShowInactive);
-                    handleFilter();
-                  }}
-                  color="primary"
-                  size="medium"
-                  sx={{
-                    "& .MuiSwitch-track": {
-                      borderRadius: 20,
-                      backgroundColor: "rgba(0, 0, 0, 0.1)",
-                    },
+                {showInactive ? "Exibir Ativos" : "Exibir Inativos"}
+              </Typography>
+              <Switch
+                checked={showInactive}
+                onChange={(e) => {
+                  const newShowInactive = e.target.checked;
+                  setShowInactive(newShowInactive);
+                  handleFilter();
+                }}
+                color="primary"
+                size="medium"
+                sx={{
+                  "& .MuiSwitch-track": {
+                    borderRadius: 20,
+                    backgroundColor: "rgba(0, 0, 0, 0.1)",
+                  },
+                  "& .MuiSwitch-thumb": {
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "rgb(146, 123, 230)",
+                    boxShadow: (theme) => theme.shadows[1],
+                  },
+                  "&.Mui-checked": {
                     "& .MuiSwitch-thumb": {
-                      width: 16,
-                      height: 16,
                       backgroundColor: "rgb(146, 123, 230)",
-                      boxShadow: (theme) => theme.shadows[1],
                     },
-                    "&.Mui-checked": {
-                      "& .MuiSwitch-thumb": {
-                        backgroundColor: "rgb(146, 123, 230)",
-                      },
-                      "& + .MuiSwitch-track": {
-                        backgroundColor: "rgba(146, 123, 230, 0.3)",
-                      },
+                    "& + .MuiSwitch-track": {
+                      backgroundColor: "rgba(146, 123, 230, 0.3)",
                     },
-                  }}
-                />
-              </Box>
+                  },
+                }}
+              />
             </Box>
+          </Box>
+          <Box
+            display="flex"
+            gap={2}
+            justifyContent={{ xs: "center", sm: "flex-end" }}
+            sx={{
+              width: "100%",
+              mt: { xs: 2, sm: 0 },
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setName("");
+                handleFilter();
+              }}
+              sx={{
+                borderRadius: "8px",
+                fontWeight: "bold",
+                color: "rgb(146, 123, 230)",
+                borderColor: "rgb(146, 123, 230)",
+                "&:hover": {
+                  backgroundColor: "rgba(146, 123, 230, 0.1)",
+                  borderColor: "rgb(146, 123, 230)",
+                },
+              }}
+            >
+              Limpar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleFilter}
+              sx={{
+                borderRadius: "8px",
+                fontWeight: "bold",
+                backgroundColor: "rgb(146, 123, 230)",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "rgb(126, 103, 210)",
+                },
+              }}
+            >
+              Buscar
+            </Button>
           </Box>
         </Paper>
 
@@ -286,15 +303,22 @@ function TypeParametersList() {
               return String(row[column.field]);
             }}
             renderActions={(row) => (
-              <Box display="flex" gap={1} alignItems={"center"}>
-                <IconButton
+              <Box display="flex" gap={1} alignItems="center" justifyContent="center">
+                <Button
+                  variant="outlined"
                   onClick={() => navigate(`/view-type-parameter/${row.id}`)}
                   sx={{
-                    color: "rgb(39, 235, 65)",
+                    fontWeight: "bold",
+                    color: "rgb(146, 123, 230)",
+                    borderColor: "rgb(146, 123, 230)",
+                    "&:hover": {
+                      backgroundColor: "rgba(146, 123, 230, 0.1)",
+                      borderColor: "rgb(146, 123, 230)",
+                    },
                   }}
                 >
-                  <VisibilityIcon />
-                </IconButton>
+                  Visualizar
+                </Button>
                 <IconButton
                   onClick={() => handleDelete(row.id)}
                   sx={{
