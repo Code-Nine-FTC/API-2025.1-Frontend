@@ -319,17 +319,6 @@ function TypeParametersList() {
                 >
                   Visualizar
                 </Button>
-                <IconButton
-                  onClick={() => handleDelete(row.id)}
-                  sx={{
-                    color: "red",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 0, 0, 0.1)",
-                    },
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
               </Box>
             )}
           />

@@ -147,6 +147,21 @@ const TypeParameterPage = () => {
 		}
 	}
 
+	async function handleDelete() {
+		try {
+		  if (!id) return;
+		  const response = await parameterTypeGetters.deleteParameterType(Number(id));
+		  if (response.success) {
+			navigate("/list-parameter-type");
+		  } else {
+			setError("Erro ao excluir tipo de parâmetro.");
+		  }
+		} catch (err) {
+		  setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
+		}
+	  }
+	  
+
 	const content = (
 		<Box className="estacao-wrapper">
 			<Paper className="estacao-card">
@@ -286,6 +301,14 @@ const TypeParameterPage = () => {
 								sx={{ marginRight: "10px" }}
 							>
 								Voltar
+							</Button>
+							<Button
+							variant="contained"
+							color="error"
+							onClick={handleDelete}
+							className="type-parameter-btn"
+							>
+							Deletar
 							</Button>
 						  </>
 						) : (
