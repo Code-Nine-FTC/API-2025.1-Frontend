@@ -226,7 +226,7 @@ const DashboardPage = () => {
                                     label="Estação"
                                     onChange={handleStationChange}
                                 >
-                                    <MenuItem value="all">
+                                    <MenuItem value="Todas">
                                         <em>Todas as Estações</em>
                                     </MenuItem>
                                     {stations.map((station) => (
