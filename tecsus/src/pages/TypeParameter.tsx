@@ -113,8 +113,13 @@ const TypeParameterPage = () => {
 			if (measureUnit != parameterType?.measure_unit) updatedParameterType.measure_unit = measureUnit;
 			if (isActive != parameterType?.is_active) updatedParameterType.is_active = isActive;
 			if (qntDecimals != parameterType?.qnt_decimals) updatedParameterType.qnt_decimals = qntDecimals;
-			if (offset && offset != parameterType?.offset) updatedParameterType.offset = offset;
-			if (factor && factor != parameterType?.factor) updatedParameterType.factor = factor;
+			if (offset != null && offset != parameterType?.offset) updatedParameterType.offset = offset;
+			if (factor != null && factor != parameterType?.factor) updatedParameterType.factor = factor;
+
+			if (Object.keys(updatedParameterType).length === 0) {
+				setEditMode(false);
+				return;
+			}
 
 			const response = await parameterTypeGetters.updateParameterType(Number(id), updatedParameterType);
 
@@ -148,7 +153,6 @@ const TypeParameterPage = () => {
 		}
 	  }
 	  
-
 	const content = (
 		<Box className="estacao-wrapper">
 			<Paper className="estacao-card">
@@ -271,33 +275,36 @@ const TypeParameterPage = () => {
 					<Box mt={3} textAlign="center">
 						{!editMode ? (
 							<>
-							<Button
-								variant="contained"
-								startIcon={<EditIcon />}
-								onClick={() => setEditMode(true)}
-								className="type-parameter-btn"
-								sx={{ backgroundColor: "#5f5cd9", color: "white", marginRight: 2 }}
-							>
-								Editar
-							</Button>
-							<Button
-								variant="outlined"
-								startIcon={<ArrowBackIcon />}
-								onClick={() => window.history.back()}
-								className="type-parameter-btn"
-								sx={{ marginRight: "10px" }}
-							>
-								Voltar
-							</Button>
-							<Button
-							variant="contained"
-							color="error"
-							onClick={handleDelete}
-							className="type-parameter-btn"
-							>
-							Deletar
-							</Button>
-						  </>
+								<Button
+									variant="contained"
+									startIcon={<EditIcon />}
+									onClick={() => setEditMode(true)}
+									className="type-parameter-btn"
+									sx={{ backgroundColor: "#5f5cd9", color: "white", marginRight: 2 }}
+								>
+									Editar
+								</Button>
+								<Button
+									variant="outlined"
+									startIcon={<ArrowBackIcon />}
+									onClick={() => window.history.back()}
+									className="type-parameter-btn"
+									sx={{ marginRight: "10px" }}
+								>
+									Voltar
+								</Button>
+								<Box mt={2} textAlign="center">
+									<Button
+										variant="contained"
+										color="error"
+										onClick={handleDelete}
+										className="type-parameter-btn"
+										type="button"
+									>
+										Deletar
+									</Button>
+								</Box>
+							</>
 						) : (
 							<>
 								<Button
@@ -305,7 +312,7 @@ const TypeParameterPage = () => {
 									startIcon={<CancelIcon />}
 									onClick={() => setEditMode(false)}
 									className="type-parameter-btn"
-									sx={{ marginRight: "10px", }}
+									sx={{ marginRight: "10px" }}
 								>
 									Cancelar
 								</Button>

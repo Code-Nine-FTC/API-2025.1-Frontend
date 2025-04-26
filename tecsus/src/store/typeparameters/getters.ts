@@ -84,24 +84,24 @@ export default {
 			};
 		}
 	},
-	async updateParameterType(id: number, typeParameter: UpdatedParameterType): Promise<{ success: boolean; error?: string}> {
-		try {
-			const response = await api.patch(`/parameter_types/${id}`, typeParameter, {
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-			if (response.status === 200) {
-				return { success: true };
-			}
-			return { success: false, error: "Erro ao atualizar tipo de parâmetro"};
-		}
-		catch (error: any) {
-			console.error("Erro ao atualizar tipo de parâmetro", error.message || error);
-			return {
-				success: false,
-				error: error.message || "Erro ao atualizar tipo de parâmetro",
-			}
-		}
-	}
+    async updateParameterType(id: number, typeParameter: UpdatedParameterType): Promise<{ success: boolean; error?: string}> {
+        try {
+            const response = await api.patch(`/parameter_types/${id}/update`, typeParameter, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.status === 200) {
+                return { success: true };
+            }
+            return { success: false, error: "Erro ao atualizar tipo de parâmetro"};
+        }
+        catch (error: any) {
+            console.error("Erro ao atualizar tipo de parâmetro", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao atualizar tipo de parâmetro",
+            }
+        }
+    }    
 }
