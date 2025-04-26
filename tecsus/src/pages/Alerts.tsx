@@ -36,22 +36,10 @@ const AlertsPage = () => {
       }
     }
 
-  const handleDelete = async (alertId: number) => {
-    const confirmDelete = window.confirm("Tem certeza que deseja deletar este alerta?");
-    if (confirmDelete) {
-      const result = await alertGetters.deleteAlert(alertId);
-      if (result.success) {
-        alert("Alerta deletado com sucesso!");
-        fetchAlerts({ typeAlertName: "", stationName: "", startDate: "" });
-      } else {
-        alert(`Erro ao deletar o alerta: ${result.error}`);
-      }
-    }
-  };
 
   return (
     <LoggedLayout>
-      <AlertsTable alerts={alerts} loading={loading} onSearch={fetchAlerts} onDelete={handleDelete} />
+      <AlertsTable alerts={alerts} loading={loading} onSearch={fetchAlerts} />
     </LoggedLayout>
   ) 
 };

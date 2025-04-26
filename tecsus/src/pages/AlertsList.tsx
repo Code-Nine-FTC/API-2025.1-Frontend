@@ -23,7 +23,6 @@ export interface AlertsTableProps {
     stationName: string;
     startDate: string;
   }) => Promise<void>;
-  onDelete: (alertId: number) => Promise<void>;
 }
 
 export default function AlertsListPage({
@@ -34,7 +33,6 @@ export default function AlertsListPage({
   const [typeAlertName, setTypeAlertName] = useState<string>("");
   const [stationName, setStationName] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
-  const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
 
   const auth = useAuth();
 

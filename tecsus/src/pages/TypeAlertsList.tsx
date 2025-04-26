@@ -24,13 +24,17 @@ import { useNavigate } from "react-router-dom";
 
 const TypeAlertsPage = () => {
   const [typeAlerts, setTypeAlerts] = useState<AlertTypeResponse[]>([]);
-  const [filteredTypeAlerts, setFilteredTypeAlerts] = useState<AlertTypeResponse[]>([]);
+  const [filteredTypeAlerts, setFilteredTypeAlerts] = useState<
+    AlertTypeResponse[]
+  >([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [nameFilter, setNameFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  const [selectedAlert, setSelectedAlert] = useState<AlertTypeResponse | null>(null);
+  const [selectedAlert, setSelectedAlert] = useState<AlertTypeResponse | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -138,7 +142,7 @@ const TypeAlertsPage = () => {
               },
             }}
           >
-           Novo Cadastrar
+            Novo Cadastrar
           </Button>
         </Box>
 
@@ -247,11 +251,21 @@ const TypeAlertsPage = () => {
         </Paper>
 
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="200px"
+          >
             <CircularProgress />
           </Box>
         ) : filteredTypeAlerts.length === 0 ? (
-          <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="200px"
+          >
             <Typography variant="h6" color="textSecondary">
               Nenhum registro encontrado.
             </Typography>
@@ -270,41 +284,26 @@ const TypeAlertsPage = () => {
               return String(row[column.field]);
             }}
             renderActions={(row) => (
-              <Box display="flex" gap={1}>
-                <Button variant="outlined" onClick={() => handleOpenModal(row)}>
+              <Box display="flex" gap={1} alignItems="center" justifyContent="center">
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(`/view-type-alert/${row.id}`)}
+                  sx={{
+                    fontWeight: "bold",
+                    color: "rgb(146, 123, 230)",
+                    borderColor: "rgb(146, 123, 230)",
+                    "&:hover": {
+                      backgroundColor: "rgba(146, 123, 230, 0.1)",
+                      borderColor: "rgb(146, 123, 230)",
+                    },
+                  }}
+                >
                   Visualizar
                 </Button>
-                <IconButton
-                  color="primary"
-                  onClick={() => navigate(`/view-type-alert/${row.id}`)}
-                >
-                  <EditIcon />
-                </IconButton>
               </Box>
             )}
           />
         )}
-
-        <Dialog open={isModalOpen} onClose={handleCloseModal}>
-          <DialogTitle>Detalhes do Tipo de Alerta</DialogTitle>
-          <DialogContent>
-            {selectedAlert && (
-              <Box display="flex" flexDirection="column" gap={2}>
-                <Typography><strong>ID:</strong> {selectedAlert.id}</Typography>
-                <Typography><strong>Nome:</strong> {selectedAlert.name}</Typography>
-                <Typography><strong>Valor:</strong> {selectedAlert.value}</Typography>
-                <Typography><strong>Sinal Matemático:</strong> {selectedAlert.math_signal}</Typography>
-                <Typography><strong>Status:</strong> {selectedAlert.status}</Typography>
-                <Typography><strong>Data de Criação:</strong>{" "} {selectedAlert.create_date ? new Date(selectedAlert.create_date * 1000).toLocaleDateString() : "Data inválida"}</Typography>
-              </Box>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button variant="text" onClick={handleCloseModal}>
-              Fechar
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </LoggedLayout>
   );

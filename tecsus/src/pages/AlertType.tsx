@@ -12,6 +12,7 @@ import {
   Cancel as CancelIcon,
   Save as SaveIcon,
   BlockOutlined,
+  ArrowBack,
 } from "@mui/icons-material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import typeAlertGetters from "../store/typealerts/getters";
@@ -137,14 +138,25 @@ const AlertTypePage = () => {
         disabled={!editMode}
         actionButtons={
           !editMode ? (
+            <>
             <Button
               variant="contained"
               startIcon={<EditIcon />}
               onClick={() => setEditMode(true)}
-              sx={{ backgroundColor: "#5f5cd9", color: "white" }}
+              sx={{ backgroundColor: "#5f5cd9", color: "white", marginRight: 2 }}
             >
               Editar
             </Button>
+            <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => window.history.back()}
+            className="type-parameter-btn"
+            sx={{ marginRight: "10px" }}
+          >
+            Voltar
+          </Button>
+          </>
           ) : (
             <Box>
               <Button
@@ -180,6 +192,7 @@ const AlertTypePage = () => {
               >
                 Salvar
               </Button>
+              
             </Box>
           )
         }
