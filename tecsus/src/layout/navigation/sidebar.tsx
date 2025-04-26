@@ -26,6 +26,12 @@ import { useAuth } from "../../components/authContext";
 const drawerWidth = 260;
 
 const menuItems = [
+  { text: "Dashboard",
+    icon: <AppIcon name="Dashboard" style={{ fontSize: 40 }} />,
+    route: "/dashboard",
+    relatedRoutes: ["/dashboard"],
+    routePrefix: "/dashboard",
+  },
   {
     text: "Estações",
     icon: <SensorsIcon sx={{ width: 40, height: 40 }} />,
@@ -53,12 +59,6 @@ const menuItems = [
       "/registrartipoalerta"
     ],
     routePrefix: "/editartipoalerta/", },
-  { text: "Dashboard",
-    icon: <AppIcon name="Dashboard" style={{ fontSize: 40 }} />,
-    route: "/dashboard",
-    relatedRoutes: ["/dashboard"],
-    routePrefix: "/dashboard",
-  },
 ];
 
 interface Props {

@@ -7,7 +7,7 @@ import DefaultLayout from "../layout/layoutNotLogged";
 export default function PublicListsPage() {
   const [view, setView] = useState<"alerts" | "stations">("alerts");
 
-  const handleViewChange = (event: React.MouseEvent<HTMLElement>, newView: "alerts" | "stations") => {
+  const handleViewChange = (_event: React.MouseEvent<HTMLElement>, newView: "alerts" | "stations") => {
     if (newView !== null) {
       setView(newView);
     }
@@ -29,7 +29,7 @@ export default function PublicListsPage() {
         <ToggleButton value="stations">Estações</ToggleButton>
       </ToggleButtonGroup>
 
-      {view === "alerts" && <AlertsListPage alerts={[]} loading={false} onSearch={async () => Promise.resolve()} onDelete={async () => Promise.resolve()} />}
+      {view === "alerts" && <AlertsListPage alerts={[]} loading={false} onSearch={async () => Promise.resolve()} />}
       {view === "stations" && <StationsListPage />}
     </Box>
     </DefaultLayout>

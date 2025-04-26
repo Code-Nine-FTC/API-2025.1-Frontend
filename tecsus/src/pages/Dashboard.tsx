@@ -1,12 +1,11 @@
-import { Box, Card, CardContent, CardHeader, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import InfoIcon from "@mui/icons-material/Info";
 import { StationStatusCard } from "../components/cards/stationStatusCard";
-import { StationHistoric } from "../components/graphics/stationHistoric";
 import { AlertCard } from "../components/cards/alertCard";
 import { useEffect, useState } from "react";
-import { StationStatusResponse, StationHistoricResponse, AlertCountsResponse, MeasuresStatusResponse} from "../store/dashboard/state"
+import { StationStatusResponse, StationHistoricResponse, AlertCountsResponse } from "../store/dashboard/state"
 import dashboardGetters from "../store/dashboard/getters";
 import stationGetters from "../store/station/getters"
 import {ListStationsResponse} from "../store/station/state"
@@ -61,6 +60,7 @@ const DashboardPage = () => {
         try {
             const historicResponse = await dashboardGetters.getStationHistoric(selectedStation === "Todas" ? undefined : Number(selectedStation));
             setHistoricData(historicResponse.data ?? []);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             console.error("Error fetching historic data:", err);
             setError(err.message || "Erro ao carregar histórico");
@@ -93,6 +93,7 @@ const DashboardPage = () => {
 
             await fetchHistoricData()
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error fetching data:", error);
             setError(error.message || "Erro ao carregar dados");
@@ -110,10 +111,6 @@ const DashboardPage = () => {
             fetchHistoricData();
         }
     }, [selectedStation, isLoading]);
-    
-    function handleStationChange (event: SelectChangeEvent<string>) {
-        setSelectedStation(event.target.value.toString());
-    };
 
     if (isLoading) {
         return (
@@ -214,7 +211,7 @@ const DashboardPage = () => {
                         justifyContent: { xs: "flex-start", md: "flex-start" }
                     }}
                 >
-                    <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
+                    {/* <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
                         <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>}
                          action={
                             <FormControl sx={{ m: 1, minWidth: 180 }} size="small">
@@ -240,7 +237,7 @@ const DashboardPage = () => {
                         <CardContent>
                             <StationHistoric data={historicData} />
                         </CardContent>
-                    </Card>
+                    </Card> */}
                 </Box>
             </Box>
         </LoggedLayout>
