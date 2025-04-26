@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -6,14 +6,7 @@ import {
   Paper,
   TextField,
   Typography,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import GenericTable, { Column } from "../components/table";
@@ -32,10 +25,6 @@ const TypeAlertsPage = () => {
   const [nameFilter, setNameFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  const [selectedAlert, setSelectedAlert] = useState<AlertTypeResponse | null>(
-    null
-  );
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -80,16 +69,6 @@ const TypeAlertsPage = () => {
     setNameFilter("");
     setStatusFilter("");
     setFilteredTypeAlerts(typeAlerts);
-  };
-
-  const handleOpenModal = (alert: AlertTypeResponse) => {
-    setSelectedAlert(alert);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedAlert(null);
-    setIsModalOpen(false);
   };
 
   const columns: Column<AlertTypeResponse>[] = [

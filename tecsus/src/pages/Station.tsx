@@ -4,15 +4,9 @@ import { LoggedLayout } from "../layout/layoutLogged";
 import { 
   Box, 
   Button, 
-  Card, 
-  CardContent, 
   CircularProgress, 
-  Divider, 
-  Grid, 
   Paper, 
-  TextField, 
   Typography,
-  Alert,
   Chip,
   FormControl,
   InputLabel,
@@ -31,7 +25,6 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from "../components/authContext";
 import { BlockOutlined, Check } from "@mui/icons-material";
 import DefaultLayout from "../layout/layoutNotLogged";
-import { GridDeleteIcon } from "@mui/x-data-grid";
 
 const StationPage = () => {
   const { id } = useParams<{ id: string }>();

@@ -4,22 +4,11 @@ import { LoggedLayout } from "../layout/layoutLogged";
 import { 
   Box, 
   Button, 
-  Card, 
-  CardContent, 
   CircularProgress, 
-  Divider, 
-  Grid, 
   Paper, 
-  TextField, 
   Typography,
-  Alert,
-  Chip,
-  FormControl,
-  InputLabel,
   MenuItem,
-  OutlinedInput,
   Select,
-  SelectChangeEvent
 } from "@mui/material";
 import parameterTypeGetters from "../store/typeparameters/getters";
 import { ParameterTypesResponse, UpdatedParameterType } from "../store/typeparameters/state";
@@ -28,9 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useAuth } from "../components/authContext";
-import { BlockOutlined, Check } from "@mui/icons-material";
 import DefaultLayout from "../layout/layoutNotLogged";
-import { GridDeleteIcon } from "@mui/x-data-grid";
 
 const TypeParameterPage = () => {
 	const { id } = useParams<{ id: string }>();

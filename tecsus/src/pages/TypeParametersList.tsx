@@ -31,7 +31,7 @@ function TypeParametersList() {
     { field: "name", headerName: "Nome" },
     { field: "measure_unit", headerName: "Unidade de Medida" },
     { field: "qnt_decimals", headerName: "Quantidade de Decimais" },
-    { field: "offset", headerName: "OffSett" },
+    { field: "offset", headerName: "OffSet" },
     { field: "factor", headerName: "Factor" },
     { field: "detect_type", headerName: "Sigla" },
   ];
