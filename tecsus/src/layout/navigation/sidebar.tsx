@@ -22,6 +22,7 @@ import TecsusLogo from "../../assets/tecsus_logo.png";
 import AppIcon from "../../components/ui/AppIcon";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../components/authContext";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 260;
 
@@ -72,6 +73,12 @@ const Sidebar = (props: Props) => {
 
   const { logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout(); 
+    navigate("/");
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -169,7 +176,7 @@ const Sidebar = (props: Props) => {
         </Typography>
         <ListItemIcon sx={{ ml: 9 }}>
           <Box
-            onClick={logout}
+            onClick={handleLogout}
             className="image-link"
             sx={{
               cursor: "pointer",
