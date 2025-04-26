@@ -396,57 +396,68 @@ const StationPage = () => {
 
             {auth.isAuthenticated && (
               
-            <Box mt={3} textAlign="center">
-              {!editMode ? (
+          <Box mt={3} textAlign="center">
+            {!editMode ? (
+              <>
                 <Button
                   variant="contained"
                   startIcon={<EditIcon />}
                   onClick={() => setEditMode(true)}
                   className="estacao-btn"
-                  style={{ backgroundColor: "#5f5cd9", color: "white" }}
+                  sx={{ 
+                    backgroundColor: "#5f5cd9", 
+                    color: "white", 
+                    marginRight: 2 
+                  }}
                 >
                   Editar
                 </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="outlined"
-                    startIcon={<CancelIcon />}
-                    onClick={() => setEditMode(false)}
-                    className="estacao-btn"
-                    sx={{ 
-                      marginRight: "10px",
-                      "&:hover": { color: "white" },
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color={status? "error" : "success"}
-                    startIcon={status? <BlockOutlined /> : <Check/>}
-                    onClick={() => handleDeactivate()}
-                    className="estacao-btn"
-                    sx={{ 
-                      "&:hover": { backgroundColor: status? "#c9302c" : "rgb(45, 186, 2)" }, 
-                      mr: "10px", 
-                      color: "white" 
-                    }}
-                  >
-                    {status? "Desativar" : "Ativar"}
-                  </Button>
-                  <Button
-                    variant="contained"
-                    startIcon={<SaveIcon />}
-                    type="submit"
-                    className="estacao-btn"
-                    style={{ backgroundColor: "#5f5cd9", color: "white" }}
-                  >
-                    Salvar
-                  </Button>
-                </>
-              )}
-            </Box>
+                <Button
+                  variant="outlined"
+                  startIcon={<ArrowBackIcon />}
+                  onClick={() => window.history.back()}
+                  className="estacao-btn"
+                >
+                  Voltar
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outlined"
+                  startIcon={<CancelIcon />}
+                  onClick={() => setEditMode(false)}
+                  className="estacao-btn"
+                  sx={{ marginRight: "10px", "&:hover": { color: "white" } }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="contained"
+                  color={status ? "error" : "success"}
+                  startIcon={status ? <BlockOutlined /> : <Check />}
+                  onClick={() => handleDeactivate()}
+                  className="estacao-btn"
+                  sx={{
+                    "&:hover": { backgroundColor: status ? "#c9302c" : "rgb(45, 186, 2)" },
+                    mr: "10px",
+                    color: "white"
+                  }}
+                >
+                  {status ? "Desativar" : "Ativar"}
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  type="submit"
+                  className="estacao-btn"
+                  style={{ backgroundColor: "#5f5cd9", color: "white" }}
+                >
+                  Salvar
+                </Button>
+              </>
+            )}
+          </Box>
           )}
           </form>
         </Paper>

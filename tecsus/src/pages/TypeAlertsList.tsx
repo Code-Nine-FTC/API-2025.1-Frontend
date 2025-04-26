@@ -17,14 +17,11 @@ import { useNavigate } from "react-router-dom";
 
 const TypeAlertsPage = () => {
   const [typeAlerts, setTypeAlerts] = useState<AlertTypeResponse[]>([]);
-  const [filteredTypeAlerts, setFilteredTypeAlerts] = useState<
-    AlertTypeResponse[]
-  >([]);
+  const [filteredTypeAlerts, setFilteredTypeAlerts] = useState<AlertTypeResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   const [nameFilter, setNameFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
-
 
   const navigate = useNavigate();
 
@@ -139,9 +136,8 @@ const TypeAlertsPage = () => {
           <Box
             display="flex"
             flexDirection={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
-            alignItems="center"
-            gap={3}
+            gap={2}
+            width="100%"
             sx={{ mb: 2 }}
           >
             <TextField
@@ -152,6 +148,7 @@ const TypeAlertsPage = () => {
               variant="outlined"
               fullWidth
               sx={{
+                flex: 1,
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "8px",
                   backgroundColor: "rgb(146, 123, 230)",
@@ -163,36 +160,13 @@ const TypeAlertsPage = () => {
                   },
                 },
               }}
-              InputProps={{
-                endAdornment: (
-                  <Button
-                    onClick={applyFilters}
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "transparent",
-                      boxShadow: "none",
-                      "&:hover": {
-                        backgroundColor: "transparent",
-                        boxShadow: "none",
-                      },
-                      minWidth: 0,
-                    }}
-                  >
-                    <SearchIcon sx={{ fontSize: 22, color: "white" }} />
-                  </Button>
-                ),
-              }}
             />
 
             <Box
               display="flex"
-              gap={2}
               flexDirection={{ xs: "column", sm: "row" }}
-              sx={{
-                flexShrink: 0,
-                width: { xs: "100%", sm: "auto" },
-                justifyContent: { xs: "center", sm: "normal" },
-              }}
+              gap={2}
+              flexShrink={0}
             >
               <Button
                 variant="outlined"
@@ -213,6 +187,7 @@ const TypeAlertsPage = () => {
               <Button
                 variant="contained"
                 onClick={applyFilters}
+                startIcon={<SearchIcon />}
                 sx={{
                   borderRadius: "8px",
                   fontWeight: "bold",
