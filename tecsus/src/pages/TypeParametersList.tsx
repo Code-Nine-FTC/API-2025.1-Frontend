@@ -3,15 +3,10 @@ import {
   Typography,
   Button,
   Paper,
-  Container,
   Switch,
   TextField,
-  IconButton,
 } from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import SearchIcon from "@mui/icons-material/Search";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { LoggedLayout } from "../layout/layoutLogged";
 import GenericTable, { Column } from "../components/table";
 import typeParameterGetters from "../store/typeparameters/getters";
@@ -63,19 +58,6 @@ function TypeParametersList() {
   useEffect(() => {
     handleFilter();
   }, [handleFilter]);
-
-  async function handleDelete(id: number) {
-    try {
-      const response = await typeParameterGetters.deleteParameterType(id);
-      if (response.success) {
-        setTypeParameters((prev) => prev.filter((typeParameter) => typeParameter.id !== id));
-      } else {
-        setError("Erro ao excluir tipo de parâmetro.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
-    }
-  }
 
   return (
     <LoggedLayout>

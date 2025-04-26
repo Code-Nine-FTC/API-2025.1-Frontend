@@ -54,7 +54,7 @@ export default {
         }
     },
 
-    async deleteAlert(alertId: number): 
+    async alertDisplayed(alertId: number): 
         Promise<{ success: boolean; error?: string }> {
         try {
             const token = localStorage.getItem("token");
@@ -63,15 +63,12 @@ export default {
                 throw new Error("Usuário não autenticado");
             }
 
-            console.log("Token enviado:", token);
-
-            const response = await api.delete(`/alert/${alertId}`, {
+            const response = await api.patch(`/alert/${alertId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            console.log("Resposta do backend:", response);
 
             if (response.status === 204 || response.status === 200) {
                 return { success: true };

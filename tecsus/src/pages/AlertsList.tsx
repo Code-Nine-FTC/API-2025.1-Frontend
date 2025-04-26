@@ -7,11 +7,6 @@ import {
   TextField,
   Typography,
   IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CheckIcon from "@mui/icons-material/Check";
@@ -23,18 +18,25 @@ import alertGetters from "../store/alerts/getters";
 export interface AlertsTableProps {
   alerts: Alert[];
   loading: boolean;
-  onSearch: (filters?: { typeAlertName: string; stationName: string; startDate: string }) => Promise<void>;
+  onSearch: (filters?: {
+    typeAlertName: string;
+    stationName: string;
+    startDate: string;
+  }) => Promise<void>;
   onDelete: (alertId: number) => Promise<void>;
 }
 
-export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTableProps) {
+export default function AlertsListPage({
+  alerts,
+  loading,
+  onSearch,
+}: AlertsTableProps) {
   const [typeAlertName, setTypeAlertName] = useState<string>("");
   const [stationName, setStationName] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [selectedAlertId, setSelectedAlertId] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const auth = useAuth()
+  const auth = useAuth();
 
   const handleSearch = () => {
     onSearch({ typeAlertName, stationName, startDate });
@@ -47,29 +49,16 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
     onSearch({ typeAlertName: "", stationName: "", startDate: "" });
   };
 
-  const handleDelete = async () => {
-    if (selectedAlertId !== null) {
-      const result = await alertGetters.deleteAlert(selectedAlertId);
-      if (result.success) {
-        alert("Alerta deletado com sucesso!");
-        onSearch({ typeAlertName: "", stationName: "", startDate: "" }); 
-      } else {
-        alert(`Erro ao deletar o alerta: ${result.error}`);
-      }
-      setIsModalOpen(false);
+  const displayedAlert = async (id: number) => {
+    console.log("Displaying alert with ID:", id);
+    const result = await alertGetters.alertDisplayed(id);
+    if (result.success) {
+      alerts.filter((alert) => alert.id !== id);
+      handleResetFilters();
+    } else {
+      alert(`Erro ao visualizar o alerta: ${result.error}`);
     }
   };
-
-  const openDeleteModal = (alertId: number) => {
-    setSelectedAlertId(alertId);
-    setIsModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setSelectedAlertId(null);
-    setIsModalOpen(false);
-  };
-
   const columns: Column<Alert>[] = [
     { field: "type_alert_name", headerName: "Tipo de Alerta" },
     { field: "station_name", headerName: "Estação" },
@@ -194,11 +183,21 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
       </Paper>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="200px"
+        >
           <CircularProgress />
         </Box>
       ) : alerts.length === 0 ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="200px"
+        >
           <Typography variant="h6" color="textSecondary">
             Nenhum registro encontrado.
           </Typography>
@@ -214,13 +213,12 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
             return String(row[column.field]);
           }}
           renderActions={(row) => (
-            <Box display="flex" gap={1} alignItems="center" justifyContent="center">
-              <Button
-                variant="outlined"
-                onClick={() => console.log("Visualizar alerta:", row)}
-              >
-                Visualizar
-              </Button>
+            <Box
+              display="flex"
+              gap={1}
+              alignItems="center"
+              justifyContent="center"
+            >
               {auth.isAuthenticated && (
                 <IconButton
                   sx={{
@@ -229,7 +227,7 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
                       backgroundColor: "rgba(146, 123, 230, 0.1)",
                     },
                   }}
-                  onClick={() => openDeleteModal(row.id)}
+                  onClick={() => displayedAlert(row.id)}
                 >
                   <CheckIcon />
                 </IconButton>
@@ -238,23 +236,6 @@ export default function AlertsListPage({ alerts, loading, onSearch }: AlertsTabl
           )}
         />
       )}
-
-      <Dialog open={isModalOpen} onClose={closeDeleteModal}>
-        <DialogTitle>Confirmar Exclusão</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Tem certeza que deseja deletar este alerta? Esta ação não pode ser desfeita.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDeleteModal} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Deletar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
