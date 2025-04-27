@@ -15,10 +15,9 @@ export default {
         }
     },
 
-    async getStationHistoric(stationId: number | undefined): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+    async getStationHistoric(stationId: number): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
         try {
-            const url = stationId !== undefined ? `/dashboard/station-history?station_id=${stationId}` : "/dashboard/station-history";
-            const response = await api.get(url);
+            const response = await api.get(`/dashboard/station-history/${stationId}`);
             return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter histórico das estações", error.message || error);

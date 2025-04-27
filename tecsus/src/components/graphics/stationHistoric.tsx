@@ -13,22 +13,20 @@ interface StationHistoricProps {
 }
 
 export const StationHistoric = ({ data }: StationHistoricProps) => {
-    const groupedData = data.reduce((acc, item) => {
-        if (!acc[item.name]) {
-          acc[item.name] = {
-            label: `${item.name} (${item.measure_unit})`,
-            data: [],
-            showMark: false,
-          };
-        }
-        acc[item.name].data.push(Number(item.value.toFixed(2)));
+      const allDates = [...new Set(data.map(item => item.measure_date * 1000))].sort((a, b) => a - b);
+      
+      const grouped = data.reduce((acc, item) => {
+        if (!acc[item.name]) acc[item.name] = {};
+        acc[item.name][item.measure_date * 1000] = Number(item.value.toFixed(2));
         return acc;
-      }, {} as Record<string, { label: string; data: number[]; showMark: boolean }>);
-    
-      const xAxisData = [...new Set(data.map(item => item.measure_date * 1000))].sort((a, b) => a - b);
-        
-      const series = Object.values(groupedData);
-          
+      }, {} as Record<string, Record<number, number>>);
+
+      const series = Object.entries(grouped).map(([name, values]) => ({
+        label: name,
+        data: allDates.map(date => values[date] ?? null), 
+        showMark: false,
+      }));
+                  
       const ref = useRef<HTMLDivElement>(null);
       const [width, setWidth] = useState(800);
       
@@ -49,7 +47,7 @@ export const StationHistoric = ({ data }: StationHistoricProps) => {
             height={Math.round(width * 0.5)}
             margin={{bottom: 70}}
             xAxis={[{
-              data: xAxisData,
+              data: allDates,
               scaleType: 'time',
               valueFormatter: (value) => new Date(value).toLocaleString(),
             }]}

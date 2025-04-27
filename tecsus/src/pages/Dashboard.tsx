@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardHeader, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardHeader, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Tooltip, Typography } from "@mui/material";
 import { LoggedLayout } from "../layout/layoutLogged";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import InfoIcon from "@mui/icons-material/Info";
@@ -9,6 +9,7 @@ import { StationStatusResponse, StationHistoricResponse, AlertCountsResponse } f
 import dashboardGetters from "../store/dashboard/getters";
 import stationGetters from "../store/station/getters"
 import {ListStationsResponse} from "../store/station/state"
+import { StationHistoric } from "../components/graphics/stationHistoric";
 
 // const measureStatus = [
 //     {
@@ -54,17 +55,25 @@ const DashboardPage = () => {
     const [error, setError] = useState<string | null>(null);
     
     const [stations, setStations] = useState<ListStationsResponse[]>([]);
-    const [selectedStation, setSelectedStation] = useState<string>("Todas");
+    const [selectedStation, setSelectedStation] = useState<string>("");
     
     const fetchHistoricData = async () => {
-        try {
-            const historicResponse = await dashboardGetters.getStationHistoric(selectedStation === "Todas" ? undefined : Number(selectedStation));
-            setHistoricData(historicResponse.data ?? []);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (err: any) {
-            console.error("Error fetching historic data:", err);
-            setError(err.message || "Erro ao carregar histórico");
+        if (selectedStation !== "") {
+            try {
+                    const historicResponse = await dashboardGetters.getStationHistoric(Number(selectedStation));
+                    setHistoricData(historicResponse.data ?? []);
+                    console.log("Historic data:", historicResponse.data);
+                }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            catch (err: any) {
+                console.error("Error fetching historic data:", err);
+                setError(err.message || "Erro ao carregar histórico");
+            }
         }
+    };
+
+    function handleStationChange (event: SelectChangeEvent<string>) {
+        setSelectedStation(event.target.value);;
     };
 
     const fetchData = async () => {
@@ -91,8 +100,6 @@ const DashboardPage = () => {
             }));
             setFormattedMeasure(formattedData ?? []);
 
-            await fetchHistoricData()
-
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error fetching data:", error);
@@ -110,7 +117,7 @@ const DashboardPage = () => {
         if (!isLoading) {
             fetchHistoricData();
         }
-    }, [selectedStation, isLoading]);
+    }, [selectedStation]);
 
     if (isLoading) {
         return (
@@ -211,7 +218,7 @@ const DashboardPage = () => {
                         justifyContent: { xs: "flex-start", md: "flex-start" }
                     }}
                 >
-                    {/* <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
+                    <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
                         <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>}
                          action={
                             <FormControl sx={{ m: 1, minWidth: 180 }} size="small">
@@ -223,8 +230,8 @@ const DashboardPage = () => {
                                     label="Estação"
                                     onChange={handleStationChange}
                                 >
-                                    <MenuItem value="Todas">
-                                        <em>Todas as Estações</em>
+                                    <MenuItem value="" disabled selected> 
+                                        <em>Selecione uma estação</em>
                                     </MenuItem>
                                     {stations.map((station) => (
                                         <MenuItem key={station.id} value={station.id}>
@@ -237,7 +244,7 @@ const DashboardPage = () => {
                         <CardContent>
                             <StationHistoric data={historicData} />
                         </CardContent>
-                    </Card> */}
+                    </Card>
                 </Box>
             </Box>
         </LoggedLayout>
