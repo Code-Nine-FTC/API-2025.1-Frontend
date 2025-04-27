@@ -25,7 +25,7 @@ export default function PizzaGraphic(props: props) {
     const margin =
         width < 500
             ? { top: 10, right: 10, left: 10, bottom: 80 }
-            : { top: 10, right: 145, left: 30, bottom: 10 };
+            : { top: 10, right: 220, left: 30, bottom: 10 };
 
     const legendDirection = width < 500 ? "row" : "column";
     
@@ -59,7 +59,7 @@ export default function PizzaGraphic(props: props) {
                     legend: {
                         direction: legendDirection,
                         position: legendPosition,
-                        padding: 10,
+                        padding: -10,
                         labelStyle: {
                             fontSize: "1rem",
                         },
