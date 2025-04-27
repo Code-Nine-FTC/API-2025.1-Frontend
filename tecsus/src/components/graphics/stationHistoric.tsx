@@ -49,7 +49,7 @@ export const StationHistoric = ({ data }: StationHistoricProps) => {
             xAxis={[{
               data: allDates,
               scaleType: 'time',
-              valueFormatter: (value) => new Date(value).toLocaleString(),
+              valueFormatter: (value) => new Date(value).toLocaleDateString('pt-BR')
             }]}
             slotProps={{
               legend: {

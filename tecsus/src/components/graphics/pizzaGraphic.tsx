@@ -35,7 +35,7 @@ export default function PizzaGraphic(props: props) {
             : { vertical: "middle", horizontal: "right" } as const;
 
     return (
-        <div ref={ref} style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
+        <div ref={ref} style={{ width: "100%", maxWidth: 800, margin: "0 auto" }}>
             <PieChart
                 series={[
                     {
