@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authContext";
 import { LoggedLayout } from "../layout/layoutLogged"; // Layout com sidebar
 
-export default function StationsListPage() {
+export default function StationsListPage({onlyView = false} : {onlyView: boolean}) {
   const [stations, setStations] = useState<ListStationsResponse[]>([]);
   const [name, setName] = useState<string>("");
   const [uid, setUid] = useState<string>("");
@@ -280,9 +280,9 @@ export default function StationsListPage() {
     </Box>
   );
 
-  return auth.isAuthenticated ? (
-    <LoggedLayout>{Content}</LoggedLayout>
+  return onlyView ? (
+    <>{Content}</>
   ) : (
-    Content
-  );
+    <LoggedLayout>{Content}</LoggedLayout> 
+  )
 }
