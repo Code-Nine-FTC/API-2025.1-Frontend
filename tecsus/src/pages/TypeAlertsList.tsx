@@ -235,6 +235,35 @@ const TypeAlertsPage = () => {
                   ? "Data inválida"
                   : new Date(timestamp * 1000).toLocaleDateString();
               }
+
+              if (column.field === "status") {
+                const status = row[column.field];
+                let color = "gray";
+
+                if (status === "A") color = "green";
+                else if (status === "Y") color = "orange";
+                else if (status === "G") color = "red";
+                else if (status === "R") color = "blue";
+
+                return (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    width="100%"
+                    gap={1}
+                  >
+                    {status}
+                    <Box
+                      width={10}
+                      height={10}
+                      borderRadius="50%"
+                      sx={{ backgroundColor: color }}
+                    />
+                  </Box>
+                );
+              }
+
               return String(row[column.field]);
             }}
             renderActions={(row) => (
