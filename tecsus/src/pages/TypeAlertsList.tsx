@@ -240,10 +240,10 @@ const TypeAlertsPage = () => {
                 const status = row[column.field];
                 let color = "gray";
 
-                if (status === "A") color = "green";
-                else if (status === "Y") color = "orange";
-                else if (status === "G") color = "red";
-                else if (status === "R") color = "blue";
+                if (status === "A") color = "grey";
+                else if (status === "Y") color = "#FFD700";
+                else if (status === "G") color = "green";
+                else if (status === "R") color = "red";
 
                 return (
                   <Box
