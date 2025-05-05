@@ -10,6 +10,7 @@ import dashboardGetters from "../store/dashboard/getters";
 import stationGetters from "../store/station/getters"
 import {ListStationsResponse} from "../store/station/state"
 import { StationHistoric } from "../components/graphics/stationHistoric";
+import { Title } from "@mui/icons-material";
 
 // const measureStatus = [
 //     {
@@ -245,6 +246,10 @@ const DashboardPage = () => {
                             <StationHistoric data={historicData} />
                         </CardContent>
                     </Card>
+                    
+                    <Title>
+                        Listagem de medidas por timestamp
+                    </Title>
                 </Box>
             </Box>
         </LoggedLayout>
