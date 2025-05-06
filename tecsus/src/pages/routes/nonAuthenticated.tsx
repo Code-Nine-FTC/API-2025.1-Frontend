@@ -3,9 +3,9 @@ import { Route, Routes } from "react-router-dom";
 import About from "../About";
 import LoginPage from "../Login";
 import Education from "../Education";
-import StationPage from "../Station";
 import TypeParameterPage from "../TypeParameter";
 import PublicListsPage from "../PublicListsPage"; // Certifique-se de que o caminho está correto
+import StationPage from "../Station";
 
 const nonAuthenticatedRoutes: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const nonAuthenticatedRoutes: React.FC = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/about" element={<About />} />
       <Route path="/education" element={<Education />} />
-      <Route path="/view-station/:id" element={<StationPage />} />
+      <Route path="/view-station/:id" element={<StationPage/>} />
       <Route path="/view-type-parameter/:id" element={<TypeParameterPage />} />
       <Route path="/public-lists" element={<PublicListsPage />} /> {/* Nova rota */}
     </Routes>

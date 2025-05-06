@@ -1,0 +1,114 @@
+import { Box, Button, Typography } from "@mui/material";
+import { ListStationsResponse } from "../../store/station/state";
+import { useNavigate } from "react-router-dom";
+import StationParametersBadge from "./stationParametersBadge";
+import { useAuth } from "../authContext";
+
+export default function StationHeader({station} : {station: ListStationsResponse | null}) {
+    const navigate = useNavigate();
+    const auth = useAuth(); 
+
+    return station ? (
+        <Box
+            sx={{
+                display: "flex",
+                flexDirection: "row",
+                width: "100%",
+                gap: 2,
+                padding: 2,
+                backgroundColor: 'rgb(146, 123, 230)',
+                borderRadius: 1,
+                boxShadow: 1,
+            }}
+        >
+            <Box 
+                sx={{ 
+                    display: "flex", 
+                    alignItems: "flex-start", 
+                    flexDirection:"column", 
+                    color: "white", 
+                    flexGrow: 1,
+                }}
+            >
+                <Typography variant="h4" fontWeight={'bold'}>{station.name_station}</Typography>
+                <Typography variant="h6">
+                    UID: {station.uid}
+                </Typography>
+                <Typography variant="h6">
+                    Endereço: {station.address.city}/{station.address.state} - {station.address.country}
+                </Typography>
+                {auth.isAuthenticated && (
+                    <Button
+                    variant="contained"
+                    sx={{ 
+                        mt: 1,
+                        borderRadius: 5,
+                        backgroundColor: "white", 
+                        color: "rgb(146, 123, 230)", 
+                        "&:hover": { backgroundColor: "#e0e0e0" } 
+                    }}
+                    onClick={() => {navigate(`/edit-station/${station.id}`)}}
+                    >
+                    Editar
+                </Button>
+                )}
+            </Box>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <Box 
+                    sx={{ 
+                        display: "flex", 
+                        alignItems: "flex-start",
+                        flexDirection: "column",
+                        color: "white", 
+                        gap: 1,
+                        mr: 2,
+                    }}>
+
+                    {station.parameters && station.parameters.length > 0 ? (
+                        station.parameters.map(parameter => (
+                            <StationParametersBadge 
+                                key={parameter.parameter_id || parameter.name_parameter}
+                                parameter={parameter.name_parameter} 
+                            />
+                        ))
+                    ) 
+                    : (
+                        <Typography variant="h5">
+                            Nenhum parâmetro cadastrado
+                        </Typography>
+                    )}
+                    <Typography variant="h6">
+                        Data criação: {new Date(station.create_date).toLocaleDateString()}
+                    </Typography>
+                    <Box sx={{
+                        display: "flex", 
+                        alignItems: "center", 
+                    }}>
+                        <Typography variant="h6">
+                            Status: {station.is_active ? "Ativa" : "Inativa"}
+                        </Typography>
+                        <Box sx={{
+                            borderRadius: "50%", 
+                            marginLeft: 1,
+                            width: 16,
+                            height: 16,
+                            backgroundColor: station.is_active ? "#39ce3f" : "#F44336", 
+                        }}/>
+                    </Box>
+                </Box>
+            </Box>
+        </Box>
+    ) : (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+                Nenhuma estação encontrada
+            </Typography>
+        </Box>
+    )
+};
