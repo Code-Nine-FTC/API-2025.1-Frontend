@@ -12,7 +12,6 @@ export default function StationHeader({station} : {station: ListStationsResponse
         <Box
             sx={{
                 display: "flex",
-                flexDirection: "row",
                 width: "100%",
                 gap: 2,
                 padding: 2,
@@ -20,6 +19,8 @@ export default function StationHeader({station} : {station: ListStationsResponse
                 borderRadius: 1,
                 boxShadow: 1,
             }}
+            flexDirection="row"
+            paddingTop={{ xs: 6, sm: 6, md: 2, lg: 2 }}
         >
             <Box 
                 sx={{ 
@@ -69,20 +70,26 @@ export default function StationHeader({station} : {station: ListStationsResponse
                         gap: 1,
                         mr: 2,
                     }}>
-
-                    {station.parameters && station.parameters.length > 0 ? (
-                        station.parameters.map(parameter => (
-                            <StationParametersBadge 
-                                key={parameter.parameter_id || parameter.name_parameter}
-                                parameter={parameter.name_parameter} 
-                            />
-                        ))
-                    ) 
-                    : (
-                        <Typography variant="h5">
-                            Nenhum parâmetro cadastrado
-                        </Typography>
+                    <Box
+                        sx={{
+                            display: "flex", 
+                            flexDirection: "row",
+                        }}
+                    >
+                        {station.parameters && station.parameters.length > 0 ? (
+                            station.parameters.map(parameter => (
+                                <StationParametersBadge 
+                                    key={parameter.parameter_id || parameter.name_parameter}
+                                    parameter={parameter.name_parameter} 
+                                />
+                            ))
+                        ) 
+                        : (
+                            <Typography variant="h5">
+                                Nenhum parâmetro cadastrado
+                            </Typography>
                     )}
+                    </Box>
                     <Typography variant="h6">
                         Data criação: {new Date(station.create_date).toLocaleDateString()}
                     </Typography>

@@ -47,7 +47,6 @@ export default function StationPage() {
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "center",
-                paddingTop: 0,
             }}
         >
             <StationHeader station={station}/>
