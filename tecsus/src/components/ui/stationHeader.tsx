@@ -28,7 +28,7 @@ export default function StationHeader({station} : {station: ListStationsResponse
                     alignItems: "flex-start", 
                     flexDirection:"column", 
                     color: "white", 
-                    flexGrow: 1,
+                    flexGrow: 2,
                 }}
             >
                 <Typography variant="h4" fontWeight={'bold'}>{station.name_station}</Typography>
@@ -58,7 +58,8 @@ export default function StationHeader({station} : {station: ListStationsResponse
                 sx={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent: "flex-end",
+                    flexGrow: 1,
                 }}
             >
                 <Box 
@@ -68,12 +69,17 @@ export default function StationHeader({station} : {station: ListStationsResponse
                         flexDirection: "column",
                         color: "white", 
                         gap: 1,
-                        mr: 2,
-                    }}>
+                    }}
+                    mr={{ xs: 0, sm: 0, md: 2, lg: 2 }}
+                    >
                     <Box
                         sx={{
                             display: "flex", 
                             flexDirection: "row",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                            width: "80%",
+                            mb: 1,
                         }}
                     >
                         {station.parameters && station.parameters.length > 0 ? (

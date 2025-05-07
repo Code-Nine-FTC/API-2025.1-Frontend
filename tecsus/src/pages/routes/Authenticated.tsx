@@ -11,7 +11,7 @@ import RegisterParameterType from "../RegisterParameterType";// Importe o compon
 import ProfilePage from "../Profile";
 import RegisterAlertType from "../RegisterTypeAlert";
 import AlertTypePage from "../AlertType";
-import EditStationPage from "../editStation";
+import EditStationPage from "../EditStation";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (

@@ -16,12 +16,12 @@ const getColor = (type: 'R' | 'Y' | 'G') => {
 
   export function AlertCard ({ type, count }: AlertCardProps) {
     return (
-      <Card sx={{ minWidth: 200, bgcolor: getColor(type), color: 'white' }}>
+      <Card sx={{bgcolor: getColor(type), color: 'white', borderRadius: '16px' }}>
         <CardContent>
-          <Typography variant="h6">
+          <Typography variant="h6" align="center">
             {type === 'R' ? 'Crítico' : type === 'Y' ? 'Atenção' : 'Seguro'}
           </Typography>
-          <Typography variant="h4">{count}</Typography>
+          <Typography variant="h4" align="center">{count}</Typography>
         </CardContent>
       </Card>
     );
