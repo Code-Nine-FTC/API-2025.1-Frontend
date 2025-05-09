@@ -1,7 +1,7 @@
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import HighchartsMore from 'highcharts/highcharts-more';
-import SolidGauge from 'highcharts/modules/solid-gauge';
+import 'highcharts/highcharts-more';
+import 'highcharts/modules/solid-gauge';
 
 import { useState } from 'react';
 
@@ -11,11 +11,6 @@ interface GaugeGraphicProps {
     min?: number;
     max?: number;
     unit?: string;
-}
-
-if (typeof Highcharts === 'object') {
-    HighchartsMore(Highcharts);
-    SolidGauge(Highcharts);
 }
 
 export default function GaugeGraphic(props: GaugeGraphicProps) {
