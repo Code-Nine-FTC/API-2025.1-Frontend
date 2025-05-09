@@ -9,6 +9,7 @@ import DefaultLayout from "../layout/layoutNotLogged";
 import { Box, Button, CircularProgress, Divider, Paper, Stack, Typography } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AlertCard } from "../components/cards/alertCard";
+import GaugeGraphic from "../components/graphics/gaugeGraphic";
 
 const alertCounts = {
     R: 0,
@@ -87,6 +88,8 @@ export default function StationPage() {
                     Dashboard da Estação
                   </Typography>
                   <Divider sx={{ margin: '16px 0' }} />
+                  
+                  <GaugeGraphic title="Teste" value={20} min={120} max={990} unit="bar"></GaugeGraphic>
               </Paper>
               <Paper
                   sx={{
