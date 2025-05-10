@@ -10,6 +10,7 @@ import { Box, Button, CircularProgress, Divider, Paper, Stack, Typography } from
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AlertCard } from "../components/cards/alertCard";
 import GaugeGraphic from "../components/graphics/gaugeGraphic";
+import ThermometerGraphic from "../components/graphics/thermometerGraphic";
 
 const alertCounts = {
     R: 0,
@@ -24,6 +25,9 @@ export default function StationPage() {
     const [error, setError] = useState<string | null>(null);
     const auth = useAuth();
     const navigate = useNavigate();
+    
+    const [gaugeValue, setGaugeValue] = useState<number>(950); // Initial value for the gauge
+    const [temperature, setTemperature] = useState<number>(0); // Initial value for the thermometer
 
     useEffect(() => {
         const fetchStation = async () => {
@@ -46,6 +50,17 @@ export default function StationPage() {
         if (id) {
             fetchStation();
         }
+    }, []);
+    
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const randomValue = Math.floor(Math.random() * (1050 - 950 + 1)) + 950;
+            const randomTemperature = Math.floor(Math.random() * (50 - (-10) + 1)) + (-10);
+            setTemperature(randomTemperature);
+            setGaugeValue(randomValue);
+        }, 10000); // 30 seconds
+
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
     }, []);
 
     const content = (
@@ -89,7 +104,8 @@ export default function StationPage() {
                   </Typography>
                   <Divider sx={{ margin: '16px 0' }} />
                   
-                  <GaugeGraphic title="Teste" value={20} min={120} max={990} unit="bar"></GaugeGraphic>
+                  <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa"></GaugeGraphic>
+                  <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={-10} max={50} unit="°C"></ThermometerGraphic>
               </Paper>
               <Paper
                   sx={{

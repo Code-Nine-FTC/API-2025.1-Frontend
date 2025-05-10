@@ -1,9 +1,7 @@
 import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
 import 'highcharts/highcharts-more';
 import 'highcharts/modules/solid-gauge';
-
-import { useState } from 'react';
+import HighchartsReact from 'highcharts-react-official';
 
 interface GaugeGraphicProps {
     value: number;
@@ -11,119 +9,150 @@ interface GaugeGraphicProps {
     min?: number;
     max?: number;
     unit?: string;
+    plotLines?: {
+        value: number;
+        color: string;
+        width: number;
+        zIndex: number;
+        dashStyle: string;
+        label: {
+            text: string;
+            align: string;
+            y: number;
+            style: {
+                color: string;
+                fontSize: string;
+                fontWeight: string;
+            };
+        };
+    }[];
 }
 
+
 export default function GaugeGraphic(props: GaugeGraphicProps) {
-    const [chartOptions, setChartOptions] = useState<Highcharts.Options> ({
-        chart: {
-            type: 'solidgauge',
-            // plotBackgroundColor: null,
-            plotBackgroundImage: undefined,
-            plotBorderWidth: 0,
-            plotShadow: false,
-            height: '80%'
+    const chartOptions: Highcharts.Options = {
+    chart: {
+      type: 'solidgauge',
+      backgroundColor: 'transparent',
+      height: '260px',
+      style: { fontFamily: 'Segoe UI, sans-serif' },
+    },
+    title: {
+      text: props.title,
+      style: {
+        fontSize: '20px',
+        fontWeight: '600',
+        color: '#2c3e50',
+      },
+    },
+    credits: { enabled: false },
+    pane: {
+      startAngle: -90,
+      endAngle: 90,
+      center: ['50%', '75%'],
+      size: '140%',
+      background: [
+        {
+          outerRadius: '100%',
+          innerRadius: '75%',
+          shape: 'arc',
+          backgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+            stops: [
+              [0, '#cccccc'],
+              [1, '#e8e8e8'],
+            ],
+          } as any,
+          borderWidth: 0,
+          borderRadius: '50%',
         },
-        title: {
-            text: props.title
-        },
-        pane: {
-            startAngle: -150,
-            endAngle: 150,
-            background: [{
-                backgroundColor: {
-                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                    stops: [
-                        [0, '#FFF'],
-                        [1, '#333']
-                    ]
-                } as Highcharts.GradientColorObject,
-                borderWidth: 0,
-                outerRadius: '109%'
-            }, {
-                backgroundColor: {
-                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                    stops: [
-                        [0, '#333'],
-                        [1, '#FFF']
-                    ]
-                } as Highcharts.GradientColorObject,
-                borderWidth: 1,
-                outerRadius: '107%'
-            }, {
-                // default background
-            }, {
-                backgroundColor: '#DDD',
-                borderWidth: 0,
-                outerRadius: '105%',
-                innerRadius: '103%'
-            }]
-        },
-        yAxis: {
-            min: props.min,
-            max: props.max,
-            minorTickInterval: 'auto',
-            minorTickWidth: 1,
-            minorTickLength: 10,
-            minorTickPosition: 'inside',
-            minorTickColor: '#666',
-            tickPixelInterval: 30,
-            tickWidth: 2,
-            tickPosition: 'inside',
-            tickLength: 10,
-            tickColor: '#666',
-            labels: {
-                step: 2,
-                rotation: 0
+      ],
+    },
+    yAxis: {
+      min: props.min,
+      max: props.max,
+      lineWidth: 0,
+      tickPositions: [],
+      stops: [
+        [0.0, '#ff7875'],
+        [0.3, '#ffc069'],
+        [0.5, '#91d5ff'],
+        [0.7, '#95de64'],
+        [1.0, '#52c41a'],
+      ],
+      labels: { enabled: false },
+      plotLines: [
+        {
+          value: 1013,
+          color: '#34495e',
+          width: 3,
+          zIndex: 5,
+          dashStyle: 'Solid',
+          label: {
+            text: 'Nível do mar (1013 hPa)',
+            align: 'center',
+            y: -10,
+            style: {
+              color: '#34495e',
+              fontSize: '12px',
+              fontWeight: '600',
             },
+          },
+        },
+      ],
+    },
+    plotOptions: {
+      solidgauge: {
+        linecap: 'round',
+        rounded: true,
+        dataLabels: {
+          enabled: true,
+          y: -20,
+          borderWidth: 0,
+          useHTML: true,
+          format: `
+            <div style="text-align:center;">
+              <span style="font-size:2.8em; font-weight:600; color:#2f3542; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">{y}</span><br/>
+              <span style="font-size:1.1em; color:#888">${props.unit}</span>
+            </div>`,
+        },
+        animation: {
+          duration: 800,
+          easing: 'easeOutBounce',
+        },
+      },
+    },
+    series: [
+      {
+        name: 'Valor',
+        type: 'solidgauge',
+        data: [props.value],
+        tooltip: {
+          valueSuffix: ` ${props.unit}`,
+          style: {
+            fontSize: '16px',
+            fontWeight: '600',
+            color: '#2c3e50',
+          },
+        },
+        innerRadius: '75%',
+        radius: '100%',
+      } as Highcharts.SeriesSolidgaugeOptions,
+    ],
+    responsive: {
+      rules: [
+        {
+          condition: { maxWidth: 400 },
+          chartOptions: {
             title: {
-                text: props.unit,
+              style: { fontSize: '16px' },
             },
-            plotBands: [{
-                from: 0,
-                to: 120,
-                color: '#55BF3B' 
-            }, {
-                from: 120,
-                to: 160,
-                color: '#DDDF0D'
-            }, {
-                from: 160,
-                to: 200,
-                color: '#DF5353' 
-            }]
+            pane: { size: '120%', center: ['50%', '80%'] },
+          },
         },
-        series: [{
-            type: 'gauge',
-            name: props.title,
-            data: [props.value],
-            tooltip: {
-                valueSuffix: props.unit
-            },
-            dataLabels: {
-                format: '{y} ' + props.unit,
-                borderWidth: 0,
-                color: (
-                    Highcharts.defaultOptions.title &&
-                    Highcharts.defaultOptions.title.style &&
-                    Highcharts.defaultOptions.title.style.color
-                ) || '#333333',
-                style: {
-                    fontSize: '16px'
-                }
-            },
-            dial: {
-                radius: '80%',
-                backgroundColor: 'gray',
-                baseWidth: 12,
-                baseLength: '0%',
-                rearLength: '0%'
-            },
-            pivot: {
-                backgroundColor: 'gray',
-                radius: 6
-            }
-        }]
-    });
+      ],
+    },
+  };
     
     return (
         <HighchartsReact
@@ -131,4 +160,5 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
             options={chartOptions}
         />
     );
+
 };
