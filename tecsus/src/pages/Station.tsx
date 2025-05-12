@@ -105,7 +105,7 @@ export default function StationPage() {
                   <Divider sx={{ margin: '16px 0' }} />
                   
                   <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa"></GaugeGraphic>
-                  <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={-10} max={50} unit="°C"></ThermometerGraphic>
+                  <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={-10} max={50} unit="°C" ></ThermometerGraphic>
               </Paper>
               <Paper
                   sx={{

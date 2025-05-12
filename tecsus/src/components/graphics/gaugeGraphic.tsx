@@ -11,20 +11,7 @@ interface GaugeGraphicProps {
     unit?: string;
     plotLines?: {
         value: number;
-        color: string;
-        width: number;
-        zIndex: number;
-        dashStyle: string;
-        label: {
-            text: string;
-            align: string;
-            y: number;
-            style: {
-                color: string;
-                fontSize: string;
-                fontWeight: string;
-            };
-        };
+        label: string;
     }[];
 }
 
@@ -81,25 +68,25 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
         [1.0, '#52c41a'],
       ],
       labels: { enabled: false },
-      plotLines: [
-        {
-          value: 1013,
-          color: '#34495e',
-          width: 3,
-          zIndex: 5,
-          dashStyle: 'Solid',
-          label: {
-            text: 'Nível do mar (1013 hPa)',
-            align: 'center',
-            y: -10,
-            style: {
-              color: '#34495e',
-              fontSize: '12px',
-              fontWeight: '600',
+      plotLines: props.plotLines && props.plotLines.length > 0
+        ? props.plotLines.map((plotLine) => ({
+            value: plotLine.value,
+            color: '#34495e',
+            width: 3,
+            zIndex: 5,
+            dashStyle: 'Solid',
+            label: {
+              text: plotLine.label,
+              align: 'center',
+              y: -10,
+              style: {
+                color: '#34495e',
+                fontSize: '12px',
+                fontWeight: '600',
+              },
             },
-          },
-        },
-      ],
+          }))
+          : [],
     },
     plotOptions: {
       solidgauge: {
