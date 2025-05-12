@@ -28,12 +28,19 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center" height={{ xs: 260, md: 300 }}>
-      <Typography variant="h6" fontWeight={600} color="#2c3e50" textAlign="center">
+      <Typography 
+        fontSize={'18px'} 
+        fontWeight={600} 
+        color="#2c3e50" 
+        textAlign="center" 
+        mb={2}
+        sx={{ fontFamily: 'Segoe UI, sans-serif' }}
+    >
         {props.title}
       </Typography>
 
       <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" height="100%">
-        <Box mr={1} display="flex" flexDirection="column" justifyContent="space-between" height="100%">
+        <Box mr={1} display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-end" height="100%">
           {ticks.slice().reverse().map((tick) => (
             <Typography key={tick} fontSize={12} color="#666">{tick}</Typography>
           ))}
@@ -87,7 +94,7 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
             transition={{ duration: 0.8 }}
             style={{
               position: 'absolute',
-              transform: 'translateY(50%)',
+              transform: 'translateY(70%) translateX(90%)',
               backgroundColor: 'white',
               padding: '2px 6px',
               fontSize: 12,
