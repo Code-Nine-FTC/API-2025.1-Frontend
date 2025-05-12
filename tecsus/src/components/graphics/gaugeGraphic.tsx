@@ -21,7 +21,7 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
     chart: {
       type: 'solidgauge',
       backgroundColor: 'transparent',
-      height: '260px',
+      height: '300px',
       style: { fontFamily: 'Segoe UI, sans-serif' },
     },
     title: {
