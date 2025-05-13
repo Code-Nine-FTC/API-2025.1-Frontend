@@ -12,6 +12,7 @@ import { AlertCard } from "../components/cards/alertCard";
 import GaugeGraphic from "../components/graphics/gaugeGraphic";
 import ThermometerGraphic from "../components/graphics/thermometerGraphic";
 import DashboardGetters from "../store/dashboard/getters";
+import BucketGraphic from "../components/graphics/bucketGraphic";
 
 const alertCounts = {
     R: 0,
@@ -29,6 +30,7 @@ export default function StationPage() {
     
     const [gaugeValue, setGaugeValue] = useState<number>(950); // Initial value for the gauge
     const [temperature, setTemperature] = useState<number>(0); // Initial value for the thermometer
+    const [bucketValue, setBucketValue] = useState<number>(0); // Initial value for the bucket
 
     useEffect(() => {
         const fetchStation = async () => {
@@ -57,8 +59,10 @@ export default function StationPage() {
         const intervalId = setInterval(() => {
             const randomValue = Math.floor(Math.random() * (1050 - 950 + 1)) + 950;
             const randomTemperature = Math.floor(Math.random() * (50 - (-10) + 1)) + (-10);
+            const randomBucket = Math.floor(Math.random() * (100 - 0 + 1)) + 0;
             setTemperature(randomTemperature);
             setGaugeValue(randomValue);
+            setBucketValue(randomBucket);
         }, 10000); // 30 seconds
 
         return () => clearInterval(intervalId); // Cleanup interval on component unmount
@@ -115,7 +119,10 @@ export default function StationPage() {
                       <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" measureDate="1747092258"/>
                     </Box>
                     <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" measureDate="1747092258"/>
+                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={-30} max={60} unit="°C" measureDate="1747092258"/>
+                    </Box>
+                    <Box sx={{ minWidth: 260, flex: 1 }}>
+                      <BucketGraphic title="Umidade do ar" value={bucketValue ?? 0} min={0} max={100} unit="%" measureDate="1747092258"/>
                     </Box>
                 </Stack>
               </Paper>

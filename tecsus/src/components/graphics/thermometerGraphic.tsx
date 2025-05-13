@@ -61,6 +61,7 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
           height="100%"
           borderRadius={20}
           bgcolor="linear-gradient(to bottom, #eee, #ddd)"
+          mr={3}
           sx={{
             background: 'linear-gradient(to bottom, #eee, #ddd)',
             boxShadow: 'inset 0 0 8px rgba(0,0,0,0.15)',
