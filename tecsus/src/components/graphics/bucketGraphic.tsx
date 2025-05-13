@@ -81,27 +81,13 @@ export default function BucketGraphic(props: BucketGraphicProps) {
                         transition={{ duration: 1, ease: 'easeInOut' }}
                     />
 
-                    {/* <Box
-                        sx={{
-                        position: 'absolute',
-                        bottom: -18,
-                        width: 42,
-                        height: 42,
-                        backgroundColor: '#4aa3df',
-                        borderRadius: '50%',
-                        boxShadow: `0 0 10px #4aa3df55`,
-                        zIndex: 1,
-                        marginTop: 10,
-                        }}
-                    /> */}
-
-                    {/* <motion.div
+                    <motion.div
                         initial={false}
                         animate={{ bottom: `${percent * 100}%` }}
                         transition={{ duration: 0.8 }}
                         style={{
                         position: 'absolute',
-                        transform: 'translateY(70%) translateX(90%)',
+                        transform: 'translateY(70%) translateX(200%)',
                         backgroundColor: 'white',
                         padding: '2px 6px',
                         fontSize: 12,
@@ -113,7 +99,7 @@ export default function BucketGraphic(props: BucketGraphicProps) {
                         }}
                     >
                         {props.value} {props.unit}
-                    </motion.div> */}
+                    </motion.div>
                 </Box>
             </Box>
         </Box>
