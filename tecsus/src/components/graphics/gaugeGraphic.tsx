@@ -13,6 +13,7 @@ interface GaugeGraphicProps {
         value: number;
         label: string;
     }[];
+    measureDate: string;
 }
 
 
@@ -21,7 +22,7 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
     chart: {
       type: 'solidgauge',
       backgroundColor: 'transparent',
-      height: '300px',
+      height: '350px',
       style: { fontFamily: 'Segoe UI, sans-serif' },
     },
     title: {
@@ -31,13 +32,24 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
         fontWeight: '600',
         color: '#2c3e50',
       },
+      y: 35
+    },
+    subtitle: {
+        text: props.measureDate
+            ? new Date(Number(props.measureDate) * 1000).toLocaleString()
+            : '',
+        style: {
+            fontSize: '14px',
+            color: '#666',
+        },
+        y: 60,
     },
     credits: { enabled: false },
     pane: {
       startAngle: -90,
       endAngle: 90,
       center: ['50%', '75%'],
-      size: '140%',
+      size: '100%',
       background: [
         {
           outerRadius: '100%',
@@ -129,17 +141,25 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
     responsive: {
       rules: [
         {
-          condition: { maxWidth: 400 },
+          condition: { maxWidth: 600 },
           chartOptions: {
             title: {
               style: { fontSize: '16px' },
             },
-            pane: { size: '120%', center: ['50%', '80%'] },
+            pane: { size: '100%', center: ['50%', '80%'] },
           },
         },
-      ],
-    },
-  };
+        {
+          condition: { minWidth: 1200 },
+          chartOptions: {
+            title: {
+                y: 0,
+            },
+        },
+    },  
+    ]}
+};
+
     
     return (
         <HighchartsReact

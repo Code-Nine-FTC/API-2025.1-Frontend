@@ -8,6 +8,7 @@ interface ThermometerGraphicProps {
     value: number;
     title: string;
     unit: string;
+    measureDate: string;
 }
 
 const getGradientColor = (value: number, min: number, max: number): string => {
@@ -33,11 +34,19 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
         fontWeight={600} 
         color="#2c3e50" 
         textAlign="center" 
-        mb={2}
         sx={{ fontFamily: 'Segoe UI, sans-serif' }}
     >
         {props.title}
       </Typography>
+        <Typography 
+            fontSize={14} 
+            color="#666" 
+            textAlign="center" 
+            mb={2}
+            sx={{ fontFamily: 'Segoe UI, sans-serif' }}
+        >
+            {new Date(Number(props.measureDate) * 1000).toLocaleString()}
+        </Typography>
 
       <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" height="100%">
         <Box mr={1} display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-end" height="100%">

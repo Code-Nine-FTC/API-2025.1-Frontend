@@ -6,11 +6,12 @@ import StationHeader from "../components/ui/stationHeader";
 import { useAuth } from "../components/authContext";
 import { LoggedLayout } from "../layout/layoutLogged";
 import DefaultLayout from "../layout/layoutNotLogged";
-import { Box, Button, CircularProgress, Divider, Grid, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Paper, Stack, Typography } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AlertCard } from "../components/cards/alertCard";
 import GaugeGraphic from "../components/graphics/gaugeGraphic";
 import ThermometerGraphic from "../components/graphics/thermometerGraphic";
+import DashboardGetters from "../store/dashboard/getters";
 
 const alertCounts = {
     R: 0,
@@ -104,30 +105,17 @@ export default function StationPage() {
                   </Typography>
                   <Divider sx={{ margin: '16px 0' }} />
                   
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} useFlexGap flexWrap="wrap" justifyContent="space-evenly">
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'column', md: 'row' }} 
+                    spacing={4} flexWrap="wrap" 
+                    justifyContent="space-evenly" 
+                    alignItems="center"
+                    width= {{ xs: "100%", sm: '100%', md: "80%", lg: "100%" }}>
                     <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" />
+                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" measureDate="1747092258"/>
                     </Box>
                     <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" />
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" />
+                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={0} max={270} unit="°K" measureDate="1747092258"/>
                     </Box>
                 </Stack>
               </Paper>

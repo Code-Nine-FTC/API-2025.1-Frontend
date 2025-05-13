@@ -8,6 +8,7 @@ export default function StationHeader({station} : {station: ListStationsResponse
     const navigate = useNavigate();
     const auth = useAuth(); 
 
+    console.log("StationHeader", station);
     return station ? (
         <Box
             sx={{
@@ -97,7 +98,7 @@ export default function StationHeader({station} : {station: ListStationsResponse
                     )}
                     </Box>
                     <Typography variant="h6">
-                        Data criação: {new Date(station.create_date).toLocaleDateString()}
+                        Data criação: {new Date(Number(station.create_date) * 1000).toLocaleDateString()}
                     </Typography>
                     <Box sx={{
                         display: "flex", 
