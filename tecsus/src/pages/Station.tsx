@@ -15,6 +15,7 @@ import DashboardGetters from "../store/dashboard/getters";
 import BucketGraphic from "../components/graphics/bucketGraphic";
 import VelocimeterGraphic from "../components/graphics/velocimeterGraphic";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
+import LineGraphic from "../components/graphics/stationHistoric";
 
 const alertCounts = {
     R: 0,
@@ -34,6 +35,81 @@ const measureCounts = [
     { name: 'Nevoeiro', y: 1 },
     { name: 'Trovão', y: 0 },
 ]
+
+// Helper function to generate random numbers in a range
+function getRandomValue(min: number, max: number): number {
+  return Math.random() * (max - min) + min;
+}
+
+interface Measure {
+  measure_date: number; // Unix timestamp in seconds
+  value: number;
+  type: string;
+  measure_unit: string;
+}
+
+function generateHistoricalData(): Measure[] {
+  const historicalData: Measure[] = [];
+  const measureTypes = [
+    { type: 'Temperatura', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
+    { type: 'Umidade', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
+    { type: 'Pressão', unit: 'hPa', minVal: 980, maxVal: 1030 },
+    { type: 'Velocidade do Vento', unit: 'm/s', minVal: 0, maxVal: 25 },
+    { type: 'Precipitação Acumulada', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true }
+  ];
+
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setFullYear(endDate.getFullYear() - 1); // Data for one year
+
+  let currentDate = new Date(startDate.getTime());
+  const intervalMinutes = 15;
+
+  while (currentDate <= endDate) {
+    const timestampInSeconds = Math.floor(currentDate.getTime() / 1000);
+    const hourOfDay = currentDate.getHours(); // For daily cycle simulation
+
+    for (const mt of measureTypes) {
+      let value;
+      if (mt.isSparse) {
+        // Make sparse data (like rainfall) mostly zero
+        value = Math.random() < 0.05 ? getRandomValue(mt.minVal, mt.maxVal) : 0;
+      } else {
+        value = getRandomValue(mt.minVal, mt.maxVal);
+      }
+
+      // Simulate a simple daily cycle for temperature and humidity
+      if (mt.dailyCycle) {
+        const cycleFactor = Math.sin((hourOfDay / 24) * 2 * Math.PI - Math.PI / 2); // Peaks around midday
+        const range = mt.maxVal - mt.minVal;
+        const baseValue = mt.minVal + range / 2;
+        let cycleEffect = (cycleFactor * range) / 3; // Modulate effect strength
+        
+        if (mt.type === 'Temperatura') {
+            // Temperature higher during the day
+            value = baseValue + cycleEffect + (Math.random() - 0.5) * (range / 5);
+        } else if (mt.type === 'Umidade') {
+            // Humidity generally lower during warmer parts of the day
+             value = baseValue - cycleEffect + (Math.random() - 0.5) * (range / 5);
+        }
+        value = Math.max(mt.minVal, Math.min(mt.maxVal, value)); // Clamp within min/max
+      }
+
+
+      historicalData.push({
+        measure_date: timestampInSeconds,
+        value: parseFloat(value.toFixed(2)),
+        type: mt.type,
+        measure_unit: mt.unit,
+      });
+    }
+    currentDate.setMinutes(currentDate.getMinutes() + intervalMinutes);
+  }
+
+  return historicalData;
+}
+
+const historicData: Measure[] = generateHistoricalData()
 
 export default function StationPage() {
     const { id } = useParams();
@@ -155,6 +231,9 @@ export default function StationPage() {
                       <PizzaGraphic title="Alertas" data={measureCounts} />
                     </Box>
                 </Stack>
+
+                <Divider sx={{ margin: '16px 0' }} />
+                <LineGraphic title="Histórico de medições" measure={historicData} />
               </Paper>
               <Paper
                   sx={{
