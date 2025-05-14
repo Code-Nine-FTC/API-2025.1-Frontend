@@ -27,7 +27,7 @@ export default function BucketGraphic(props: BucketGraphicProps) {
                 textAlign="center" 
                 sx={{ fontFamily: 'Segoe UI, sans-serif' }}
             >
-                {props.title}
+                {props.title} ({props.unit})
             </Typography>
             <Typography 
                 fontSize={14} 

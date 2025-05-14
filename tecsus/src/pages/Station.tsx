@@ -14,12 +14,26 @@ import ThermometerGraphic from "../components/graphics/thermometerGraphic";
 import DashboardGetters from "../store/dashboard/getters";
 import BucketGraphic from "../components/graphics/bucketGraphic";
 import VelocimeterGraphic from "../components/graphics/velocimeterGraphic";
+import PizzaGraphic from "../components/graphics/pizzaGraphic";
 
 const alertCounts = {
     R: 0,
     Y: 0,
     G: 0,
 };
+
+const measureCounts = [
+    { name: 'Chuva forte', y: 3 },
+    { name: 'Chuva leve', y: 5 },
+    { name: 'Tempestade', y: 2 },
+    { name: 'Neve', y: 1 },
+    { name: 'Granizo', y: 0 },
+    { name: 'Vento forte', y: 3 },
+    { name: 'Vento leve', y: 2 },
+    { name: 'Neblina', y: 0 },
+    { name: 'Nevoeiro', y: 1 },
+    { name: 'Trovão', y: 0 },
+]
 
 export default function StationPage() {
     const { id } = useParams();
@@ -33,6 +47,7 @@ export default function StationPage() {
     const [temperature, setTemperature] = useState<number>(0); // Initial value for the thermometer
     const [bucketValue, setBucketValue] = useState<number>(0); // Initial value for the bucket
     const [velocidadeVento, setVelocidadeVento] = useState<number>(0); // Initial value for the wind speed
+    // const [measureCounts, setMeasureCounts] = useState<Map<string, number>>(new Map ()); // Initial value for the measure counts
 
     useEffect(() => {
         const fetchStation = async () => {
@@ -51,6 +66,10 @@ export default function StationPage() {
             }
         };
 
+        const fetchDashboard = async () => {
+
+        }
+
 
         if (id) {
             fetchStation();
@@ -67,6 +86,7 @@ export default function StationPage() {
             setGaugeValue(randomValue);
             setBucketValue(randomBucket);
             setVelocidadeVento(randomVelocidadeVento);
+
         }, 10000); // 30 seconds
 
         return () => clearInterval(intervalId); // Cleanup interval on component unmount
@@ -130,6 +150,9 @@ export default function StationPage() {
                     </Box>
                     <Box sx={{ minWidth: 260, flex: 1 }}>
                       <VelocimeterGraphic title="Velocidade do vento" value={velocidadeVento ?? 0} min={0} max={100} unit="m/s" measureDate="1747092258"/>
+                    </Box>
+                    <Box sx={{ minWidth: 260, flex: 1 }}>
+                      <PizzaGraphic title="Alertas" data={measureCounts} />
                     </Box>
                 </Stack>
               </Paper>

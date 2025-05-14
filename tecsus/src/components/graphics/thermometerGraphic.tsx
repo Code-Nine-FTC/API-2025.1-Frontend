@@ -28,7 +28,7 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
   const ticks = Array.from({ length: numTicks }, (_, i) => Math.round(props.min + i * tickStep));
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" height={{ xs: 260, md: 300 }}>
+    <Box display="flex" flexDirection="column" alignItems="center" height={{ xs: 240, md: 280 }}>
       <Typography 
         fontSize={'18px'} 
         fontWeight={600} 
@@ -36,7 +36,7 @@ export default function ThermometerGraphic (props: ThermometerGraphicProps) {
         textAlign="center" 
         sx={{ fontFamily: 'Segoe UI, sans-serif' }}
     >
-        {props.title}
+        {props.title} ({props.unit})
       </Typography>
         <Typography 
             fontSize={14} 

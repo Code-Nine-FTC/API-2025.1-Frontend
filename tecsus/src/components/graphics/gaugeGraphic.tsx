@@ -26,7 +26,7 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
       style: { fontFamily: 'Segoe UI, sans-serif' },
     },
     title: {
-      text: props.title,
+      text: `${props.title} (${props.unit})`,
       style: {
         fontSize: '20px',
         fontWeight: '600',

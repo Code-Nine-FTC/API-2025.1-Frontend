@@ -23,7 +23,7 @@ export default function VelocimeterGraphic (props: VelocimeterGraphicProps) {
             height: '350px',
             },
             title: {
-                text: props.title,
+                text: `${props.title} (${props.unit})`,
                 style: {
                     fontSize: '16px',
                     fontWeight: '600',
@@ -41,6 +41,7 @@ export default function VelocimeterGraphic (props: VelocimeterGraphicProps) {
                 },
                 y: 60,
             },
+            credits: { enabled: false },
             pane: {
                 center: ['50%', '75%'],
                 startAngle: -90,
