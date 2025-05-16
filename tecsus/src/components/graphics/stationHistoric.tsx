@@ -1,77 +1,17 @@
-// import { LineChart } from '@mui/x-charts/LineChart';
-// import { useEffect, useRef, useState } from 'react';
-
 import { Box } from "@mui/material";
-import Highcharts from 'highcharts';
+import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
-import boost from 'highcharts/modules/boost';
+import 'highcharts/modules/boost';
 
-// interface DataPoint {
-//   name: string;
-//   value: number;
-//   measure_unit: string;
-//   measure_date: number;
+// console.log('Imported boost module:', boost);
+// console.log('Type of boost module:', typeof boost);
+
+// if (typeof boost === 'function') {
+//   boost(Highcharts);
+// } else {
+//   console.error('Failed to initialize Highcharts boost module: `boost` is not a function.', boost);
 // }
 
-// interface StationHistoricProps {
-//   data: DataPoint[];
-// }
-
-// export const StationHistoric = ({ data }: StationHistoricProps) => {
-//       const allDates = [...new Set(data.map(item => item.measure_date * 1000))].sort((a, b) => a - b);
-      
-//       const grouped = data.reduce((acc, item) => {
-//         if (!acc[item.name]) acc[item.name] = {};
-//         acc[item.name][item.measure_date * 1000] = Number(item.value.toFixed(2));
-//         return acc;
-//       }, {} as Record<string, Record<number, number>>);
-
-//       const series = Object.entries(grouped).map(([name, values]) => ({
-//         label: name,
-//         data: allDates.map(date => values[date] ?? null), 
-//         showMark: false,
-//       }));
-                  
-//       const ref = useRef<HTMLDivElement>(null);
-//       const [width, setWidth] = useState(800);
-      
-//       useEffect(() => {
-//         function handleResize() {
-//           if (ref.current) setWidth(ref.current.offsetWidth);
-//         }
-//         handleResize();
-//         window.addEventListener("resize", handleResize);
-//         return () => window.removeEventListener("resize", handleResize);
-//       }, []);
-    
-//       return (
-//         <div ref={ref} style={{ width: "100%", maxWidth: 900, margin: "0 auto" }}>
-//           <LineChart
-//             series={series}
-//             width={width}
-//             height={Math.round(width * 0.5)}
-//             margin={{bottom: 70}}
-//             xAxis={[{
-//               data: allDates,
-//               scaleType: 'time',
-//               valueFormatter: (value) => new Date(value).toLocaleDateString('pt-BR')
-//             }]}
-//             slotProps={{
-//               legend: {
-//                 direction: 'row',
-//                 position: { vertical: 'bottom', horizontal: 'middle' },
-//               },
-//             }}
-//             sx={{
-//               '.MuiLineElement-root': {
-//                 strokeWidth: 2,
-//               },
-//               overflowX: 'scroll',
-//             }}
-//           />
-//         </div>
-//       );
-//     };
 
 interface LineGraphicProps {
   measure: {
@@ -85,13 +25,10 @@ interface LineGraphicProps {
 
 export default function LineGraphic (props: LineGraphicProps) {
 
-  boost(Highcharts);
-
   let minTimestampMs: number | undefined = undefined;
   let maxTimestampMs: number | undefined = undefined;
 
   if (props.measure && props.measure.length > 0) {
-    // Initialize with the first point's date (converted to ms)
     minTimestampMs = props.measure[0].measure_date * 1000;
     maxTimestampMs = props.measure[0].measure_date * 1000;
 
@@ -127,7 +64,41 @@ export default function LineGraphic (props: LineGraphicProps) {
     boost: {
       useGPUTranslations: true,
     },
-
+    credits: {
+      enabled: false,
+    },
+    navigator: { 
+      enabled: true
+    },
+    scrollbar: { 
+      enabled: true
+    },
+    rangeSelector: { 
+      buttons: [{
+           type: 'month',
+           count: 1,
+           text: '1m'
+       }, {
+           type: 'month',
+           count: 3,
+           text: '3m'
+       }, {
+           type: 'month',
+           count: 6,
+           text: '6m'
+       }, {
+           type: 'ytd',
+           text: 'YTD'
+       }, {
+           type: 'year',
+           count: 1,
+           text: '1a'
+       }, {
+           type: 'all',
+           text: 'Todos'
+       }],
+       selected: 5
+    },
     xAxis: {
       type: 'datetime',
       min: minTimestampMs,
@@ -153,6 +124,21 @@ export default function LineGraphic (props: LineGraphicProps) {
       xDateFormat: '%A, %b %e, %Y, %H:%M',
     } as Highcharts.TooltipOptions,
     plotOptions: {
+      series: {
+        findNearestPointBy: 'xy',
+        dataGrouping: {
+          enabled: true,
+          forced: true,
+          approximation: 'average',
+          groupPixelWidth: 10,
+          units: [
+            ['day', [1]],
+            ['hour', [1]],
+            ['minute', [1]],
+            ['second', [1]],
+          ],
+        }
+      },
       line: {
         marker: {
           enabled: false,
@@ -165,7 +151,7 @@ export default function LineGraphic (props: LineGraphicProps) {
 
   return (
     <Box style={{ width: '100%', height: '500px', margin: '0 auto' }}>
-      <HighchartsReact highcharts={Highcharts} options={options} />
+      <HighchartsReact highcharts={Highcharts} options={options} constructorType={'stockChart'}/>
     </Box>
   );
 };
