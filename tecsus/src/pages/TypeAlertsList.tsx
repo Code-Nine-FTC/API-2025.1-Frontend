@@ -69,11 +69,11 @@ const TypeAlertsPage = () => {
   };
 
   const columns: Column<AlertTypeResponse>[] = [
+    { field: "status", headerName: "Status" },
     { field: "id", headerName: "ID" },
     { field: "name", headerName: "Nome" },
     { field: "value", headerName: "Valor" },
     { field: "math_signal", headerName: "Sinal Matemático" },
-    { field: "status", headerName: "Status" },
     { field: "create_date", headerName: "Data de Criação" },
   ];
 
@@ -253,10 +253,9 @@ const TypeAlertsPage = () => {
                     width="100%"
                     gap={1}
                   >
-                    {status}
                     <Box
-                      width={10}
-                      height={10}
+                      width={15}
+                      height={15}
                       borderRadius="50%"
                       sx={{ backgroundColor: color }}
                     />
