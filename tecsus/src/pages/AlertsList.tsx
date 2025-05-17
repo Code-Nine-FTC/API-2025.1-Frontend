@@ -61,6 +61,7 @@ export default function AlertsListPage({
     { field: "type_alert_name", headerName: "Tipo de Alerta" },
     { field: "station_name", headerName: "Estação" },
     { field: "measure_value", headerName: "Valor Medido" },
+    { field: "create_date", headerName: "Data do Alerta"},
   ];
 
   return (
@@ -206,7 +207,15 @@ export default function AlertsListPage({
           rows={alerts}
           renderCell={(row, column) => {
             if (column.field === "create_date") {
-              return new Date(row[column.field] as string).toLocaleDateString();
+              const date = new Date(row[column.field] as string);
+              return date.toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              });
             }
             return String(row[column.field]);
           }}
