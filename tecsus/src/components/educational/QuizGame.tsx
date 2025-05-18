@@ -2,12 +2,18 @@ import React, { useState } from "react";
 
 function secureShuffle<T>(array: T[]): T[] {
   const arr = [...array];
+  let shuffled = false;
+
   if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
     for (let i = arr.length - 1; i > 0; i--) {
       const rand = new Uint32Array(1);
       window.crypto.getRandomValues(rand);
       const j = rand[0] % (i + 1);
+      if (i !== j) shuffled = true;
       [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    if (!shuffled && arr.length > 1) {
+      [arr[0], arr[1]] = [arr[1], arr[0]];
     }
     return arr;
   }
@@ -124,6 +130,33 @@ const Quiz: React.FC = () => {
   const q = questions[current];
   const progress = Math.round(((current + (showExplanation ? 1 : 0)) / questions.length) * 100);
 
+  function getOptionStyles(isSelected: boolean, isExplaining: boolean, isCorrect: boolean) {
+    return {
+      border:
+        isSelected && isExplaining
+          ? isCorrect
+            ? "2px solid #43a047"
+            : "2px solid #e53935"
+          : "1px solid #bbb",
+      background:
+        isSelected && isExplaining
+          ? isCorrect
+            ? "#e8f5e9"
+            : "#ffebee"
+          : "#f4f6fa",
+      boxShadow:
+        isSelected && isExplaining && isCorrect
+          ? "0 0 0 2px #43a04755"
+          : isSelected && isExplaining
+          ? "0 0 0 2px #e5393555"
+          : undefined,
+      animation:
+        isSelected && isExplaining && isCorrect ? "celebrate-quiz 1.1s" : undefined,
+      fontWeight: isSelected ? "bold" : "normal",
+      cursor: isExplaining ? "default" : "pointer",
+    };
+  }
+
   return (
       <div
         style={{
@@ -234,51 +267,7 @@ const Quiz: React.FC = () => {
             const isCorrect = opt.correct;
             const optionIdx = q.options.findIndex(o => o.text === opt.text);
 
-            const borderStyle =
-              isSelected && isExplaining
-                ? isCorrect
-                  ? "2px solid #43a047"
-                  : "2px solid #e53935"
-                : "1px solid #bbb";
-
-            const backgroundStyle =
-              isSelected && isExplaining
-                ? isCorrect
-                  ? "#e8f5e9"
-                  : "#ffebee"
-                : "#f4f6fa";
-
-            let boxShadowStyle: string | undefined;
-            if (isSelected && isExplaining && isCorrect) {
-              boxShadowStyle = "0 0 0 2px #43a04755";
-            } else if (isSelected && isExplaining) {
-              boxShadowStyle = "0 0 0 2px #e5393555";
-            }
-
-            const animationStyle =
-              isSelected && isExplaining && isCorrect ? "celebrate-quiz 1.1s" : undefined;
-
-            const fontWeightStyle = isSelected ? "bold" : "normal";
-            const cursorStyle = isExplaining ? "default" : "pointer";
-
-            let explanationBlock = null;
-            if (isExplaining && isSelected) {
-              explanationBlock = (
-                <div
-                  style={{
-                    marginTop: 7,
-                    padding: "10px 14px",
-                    background: isCorrect ? "#c8e6c9" : "#ffcdd2",
-                    borderRadius: 5,
-                    fontSize: 15,
-                    color: isCorrect ? "#256029" : "#b71c1c",
-                    border: `1px solid ${isCorrect ? "#43a047" : "#e53935"}`,
-                  }}
-                >
-                  {opt.explanation}
-                </div>
-              );
-            }
+            const optionStyles = getOptionStyles(isSelected, isExplaining, isCorrect);
 
             return (
               <li key={opt.text} style={{ marginBottom: 14 }}>
@@ -289,15 +278,10 @@ const Quiz: React.FC = () => {
                     width: "100%",
                     padding: "12px 18px",
                     borderRadius: 8,
-                    border: borderStyle,
-                    background: backgroundStyle,
-                    color: "#222",
-                    cursor: cursorStyle,
-                    fontWeight: fontWeightStyle,
                     fontSize: 16,
-                    boxShadow: boxShadowStyle,
+                    color: "#222",
                     transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
-                    animation: animationStyle,
+                    ...optionStyles,
                   }}
                 >
                   {opt.text}
@@ -305,7 +289,21 @@ const Quiz: React.FC = () => {
                     <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
                   )}
                 </button>
-                {explanationBlock}
+                {isExplaining && isSelected && (
+                  <div
+                    style={{
+                      marginTop: 7,
+                      padding: "10px 14px",
+                      background: isCorrect ? "#c8e6c9" : "#ffcdd2",
+                      borderRadius: 5,
+                      fontSize: 15,
+                      color: isCorrect ? "#256029" : "#b71c1c",
+                      border: `1px solid ${isCorrect ? "#43a047" : "#e53935"}`,
+                    }}
+                  >
+                    {opt.explanation}
+                  </div>
+                )}
               </li>
             );
           })}
