@@ -105,8 +105,19 @@ const DragDropGame: React.FC = () => {
           {shuffledItems.map((item) => (
             <div
               key={item.id}
+              role="button"
+              tabIndex={0}
+              aria-grabbed={!Object.values(matches).includes(item.id)}
               draggable={!Object.values(matches).includes(item.id)}
               onDragStart={() => handleDragStart(item.id)}
+              onKeyDown={e => {
+                if (
+                  !Object.values(matches).includes(item.id) &&
+                  (e.key === "Enter" || e.key === " " || e.key === "Spacebar")
+                ) {
+                  setDragged(item.id);
+                }
+              }}
               style={{
                 opacity: Object.values(matches).includes(item.id) ? 0.4 : 1,
                 background: "#fff",
@@ -127,6 +138,7 @@ const DragDropGame: React.FC = () => {
                 fontSize: 18,
                 boxShadow: "0 2px 8px var(--purple-maincolor)33",
                 transition: "box-shadow 0.2s, opacity 0.2s",
+                outline: "none"
               }}
             >
               {item.label}
@@ -148,6 +160,19 @@ const DragDropGame: React.FC = () => {
             const correctItem = items.find(i => i.match === target);
             const isCorrect = itemId === correctItem?.id;
             const isFilled = !!itemId;
+
+            let background = "var(--purple-maincolorhover, #e3e0fd)";
+            let border = "2.5px dashed var(--purple-maincolor)";
+            if (showResult) {
+              if (isCorrect) {
+                background = "#e8f5e9";
+                border = "2.5px solid #43a047";
+              } else if (isFilled) {
+                background = "#ffebee";
+                border = "2.5px solid #e53935";
+              }
+            }
+
             return (
               <div
                 key={target}
@@ -156,20 +181,8 @@ const DragDropGame: React.FC = () => {
                 style={{
                   minHeight: 56,
                   minWidth: 260,
-                  background: showResult
-                    ? isCorrect
-                      ? "#e8f5e9"
-                      : isFilled
-                        ? "#ffebee"
-                        : "var(--purple-maincolorhover, #e3e0fd)"
-                    : "var(--purple-maincolorhover, #e3e0fd)",
-                  border: showResult
-                    ? isCorrect
-                      ? "2.5px solid #43a047"
-                      : isFilled
-                        ? "2.5px solid #e53935"
-                        : "2.5px dashed var(--purple-maincolor)"
-                    : "2.5px dashed var(--purple-maincolor)",
+                  background,
+                  border,
                   borderRadius: 10,
                   padding: "14px 22px",
                   marginBottom: 20,

@@ -1,17 +1,11 @@
 import React, { useState } from "react";
 
-function secureShuffle<T>(array: T[]): T[] {
+function shuffle<T>(array: T[]): T[] {
   const arr = [...array];
-  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const rand = new Uint32Array(1);
-      window.crypto.getRandomValues(rand);
-      const j = rand[0] % (i + 1);
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  
   return arr;
 }
 
@@ -90,7 +84,7 @@ const questionsRaw = [
 
 const questions = questionsRaw.map((q) => ({
   ...q,
-  options: secureShuffle(q.options),
+  options: shuffle(q.options),
 }));
 
 const Quiz: React.FC = () => {
@@ -126,214 +120,191 @@ const Quiz: React.FC = () => {
   const progress = Math.round(((current + (showExplanation ? 1 : 0)) / questions.length) * 100);
 
   return (
-    <div
-      style={{
-        maxWidth: 520,
-        margin: "40px auto",
-        background: "#f8f9fa",
-        borderRadius: 12,
-        boxShadow: "0 2px 16px #0002",
-        padding: 32,
-        position: "relative",
-      }}
-    >
-      <h2 style={{ textAlign: "center", color: "var(--purple-maincolor)", marginBottom: 8 }}>Jogo de Diagnóstico</h2>
       <div
         style={{
-          background: "var(--purple-maincolorhover, #e3e0fd)",
-          border: "1px solid var(--purple-maincolor)",
-          borderRadius: 8,
-          padding: "14px 18px",
-          marginBottom: 22,
-          color: "var(--purple-maincolor)",
-          fontSize: 15,
+          maxWidth: 520,
+          margin: "40px auto",
+          background: "#f8f9fa",
+          borderRadius: 12,
+          boxShadow: "0 2px 16px #0002",
+          padding: 32,
+          position: "relative",
         }}
       >
-        <b>Dica geral:</b> <br />
-        <ul style={{ margin: 0, paddingLeft: 18 }}>
-          <li>Pressão atmosférica abaixo de 1013 hPa pode indicar chuva ou instabilidade.</li>
-          <li>Alta umidade (acima de 80%) favorece chuva, nevoeiro ou orvalho.</li>
-          <li>Temperaturas muito altas e baixa umidade sugerem onda de calor.</li>
-          <li>Temperaturas baixas e alta umidade favorecem nevoeiro.</li>
-        </ul>
-      </div>
-      <div style={{ margin: "0 0 24px 0" }}>
+        <h2 style={{ textAlign: "center", color: "var(--purple-maincolor)", marginBottom: 8 }}>Jogo de Diagnóstico</h2>
         <div
           style={{
-            height: 8,
-            borderRadius: 4,
-            background: "#e0e0e0",
-            overflow: "hidden",
-            marginBottom: 8,
+            background: "var(--purple-maincolorhover, #e3e0fd)",
+            border: "1px solid var(--purple-maincolor)",
+            borderRadius: 8,
+            padding: "14px 18px",
+            marginBottom: 22,
+            color: "var(--purple-maincolor)",
+            fontSize: 15,
           }}
         >
+          <b>Dica geral:</b> <br />
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            <li>Pressão atmosférica abaixo de 1013 hPa pode indicar chuva ou instabilidade.</li>
+            <li>Alta umidade (acima de 80%) favorece chuva, nevoeiro ou orvalho.</li>
+            <li>Temperaturas muito altas e baixa umidade sugerem onda de calor.</li>
+            <li>Temperaturas baixas e alta umidade favorecem nevoeiro.</li>
+          </ul>
+        </div>
+        <div style={{ margin: "0 0 24px 0" }}>
           <div
             style={{
-              width: `${progress}%`,
-              height: "100%",
-              background: "linear-gradient(90deg, var(--purple-maincolor) 60%, var(--purple-maincolorhover, #e3e0fd) 100%)",
-              transition: "width 0.4s",
-            }}
-          />
-        </div>
-        <div style={{ fontSize: 14, color: "#555", textAlign: "right" }}>
-          {current + 1} / {questions.length}
-        </div>
-      </div>
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 8,
-          padding: 20,
-          marginBottom: 20,
-          boxShadow: "0 1px 4px #0001",
-        }}
-      >
-        <p style={{ margin: 0, fontWeight: 500, color: "#333" }}>
-          <span role="img" aria-label="sensor">
-            🛰️
-          </span>{" "}
-          <b>Dados dos sensores:</b> {q.sensorData}
-        </p>
-        <p style={{ margin: "12px 0 0 0", fontSize: 17 }}>{q.question}</p>
-        {!showHint && !showExplanation && (
-          <button
-            onClick={() => setShowHint(true)}
-            style={{
-              marginTop: 12,
-              background: "#fffbe7",
-              color: "#b59f3b",
-              border: "1px solid #ffe082",
-              borderRadius: 6,
-              padding: "6px 16px",
-              fontWeight: "bold",
-              cursor: "pointer",
-              fontSize: 15,
+              height: 8,
+              borderRadius: 4,
+              background: "#e0e0e0",
+              overflow: "hidden",
+              marginBottom: 8,
             }}
           >
-            Ver dica
-          </button>
-        )}
-        {showHint && !showExplanation && (
-          <div
-            style={{
-              marginTop: 12,
-              background: "#fffde7",
-              color: "#b59f3b",
-              border: "1px solid #ffe082",
-              borderRadius: 6,
-              padding: "8px 16px",
-              fontSize: 15,
-            }}
-          >
-            <b>Dica:</b> {q.hint}
+            <div
+              style={{
+                width: `${progress}%`,
+                height: "100%",
+                background: "linear-gradient(90deg, var(--purple-maincolor) 60%, var(--purple-maincolorhover, #e3e0fd) 100%)",
+                transition: "width 0.4s",
+              }}
+            />
           </div>
-        )}
-      </div>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {q.options.map((opt, idx) => {
-          let borderStyle = "1px solid #bbb";
-          if (selected === idx && showExplanation) {
-            borderStyle = opt.correct ? "2px solid #43a047" : "2px solid #e53935";
-          }
-          let backgroundStyle = "#f4f6fa";
-          if (selected === idx && showExplanation) {
-            backgroundStyle = opt.correct ? "#e8f5e9" : "#ffebee";
-          }
-          let boxShadowStyle: string | undefined = undefined;
-          if (selected === idx && showExplanation && opt.correct) {
-            boxShadowStyle = "0 0 0 2px #43a04755";
-          } else if (selected === idx && showExplanation) {
-            boxShadowStyle = "0 0 0 2px #e5393555";
-          }
-          let animationStyle: string | undefined = undefined;
-          if (selected === idx && showExplanation && opt.correct) {
-            animationStyle = "celebrate-quiz 1.1s";
-          }
-          return (
-            <li key={idx} style={{ marginBottom: 14 }}>
-              <button
-                disabled={showExplanation}
-                onClick={() => handleOptionClick(idx)}
-                style={{
-                  width: "100%",
-                  padding: "12px 18px",
-                  borderRadius: 8,
-                  border: borderStyle,
-                  background: backgroundStyle,
-                  color: "#222",
-                  cursor: showExplanation ? "default" : "pointer",
-                  fontWeight: selected === idx ? "bold" : "normal",
-                  fontSize: 16,
-                  boxShadow: boxShadowStyle,
-                  transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
-                  animation: animationStyle,
-                }}
-              >
-                {opt.text}
-                {selected === idx && showExplanation && opt.correct && (
-                  <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
-                )}
-              </button>
-              {showExplanation && selected === idx && (
-                <div
+          <div style={{ fontSize: 14, color: "#555", textAlign: "right" }}>
+            {current + 1} / {questions.length}
+          </div>
+        </div>
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 8,
+            padding: 20,
+            marginBottom: 20,
+            boxShadow: "0 1px 4px #0001",
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: 500, color: "#333" }}>
+            <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f6f0.png" alt="Satélite" style={{ width: 24, height: 24, verticalAlign: "middle", marginRight: 6 }} />
+            <b>Dados dos sensores:</b> {q.sensorData}
+          </p>
+          <p style={{ margin: "12px 0 0 0", fontSize: 17 }}>{q.question}</p>
+          {!showHint && !showExplanation && (
+            <button
+              onClick={() => setShowHint(true)}
+              style={{
+                marginTop: 12,
+                background: "#fffbe7",
+                color: "#b59f3b",
+                border: "1px solid #ffe082",
+                borderRadius: 6,
+                padding: "6px 16px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: 15,
+              }}
+            >
+              Ver dica
+            </button>
+          )}
+          {showHint && !showExplanation && (
+            <div
+              style={{
+                marginTop: 12,
+                background: "#fffde7",
+                color: "#b59f3b",
+                border: "1px solid #ffe082",
+                borderRadius: 6,
+                padding: "8px 16px",
+                fontSize: 15,
+              }}
+            >
+              <b>Dica:</b> {q.hint}
+            </div>
+          )}
+        </div>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {q.options.map((opt) => {
+            const isSelected = selected !== null && q.options[selected].text === opt.text;
+            const isExplaining = showExplanation;
+            const isCorrect = opt.correct;
+
+            let borderStyle = "1px solid #bbb";
+            if (isSelected && isExplaining) {
+              borderStyle = isCorrect ? "2px solid #43a047" : "2px solid #e53935";
+            }
+
+            let backgroundStyle = "#f4f6fa";
+            if (isSelected && isExplaining) {
+              backgroundStyle = isCorrect ? "#e8f5e9" : "#ffebee";
+            }
+
+            let boxShadowStyle: string | undefined = undefined;
+            if (isSelected && isExplaining && isCorrect) {
+              boxShadowStyle = "0 0 0 2px #43a04755";
+            } else if (isSelected && isExplaining) {
+              boxShadowStyle = "0 0 0 2px #e5393555";
+            }
+
+            let animationStyle: string | undefined = undefined;
+            if (isSelected && isExplaining && isCorrect) {
+              animationStyle = "celebrate-quiz 1.1s";
+            }
+
+            let fontWeightStyle = isSelected ? "bold" : "normal";
+            let cursorStyle = isExplaining ? "default" : "pointer";
+
+            // Extrai o índice da opção de forma independente
+            const optionIdx = q.options.findIndex(o => o.text === opt.text);
+
+            return (
+              <li key={opt.text} style={{ marginBottom: 14 }}>
+                <button
+                  disabled={isExplaining}
+                  onClick={() => handleOptionClick(optionIdx)}
                   style={{
-                    marginTop: 7,
-                    padding: "10px 14px",
-                    background: opt.correct ? "#c8e6c9" : "#ffcdd2",
-                    borderRadius: 5,
-                    fontSize: 15,
-                    color: opt.correct ? "#256029" : "#b71c1c",
-                    border: `1px solid ${opt.correct ? "#43a047" : "#e53935"}`,
+                    width: "100%",
+                    padding: "12px 18px",
+                    borderRadius: 8,
+                    border: borderStyle,
+                    background: backgroundStyle,
+                    color: "#222",
+                    cursor: cursorStyle,
+                    fontWeight: fontWeightStyle,
+                    fontSize: 16,
+                    boxShadow: boxShadowStyle,
+                    transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
+                    animation: animationStyle,
                   }}
                 >
-                  {opt.explanation}
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      {showExplanation && current < questions.length - 1 && (
-        <button
-          onClick={handleNext}
-          style={{
-            marginTop: 24,
-            padding: "10px 28px",
-            borderRadius: 8,
-            background: "var(--purple-maincolor)",
-            color: "#fff",
-            border: "none",
-            fontWeight: "bold",
-            fontSize: 16,
-            letterSpacing: 1,
-            boxShadow: "0 2px 8px var(--purple-maincolor)33",
-            cursor: "pointer",
-          }}
-        >
-          Próxima
-        </button>
-      )}
-      {showExplanation && current === questions.length - 1 && (
-        <div style={{ marginTop: 32, textAlign: "center" }}>
-          <div
-            style={{
-              fontWeight: "bold",
-              fontSize: 20,
-              marginBottom: 10,
-              animation: score === questions.length ? "celebrate-quiz 1.2s" : undefined,
-              color: score === questions.length ? "#43a047" : undefined,
-            }}
-          >
-            Fim do quiz!
-            {score === questions.length && <span style={{ marginLeft: 8 }}>🎉</span>}
-          </div>
-          <div style={{ fontSize: 17, marginBottom: 18 }}>
-            Você acertou <b>{score}</b> de <b>{questions.length}</b> perguntas.
-          </div>
+                  {opt.text}
+                  {isSelected && isExplaining && isCorrect && (
+                    <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
+                  )}
+                </button>
+                {isExplaining && isSelected && (
+                  <div
+                    style={{
+                      marginTop: 7,
+                      padding: "10px 14px",
+                      background: isCorrect ? "#c8e6c9" : "#ffcdd2",
+                      borderRadius: 5,
+                      fontSize: 15,
+                      color: isCorrect ? "#256029" : "#b71c1c",
+                      border: `1px solid ${isCorrect ? "#43a047" : "#e53935"}`,
+                    }}
+                  >
+                    {opt.explanation}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        {showExplanation && current < questions.length - 1 && (
           <button
-            onClick={handleRestart}
+            onClick={handleNext}
             style={{
+              marginTop: 24,
               padding: "10px 28px",
               borderRadius: 8,
               background: "var(--purple-maincolor)",
@@ -346,23 +317,58 @@ const Quiz: React.FC = () => {
               cursor: "pointer",
             }}
           >
-            Reiniciar
+            Próxima
           </button>
-        </div>
-      )}
-      <style>
-        {`
-        @keyframes celebrate-quiz {
-          0% { transform: scale(1); background: #e8f5e9; }
-          20% { transform: scale(1.08) rotate(-2deg); background: #b9f6ca; }
-          40% { transform: scale(1.04) rotate(2deg); background: #e8f5e9; }
-          60% { transform: scale(1.12) rotate(-2deg); background: #b9f6ca; }
-          80% { transform: scale(1.04) rotate(2deg); background: #e8f5e9; }
-          100% { transform: scale(1); background: #e8f5e9; }
-        }
-        `}
-      </style>
-    </div>
+        )}
+        {showExplanation && current === questions.length - 1 && (
+          <div style={{ marginTop: 32, textAlign: "center" }}>
+            <div
+              style={{
+                fontWeight: "bold",
+                fontSize: 20,
+                marginBottom: 10,
+                animation: score === questions.length ? "celebrate-quiz 1.2s" : undefined,
+                color: score === questions.length ? "#43a047" : undefined,
+              }}
+            >
+              Fim do quiz!
+              {score === questions.length && <span style={{ marginLeft: 8 }}>🎉</span>}
+            </div>
+            <div style={{ fontSize: 17, marginBottom: 18 }}>
+              Você acertou <b>{score}</b> de <b>{questions.length}</b> perguntas.
+            </div>
+            <button
+              onClick={handleRestart}
+              style={{
+                padding: "10px 28px",
+                borderRadius: 8,
+                background: "var(--purple-maincolor)",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                fontSize: 16,
+                letterSpacing: 1,
+                boxShadow: "0 2px 8px var(--purple-maincolor)33",
+                cursor: "pointer",
+              }}
+            >
+              Reiniciar
+            </button>
+          </div>
+        )}
+        <style>
+          {`
+          @keyframes celebrate-quiz {
+            0% { transform: scale(1); background: #e8f5e9; }
+            20% { transform: scale(1.08) rotate(-2deg); background: #b9f6ca; }
+            40% { transform: scale(1.04) rotate(2deg); background: #e8f5e9; }
+            60% { transform: scale(1.12) rotate(-2deg); background: #b9f6ca; }
+            80% { transform: scale(1.04) rotate(2deg); background: #e8f5e9; }
+            100% { transform: scale(1); background: #e8f5e9; }
+          }
+          `}
+        </style>
+      </div>
   );
 };
 
