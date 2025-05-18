@@ -1,12 +1,17 @@
 import React, { useState } from "react";
-import DefaultLayout from "../../layout/layoutNotLogged";
 
-function shuffle<T>(array: T[]): T[] {
+function secureShuffle<T>(array: T[]): T[] {
   const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const rand = new Uint32Array(1);
+      window.crypto.getRandomValues(rand);
+      const j = rand[0] % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
+  
   return arr;
 }
 
@@ -85,7 +90,7 @@ const questionsRaw = [
 
 const questions = questionsRaw.map((q) => ({
   ...q,
-  options: shuffle(q.options),
+  options: secureShuffle(q.options),
 }));
 
 const Quiz: React.FC = () => {
@@ -121,7 +126,6 @@ const Quiz: React.FC = () => {
   const progress = Math.round(((current + (showExplanation ? 1 : 0)) / questions.length) * 100);
 
   return (
-
     <div
       style={{
         maxWidth: 520,
@@ -227,66 +231,68 @@ const Quiz: React.FC = () => {
         )}
       </div>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {q.options.map((opt, idx) => (
-          <li key={idx} style={{ marginBottom: 14 }}>
-            <button
-              disabled={showExplanation}
-              onClick={() => handleOptionClick(idx)}
-              style={{
-                width: "100%",
-                padding: "12px 18px",
-                borderRadius: 8,
-                border:
-                  selected === idx && showExplanation
-                    ? opt.correct
-                      ? "2px solid #43a047"
-                      : "2px solid #e53935"
-                    : "1px solid #bbb",
-                background:
-                  selected === idx && showExplanation
-                    ? opt.correct
-                      ? "#e8f5e9"
-                      : "#ffebee"
-                    : "#f4f6fa",
-                color: "#222",
-                cursor: showExplanation ? "default" : "pointer",
-                fontWeight: selected === idx ? "bold" : "normal",
-                fontSize: 16,
-                boxShadow:
-                  selected === idx && showExplanation && opt.correct
-                    ? "0 0 0 2px #43a04755"
-                    : selected === idx && showExplanation
-                    ? "0 0 0 2px #e5393555"
-                    : undefined,
-                transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
-                animation:
-                  selected === idx && showExplanation && opt.correct
-                    ? "celebrate-quiz 1.1s"
-                    : undefined,
-              }}
-            >
-              {opt.text}
-              {selected === idx && showExplanation && opt.correct && (
-                <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
-              )}
-            </button>
-            {showExplanation && selected === idx && (
-              <div
+        {q.options.map((opt, idx) => {
+          let borderStyle = "1px solid #bbb";
+          if (selected === idx && showExplanation) {
+            borderStyle = opt.correct ? "2px solid #43a047" : "2px solid #e53935";
+          }
+          let backgroundStyle = "#f4f6fa";
+          if (selected === idx && showExplanation) {
+            backgroundStyle = opt.correct ? "#e8f5e9" : "#ffebee";
+          }
+          let boxShadowStyle: string | undefined = undefined;
+          if (selected === idx && showExplanation && opt.correct) {
+            boxShadowStyle = "0 0 0 2px #43a04755";
+          } else if (selected === idx && showExplanation) {
+            boxShadowStyle = "0 0 0 2px #e5393555";
+          }
+          let animationStyle: string | undefined = undefined;
+          if (selected === idx && showExplanation && opt.correct) {
+            animationStyle = "celebrate-quiz 1.1s";
+          }
+          return (
+            <li key={idx} style={{ marginBottom: 14 }}>
+              <button
+                disabled={showExplanation}
+                onClick={() => handleOptionClick(idx)}
                 style={{
-                  marginTop: 7,
-                  padding: "10px 14px",
-                  background: opt.correct ? "#c8e6c9" : "#ffcdd2",
-                  borderRadius: 5,
-                  fontSize: 15,
-                  color: opt.correct ? "#256029" : "#b71c1c",
-                  border: `1px solid ${opt.correct ? "#43a047" : "#e53935"}`,
+                  width: "100%",
+                  padding: "12px 18px",
+                  borderRadius: 8,
+                  border: borderStyle,
+                  background: backgroundStyle,
+                  color: "#222",
+                  cursor: showExplanation ? "default" : "pointer",
+                  fontWeight: selected === idx ? "bold" : "normal",
+                  fontSize: 16,
+                  boxShadow: boxShadowStyle,
+                  transition: "background 0.2s, border 0.2s, box-shadow 0.2s",
+                  animation: animationStyle,
                 }}
               >
-                {opt.explanation}
-              </div>
-            )}
-          </li>
-        ))}
+                {opt.text}
+                {selected === idx && showExplanation && opt.correct && (
+                  <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
+                )}
+              </button>
+              {showExplanation && selected === idx && (
+                <div
+                  style={{
+                    marginTop: 7,
+                    padding: "10px 14px",
+                    background: opt.correct ? "#c8e6c9" : "#ffcdd2",
+                    borderRadius: 5,
+                    fontSize: 15,
+                    color: opt.correct ? "#256029" : "#b71c1c",
+                    border: `1px solid ${opt.correct ? "#43a047" : "#e53935"}`,
+                  }}
+                >
+                  {opt.explanation}
+                </div>
+              )}
+            </li>
+          );
+        })}
       </ul>
       {showExplanation && current < questions.length - 1 && (
         <button
@@ -310,7 +316,18 @@ const Quiz: React.FC = () => {
       )}
       {showExplanation && current === questions.length - 1 && (
         <div style={{ marginTop: 32, textAlign: "center" }}>
-          <div style={{ fontWeight: "bold", fontSize: 20, marginBottom: 10 }}>Fim do quiz!</div>
+          <div
+            style={{
+              fontWeight: "bold",
+              fontSize: 20,
+              marginBottom: 10,
+              animation: score === questions.length ? "celebrate-quiz 1.2s" : undefined,
+              color: score === questions.length ? "#43a047" : undefined,
+            }}
+          >
+            Fim do quiz!
+            {score === questions.length && <span style={{ marginLeft: 8 }}>🎉</span>}
+          </div>
           <div style={{ fontSize: 17, marginBottom: 18 }}>
             Você acertou <b>{score}</b> de <b>{questions.length}</b> perguntas.
           </div>

@@ -21,11 +21,16 @@ const initialMatches = {
   "Velocidade do vento": null,
 };
 
-function shuffle<T>(array: T[]): T[] {
+function secureShuffle<T>(array: T[]): T[] {
   const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const rand = new Uint32Array(1);
+      window.crypto.getRandomValues(rand);
+      const j = rand[0] % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
   return arr;
 }
@@ -35,9 +40,8 @@ const DragDropGame: React.FC = () => {
   const [matches, setMatches] = useState<{ [key: string]: string | null }>(initialMatches);
   const [showResult, setShowResult] = useState(false);
 
-  
-  const [shuffledItems] = useState(() => shuffle(items));
-  const [shuffledTargets] = useState(() => shuffle(targets));
+  const [shuffledItems] = useState(() => secureShuffle(items));
+  const [shuffledTargets] = useState(() => secureShuffle(targets));
 
   const handleDragStart = (id: string) => setDragged(id);
 

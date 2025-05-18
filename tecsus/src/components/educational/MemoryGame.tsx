@@ -7,11 +7,16 @@ const pairs = [
   { id: "anemometro", label: "💨 Anemômetro", match: "Velocidade do vento" },
 ];
 
-function shuffle<T>(array: T[]): T[] {
+function secureShuffle<T>(array: T[]): T[] {
   const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  if (window.crypto && window.crypto.getRandomValues) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const rand = new Uint32Array(1);
+      window.crypto.getRandomValues(rand);
+      const j = rand[0] % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
   return arr;
 }
@@ -22,7 +27,7 @@ const MemoryGame: React.FC = () => {
       { id: pair.id + "-i", value: pair.id, text: pair.label, type: "instrument" },
       { id: pair.id + "-f", value: pair.id, text: pair.match, type: "phenomenon" }
     ]);
-    return shuffle(raw);
+    return secureShuffle(raw);
   });
   const [flipped, setFlipped] = useState<string[]>([]);
   const [matched, setMatched] = useState<string[]>([]);
@@ -62,7 +67,7 @@ const MemoryGame: React.FC = () => {
   }, [flipped, cards, lastMatched]);
 
   const handleRestart = () => {
-    setCards(shuffle(cards));
+    setCards(secureShuffle(cards));
     setFlipped([]);
     setMatched([]);
     setMoves(0);
