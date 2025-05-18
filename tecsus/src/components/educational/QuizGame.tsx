@@ -2,13 +2,11 @@ import React, { useState } from "react";
 import DefaultLayout from "../../layout/layoutNotLogged";
 
 // Função para embaralhar as opções de cada pergunta
-function shuffle<T>(array: T[]): T[] {
-  const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
+function shuffleOptions(options: any[]) {
+  return options
+    .map((opt) => ({ opt, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ opt }) => opt);
 }
 
 const questionsRaw = [
@@ -86,7 +84,7 @@ const questionsRaw = [
 
 const questions = questionsRaw.map((q) => ({
   ...q,
-  options: shuffle(q.options),
+  options: shuffleOptions(q.options),
 }));
 
 const Quiz: React.FC = () => {
