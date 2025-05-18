@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
-function shuffle<T>(array: T[]): T[] {
+function secureShuffle<T>(array: T[]): T[] {
   const arr = [...array];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const rand = new Uint32Array(1);
+      window.crypto.getRandomValues(rand);
+      const j = rand[0] % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
   return arr;
 }
@@ -84,7 +89,7 @@ const questionsRaw = [
 
 const questions = questionsRaw.map((q) => ({
   ...q,
-  options: shuffle(q.options),
+  options: secureShuffle(q.options),
 }));
 
 const Quiz: React.FC = () => {
@@ -227,34 +232,53 @@ const Quiz: React.FC = () => {
             const isSelected = selected !== null && q.options[selected].text === opt.text;
             const isExplaining = showExplanation;
             const isCorrect = opt.correct;
+            const optionIdx = q.options.findIndex(o => o.text === opt.text);
 
-            let borderStyle = "1px solid #bbb";
-            if (isSelected && isExplaining) {
-              borderStyle = isCorrect ? "2px solid #43a047" : "2px solid #e53935";
-            }
+            const borderStyle =
+              isSelected && isExplaining
+                ? isCorrect
+                  ? "2px solid #43a047"
+                  : "2px solid #e53935"
+                : "1px solid #bbb";
 
-            let backgroundStyle = "#f4f6fa";
-            if (isSelected && isExplaining) {
-              backgroundStyle = isCorrect ? "#e8f5e9" : "#ffebee";
-            }
+            const backgroundStyle =
+              isSelected && isExplaining
+                ? isCorrect
+                  ? "#e8f5e9"
+                  : "#ffebee"
+                : "#f4f6fa";
 
-            let boxShadowStyle: string | undefined = undefined;
+            let boxShadowStyle: string | undefined;
             if (isSelected && isExplaining && isCorrect) {
               boxShadowStyle = "0 0 0 2px #43a04755";
             } else if (isSelected && isExplaining) {
               boxShadowStyle = "0 0 0 2px #e5393555";
             }
 
-            let animationStyle: string | undefined = undefined;
-            if (isSelected && isExplaining && isCorrect) {
-              animationStyle = "celebrate-quiz 1.1s";
+            const animationStyle =
+              isSelected && isExplaining && isCorrect ? "celebrate-quiz 1.1s" : undefined;
+
+            const fontWeightStyle = isSelected ? "bold" : "normal";
+            const cursorStyle = isExplaining ? "default" : "pointer";
+
+            let explanationBlock = null;
+            if (isExplaining && isSelected) {
+              explanationBlock = (
+                <div
+                  style={{
+                    marginTop: 7,
+                    padding: "10px 14px",
+                    background: isCorrect ? "#c8e6c9" : "#ffcdd2",
+                    borderRadius: 5,
+                    fontSize: 15,
+                    color: isCorrect ? "#256029" : "#b71c1c",
+                    border: `1px solid ${isCorrect ? "#43a047" : "#e53935"}`,
+                  }}
+                >
+                  {opt.explanation}
+                </div>
+              );
             }
-
-            let fontWeightStyle = isSelected ? "bold" : "normal";
-            let cursorStyle = isExplaining ? "default" : "pointer";
-
-            // Extrai o índice da opção de forma independente
-            const optionIdx = q.options.findIndex(o => o.text === opt.text);
 
             return (
               <li key={opt.text} style={{ marginBottom: 14 }}>
@@ -281,21 +305,7 @@ const Quiz: React.FC = () => {
                     <span style={{ marginLeft: 10, fontSize: 22 }}>🎉</span>
                   )}
                 </button>
-                {isExplaining && isSelected && (
-                  <div
-                    style={{
-                      marginTop: 7,
-                      padding: "10px 14px",
-                      background: isCorrect ? "#c8e6c9" : "#ffcdd2",
-                      borderRadius: 5,
-                      fontSize: 15,
-                      color: isCorrect ? "#256029" : "#b71c1c",
-                      border: `1px solid ${isCorrect ? "#43a047" : "#e53935"}`,
-                    }}
-                  >
-                    {opt.explanation}
-                  </div>
-                )}
+                {explanationBlock}
               </li>
             );
           })}
