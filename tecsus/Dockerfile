@@ -17,7 +17,7 @@ COPY . .
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Define a porta que o contêiner vai expor
-EXPOSE 5173
+EXPOSE 4173
 
 # Comando para rodar a aplicação
 CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0"]

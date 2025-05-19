@@ -31,6 +31,6 @@ jobs:
             echo "Subindo novo container..."
             docker run -d \
               --name frontend-app \
-              -p 5173:5173 \
+              -p 4173:4173 \
               --restart unless-stopped \
               frontend-img
