@@ -46,16 +46,17 @@ interface Measure {
   value: number;
   type: string;
   measure_unit: string;
+  title: string;
 }
 
 function generateHistoricalData(): Measure[] {
   const historicalData: Measure[] = [];
   const measureTypes = [
-    { type: 'Temperatura', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
-    { type: 'Umidade', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
-    { type: 'Pressão', unit: 'hPa', minVal: 980, maxVal: 1030 },
-    { type: 'Velocidade do Vento', unit: 'm/s', minVal: 0, maxVal: 25 },
-    { type: 'Precipitação Acumulada', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true }
+    { title: 'Temperatura', type: 'temp', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
+    { title: 'Umidade', type: 'umid', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
+    { title: 'Pressão', type: 'press', unit: 'hPa', minVal: 980, maxVal: 1030 },
+    { title: 'Velocidade do Vento', type: 'velvent', unit: 'm/s', minVal: 0, maxVal: 25 },
+    { title: 'Precipitação Acumulada', type: 'precip', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true },
   ];
 
   const endDate = new Date();
@@ -101,6 +102,7 @@ function generateHistoricalData(): Measure[] {
         value: parseFloat(value.toFixed(2)),
         type: mt.type,
         measure_unit: mt.unit,
+        title: mt.title,
       });
     }
     currentDate.setMinutes(currentDate.getMinutes() + intervalMinutes);

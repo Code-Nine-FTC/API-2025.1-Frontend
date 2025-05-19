@@ -1,9 +1,8 @@
 import { Box } from "@mui/material";
-import Highcharts from 'highcharts/highstock';
+import Highcharts, { GradientColorObject, PatternObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import 'highcharts/modules/boost';
 import React, { useMemo } from "react";
-// import HC_pt_BR from 'highcharts/modules/lang-pt-br';
 
 interface LineGraphicProps {
   measure: {
@@ -11,8 +10,21 @@ interface LineGraphicProps {
     measure_unit: string;
     measure_date: number;
     type: string;
+    title: string;
   }[];
   title: string;
+}
+
+function getColorString(potentialColor: string | GradientColorObject | PatternObject | undefined, fallbackColor: string = '#333333'): string {
+  if (typeof potentialColor === 'string') {
+    return potentialColor;
+  }
+  if (potentialColor && typeof potentialColor === 'object' && 'stops' in potentialColor) {
+    if (potentialColor.stops && potentialColor.stops.length > 0 && typeof potentialColor.stops[0][1] === 'string') {
+      return potentialColor.stops[0][1];
+    }
+  }
+  return fallbackColor;
 }
 
 const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
@@ -20,10 +32,20 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
    const { minTimestampMs, maxTimestampMs, series, yAxes } = useMemo(() => {
     let minTs: number | undefined = undefined;
     let maxTs: number | undefined = undefined;
-    let srs: { name: string; type: 'line'; data: [number, number][]; yAxis: number; tooltip: { valueDecimals: number }}[] = [];
+    let srs: { name: string; type: string; data: [number, number][]; yAxis: number; tooltip: { valueDecimals: number }; color?: string }[] = [];
     const yAxesConfig: Highcharts.YAxisOptions[] = [];
     const unitToYAxisIndex: Record<string, number> = {};
     let currentYAxisIndex = 0;
+    
+    const knownMeasureSeriesTypes: Record<string, string> = {
+      'temp': 'spline',
+      'umid': 'spline',
+      'press': 'spline',
+      'precip': 'column',
+      'chuv': 'column',
+      'velvent': 'line',
+    };
+    const defaultSeriesType = 'line';
 
     if (props.measure && props.measure.length > 0) {
       minTs = props.measure[0].measure_date * 1000;
@@ -40,68 +62,102 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
 
       if (unitToYAxisIndex[point.measure_unit] === undefined) {
           unitToYAxisIndex[point.measure_unit] = currentYAxisIndex;
-          const axisColor = (Highcharts.getOptions().colors || [])[currentYAxisIndex % (Highcharts.getOptions().colors || []).length] || '#000000';
+          
+          const potentialAxisColor = (Highcharts.getOptions().colors || [])[currentYAxisIndex % (Highcharts.getOptions().colors || []).length];
+          const axisColorString = getColorString(potentialAxisColor, '#000000');
 
           yAxesConfig.push({
             title: {
-              text: point.measure_unit, 
+              text: point.title, 
               style: {
-                color: axisColor.toString(),
-              },
-            },
-            labels: {
-              formatter: function (): string {
-                if (typeof this.value === 'number') {
-                  return this.value.toFixed(2);
-                }
-                return String(this.value);
-              },
-              style: {
-                color: axisColor.toString(),
+                color: axisColorString,
               },
               rotation: -90,
-              align: 'right',
+              align: 'middle',
+              reserveSpace: true,
+              margin: 25,
+            },
+            labels: {
+              // formatter: function (): string {
+              //   const unit = (this.axis.options as Highcharts.YAxisOptions & { custom?: { unit?: string } })?.custom?.unit || '';
+              //   if (typeof this.value === 'number') {
+              //     return this.value.toFixed(2) + ' ' + unit;
+              //   }
+              //   return String(this.value);
+              // },
+              // style: {
+              //   color: axisColorString,
+              // },
+              // rotation: -90,
+              // align: 'right',
+              // reserveSpace: true,
+              enabled: false,
             },
             opposite: currentYAxisIndex % 2 !== 0,
-            gridLineWidth: currentYAxisIndex === 0 ? 1 : 0,
-            gridLineColor: axisColor.toString(),
-            gridLineDashStyle: 'Dash',
-            tickColor: axisColor.toString(),
+            gridLineWidth: 1,
+            gridLineColor: axisColorString,
+            gridLineDashStyle: currentYAxisIndex === 0 ? 'Solid' : 'Dash', 
+            tickColor: axisColorString,
+            lineColor: axisColorString,
+            custom: {
+              unit: point.measure_unit,
+            }
           });
           currentYAxisIndex++;
         }
       }
 
-      const groupedData = props.measure.reduce((acc, { measure_date, value, type, measure_unit }) => {
-        const axisIndex = unitToYAxisIndex[measure_unit]; // Get Y-axis index based on measure_unit
+      const groupedData = props.measure.reduce((acc, { measure_date, value, type, title, measure_unit }) => {
+        const axisIndex = unitToYAxisIndex[measure_unit]; 
         const seriesKey = type;
 
         if (!acc[seriesKey]) {
-          acc[seriesKey] = { name: `${type} (${measure_unit})`, type: 'line', data: [], yAxis: axisIndex, tooltip: { valueDecimals: 2 } };
+          const normalizedType = type.toLowerCase();
+          let determinedSeriesType = defaultSeriesType
+
+          for (const knownTypeKey in knownMeasureSeriesTypes) {
+            if (normalizedType === knownTypeKey) {
+              determinedSeriesType = knownMeasureSeriesTypes[knownTypeKey];
+              break;
+            }
+          }
+
+          const seriesColorForThisSeries = (Highcharts.getOptions().colors || [])[axisIndex % (Highcharts.getOptions().colors || []).length] || '#333333';
+          const seriesColorString = getColorString(seriesColorForThisSeries);
+
+          acc[seriesKey] = {
+             name: `${title} (${measure_unit})`, 
+             type: determinedSeriesType, 
+             data: [], 
+             yAxis: axisIndex, 
+             tooltip: { valueDecimals: 2 },
+             color: seriesColorString,
+             custom: {
+              unit: measure_unit, 
+             }
+            };
         }
         acc[seriesKey].data.push([measure_date * 1000, value]);
         return acc;
-      }, {} as Record<string, { name: string; type: 'line', data: [number, number][]; yAxis: number; tooltip: { valueDecimals: number } }>);
+      }, {} as Record<string, { name: string; type: string, data: [number, number][]; yAxis: number; tooltip: { valueDecimals: number }, color?: string }>);
       
       srs = Object.values(groupedData);
-      srs.sort((a, b) => a.yAxis - b.yAxis); // Sort series by Y-axis index
+      srs.sort((a, b) => {
+        if (a.yAxis !== b.yAxis) {
+          return a.yAxis - b.yAxis;
+        }
+        return a.name.localeCompare(b.name);
+      });
     }
     return { minTimestampMs: minTs, maxTimestampMs: maxTs, series: srs, yAxes: yAxesConfig };
   }, [props.measure]);
   
   const options: Highcharts.Options = useMemo(() => {
-    const defaultAxisColor = (Highcharts.getOptions().colors || [])[0] || '#666666'; // Fallback color from default theme
-
+    const potentialDefaultColor = (Highcharts.getOptions().colors || [])[0];
+    const defaultAxisColorString = getColorString(potentialDefaultColor, '#666666');
     return {
-      lang: {
-        thousandsSep: '.',
-        decimalPoint: ',',
-        locale: 'pt-BR',
-      },
       chart: {
-        type: 'line',
         zoomType: 'x',
-        
       } as Highcharts.ChartOptions,
       title: {
         text: props.title,
@@ -175,7 +231,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
         },
         tickPixelInterval: 150,
       },
-      yAxis: yAxes.length > 0 ? yAxes : [{ // Use generated yAxes or a default single axis
+      yAxis: yAxes.length > 0 ? yAxes : [{
         title: {
           text: 'Valor',
         },
@@ -187,14 +243,15 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
             return String(this.value);
           },
           style: {
-            color: defaultAxisColor.toString(),
+            color: defaultAxisColorString,
           },
           rotation: -90,
           align: 'right',
+          reserveSpace: true,
         },
         gridLineWidth: 1,
-        lineColor: defaultAxisColor,
-        tickColor: defaultAxisColor,
+        lineColor: defaultAxisColorString,
+        tickColor: defaultAxisColorString,
       }],
       legend: {
         enabled: true,
@@ -202,8 +259,17 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       tooltip: {
         shared: true,
         crosshairs: true,
-        xDateFormat: '%A, %b %e, %Y, %H:%M',
-        valueDecimals: 2,
+        formatter: function () {
+          if (!this.points || this.points.length === 0) {
+            return false; 
+          }
+
+          let s = `<b>${Highcharts.dateFormat('%A, %d de %B de %Y, %H:%M', this.x as number, true)}</b>`;
+          this.points.forEach(point => {
+            s += `<br/><span style="color:${point.series.color};">\u25CF</span> ${point.series.name}: ${Highcharts.numberFormat(point.y as number, 2)} ${point.series.options.custom?.unit || ''}`;
+          });
+          return s;
+        }
       } as Highcharts.TooltipOptions,
       plotOptions: {
         series: {
@@ -214,10 +280,19 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
             enabled: false,
           },
         },
+        spline: {
+          marker: {
+            enabled: false,
+          },
+        },
+        column: {
+          pointPadding: 0.1,
+          borderWidth: 0
+        }
       },
-      series,
+      series: series as Highcharts.SeriesOptionsType[],
     };
-  }, [props.title, series, minTimestampMs, maxTimestampMs]);
+  }, [props.title, series, minTimestampMs, maxTimestampMs, yAxes]);
 
   return (
     <Box style={{ width: '100%', height: '500px', margin: '0 auto' }}>
