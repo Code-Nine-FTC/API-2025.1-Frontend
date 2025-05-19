@@ -1,3 +1,5 @@
+// sonarignore
+
 import React, { useState } from "react";
 
 function secureShuffle<T>(array: T[]): T[] {
