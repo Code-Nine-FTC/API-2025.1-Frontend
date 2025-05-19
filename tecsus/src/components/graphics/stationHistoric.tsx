@@ -38,9 +38,9 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
     let currentYAxisIndex = 0;
     
     const knownMeasureSeriesTypes: Record<string, string> = {
-      'temp': 'spline',
-      'umid': 'spline',
-      'press': 'spline',
+      'temp': 'line',
+      'umid': 'line',
+      'press': 'line',
       'precip': 'column',
       'chuv': 'column',
       'velvent': 'line',
@@ -68,40 +68,39 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
 
           yAxesConfig.push({
             title: {
-              text: point.title, 
+              text: point.measure_unit, 
               style: {
                 color: axisColorString,
               },
-              rotation: -90,
-              align: 'middle',
+              rotation: 0,
+              align: 'high',
+              textAlign: currentYAxisIndex % 2 === 0 ? 'right' : 'left',
+              x: currentYAxisIndex % 2 === 0 ? 35 : -35,
               reserveSpace: true,
-              margin: 25,
             },
             labels: {
-              // formatter: function (): string {
-              //   const unit = (this.axis.options as Highcharts.YAxisOptions & { custom?: { unit?: string } })?.custom?.unit || '';
-              //   if (typeof this.value === 'number') {
-              //     return this.value.toFixed(2) + ' ' + unit;
-              //   }
-              //   return String(this.value);
-              // },
-              // style: {
-              //   color: axisColorString,
-              // },
-              // rotation: -90,
-              // align: 'right',
-              // reserveSpace: true,
-              enabled: false,
+              formatter: function (): string { 
+                if (typeof this.value === 'number') {
+                  return this.value.toFixed(2);
+                }
+                return String(this.value);
+              },
+              enabled: true,
+              style: {
+                color: axisColorString,
+              },
+              rotation: 0,
+              align: currentYAxisIndex % 2 === 0 ? 'right' : 'left',
+              x: currentYAxisIndex % 2 === 0 ? -20 : 20,
+              reserveSpace: true,
             },
+            tickPixelInterval: 30,
             opposite: currentYAxisIndex % 2 !== 0,
             gridLineWidth: 1,
             gridLineColor: axisColorString,
             gridLineDashStyle: currentYAxisIndex === 0 ? 'Solid' : 'Dash', 
             tickColor: axisColorString,
             lineColor: axisColorString,
-            custom: {
-              unit: point.measure_unit,
-            }
           });
           currentYAxisIndex++;
         }
@@ -132,9 +131,6 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
              yAxis: axisIndex, 
              tooltip: { valueDecimals: 2 },
              color: seriesColorString,
-             custom: {
-              unit: measure_unit, 
-             }
             };
         }
         acc[seriesKey].data.push([measure_date * 1000, value]);
@@ -234,6 +230,14 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       yAxis: yAxes.length > 0 ? yAxes : [{
         title: {
           text: 'Valor',
+          textAlign: 'right',
+          rotation: 0,
+          align: 'high',
+          x: -10,
+          style: {
+            color: defaultAxisColorString,
+          },
+          reserveSpace: true,
         },
         labels: {
           formatter: function (): string {
@@ -245,11 +249,15 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
           style: {
             color: defaultAxisColorString,
           },
-          rotation: -90,
+          rotation: 0,
           align: 'right',
+          x: -20,
           reserveSpace: true,
         },
+        tickPixelInterval: 40,
+        gridLineColor: defaultAxisColorString,
         gridLineWidth: 1,
+        showLastLabel: false,
         lineColor: defaultAxisColorString,
         tickColor: defaultAxisColorString,
       }],
@@ -274,6 +282,39 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       plotOptions: {
         series: {
           findNearestPointBy: 'xy',
+          pointPlacement: 'between',
+          events: { 
+            legendItemClick: function(this: Highcharts.Series): boolean {
+              const series = this;
+              const chart = series.chart;
+
+              setTimeout(() => {
+                chart.yAxis.forEach((axis: Highcharts.Axis) => {
+                  const associatedSeries = chart.series.filter(s => s.yAxis === axis);
+                  
+                  let futureVisibilityForAxis = false;
+                  if (associatedSeries.includes(series)) { 
+                    if (series.visible) {
+                      futureVisibilityForAxis = true; 
+                    } else { 
+                      futureVisibilityForAxis = associatedSeries.some(s => s !== series && s.visible);
+                    }
+                  } else {
+                     futureVisibilityForAxis = associatedSeries.some(s => s.visible);
+                  }
+
+                  if (axis.visible !== futureVisibilityForAxis) {
+                    axis.update({
+                      visible: futureVisibilityForAxis
+                    }, false); 
+                  }
+                });
+                chart.redraw(); 
+              }, 0);
+
+              return true; 
+            }
+          }
         },
         line: {
           marker: {
@@ -296,7 +337,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
 
   return (
     <Box style={{ width: '100%', height: '500px', margin: '0 auto' }}>
-      <HighchartsReact highcharts={Highcharts} options={options} constructorType={'stockChart'}/>
+      <HighchartsReact highcharts={Highcharts} options={options} constructorType={'stockChart'} containerProps={{ style: { height: '100%'} }}/>
     </Box>
   );
 });
