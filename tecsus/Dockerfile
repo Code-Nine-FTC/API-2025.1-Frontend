@@ -14,10 +14,10 @@ RUN npm install
 COPY . .
 
 # Gera a versão de produção
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Define a porta que o contêiner vai expor
 EXPOSE 5173
 
 # Comando para rodar a aplicação
-CMD ["npm", "run", "preview"]
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0"]
