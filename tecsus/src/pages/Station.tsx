@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ListStationsResponse } from "../store/station/state";
 import stationGetters from "../store/station/getters";
@@ -16,7 +16,7 @@ import BucketGraphic from "../components/graphics/bucketGraphic";
 import VelocimeterGraphic from "../components/graphics/velocimeterGraphic";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import LineGraphic from "../components/graphics/stationHistoric";
-import { AlertCountsResponse, LastMeasureResponse } from "../store/dashboard/state";
+import { AlertCountsResponse, LastMeasureResponse, StationHistoricResponse } from "../store/dashboard/state";
 
 // Helper function to generate random numbers in a range
 function getRandomValue(min: number, max: number): number {
@@ -144,6 +144,36 @@ export default function StationPage() {
     const [measureStatus, setMeasureStatus] = useState<{ name: string; y: number }[]>([]);
     const [lastMeasures, setLastMeasures] = useState<LastMeasureResponse[]>([]);
     const [temperatureProps, setTemperatureProps] = useState<TemperatureProps | null>(null);
+    
+    const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
+    const [historicDataLoading, setHistoricDataLoading] = useState(true);
+    const [historicDataError, setHistoricDataError] = useState<string | null>(null);
+    const [historicStartDate, setHistoricStartDate] = useState<Date | null>(null);
+    const [historicEndDate, setHistoricEndDate] = useState<Date | null>(null);
+
+    const fetchStationHistoricData = useCallback(async (start?: Date, end?: Date) => {
+        if (!id) return;
+        setHistoricDataLoading(true);
+        setHistoricDataError(null);
+        try {
+            const params = {
+                startDate: start ? start.toISOString().split('T')[0] : undefined, 
+                endDate: end ? end.toISOString().split('T')[0] : undefined,    
+            };
+            const response = await dashboardGetters.getStationHistoric(Number(id), params);
+            if (response.success && response.data) {
+                setHistoricData(response.data);
+            } else {
+                setHistoricDataError(response.error || "Falha ao carregar dados históricos");
+                setHistoricData([]); 
+            }
+        } catch (err) {
+            setHistoricDataError(err instanceof Error ? err.message : "Erro desconhecido ao buscar dados históricos");
+            setHistoricData([]);
+        } finally {
+            setHistoricDataLoading(false);
+        }
+    }, [id]);
 
     useEffect(() => {
         const fetchStation = async () => {
@@ -200,8 +230,31 @@ export default function StationPage() {
         if (id) {
             fetchStation();
         }
+    }, [id]);
+
+    useEffect(() => {
+        if (historicStartDate && historicEndDate && id) {
+            fetchStationHistoricData(historicStartDate, historicEndDate);
+        }
+    }, [historicStartDate, historicEndDate, id, fetchStationHistoricData]);
+
+    const handleSetExtremes = useCallback((event: Highcharts.AxisSetExtremesEventObject) => {
+        if (event.min !== undefined && event.max !== undefined) {
+            if (event.trigger === 'rangeSelectorButton' || event.trigger === 'rangeSelectorInput') {
+                setHistoricStartDate(new Date(event.min));
+                setHistoricEndDate(new Date(event.max));
+            } else if (!event.trigger) { 
+                 setHistoricStartDate(new Date(event.min));
+                 setHistoricEndDate(new Date(event.max));
+            }
+        } else {
+            const today = new Date();
+            const oneYearAgo = new Date(today);
+            oneYearAgo.setFullYear(today.getFullYear() - 1);
+            setHistoricStartDate(oneYearAgo);
+            setHistoricEndDate(today);
+        }
     }, []);
-    
 
     function getTemperatureProps(unitFromMeasure: string): TemperatureProps {
       switch (unitFromMeasure?.toUpperCase()) {
@@ -300,7 +353,11 @@ export default function StationPage() {
                 </Stack>
 
                 <Divider sx={{ margin: '16px 0' }} />
-                <LineGraphic title="Histórico de medições" measure={historicData} />
+                {historicDataLoading && <Box textAlign="center" my={2}><CircularProgress /></Box>}
+                {historicDataError && <Typography color="error" textAlign="center" my={2}>{historicDataError}</Typography>}
+                {!historicDataLoading && !historicDataError && (
+                  <LineGraphic title="Histórico de medições" measure={historicData} onRangeChange={handleSetExtremes}/>
+                )}
               </Paper>
               <Paper
                   sx={{

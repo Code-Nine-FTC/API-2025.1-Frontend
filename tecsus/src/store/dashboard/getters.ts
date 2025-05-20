@@ -15,11 +15,11 @@ export default {
         }
     },
 
-    async getStationHistoric(stationId: number): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+    async getStationHistoric(stationId: number, params?: { startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
         try {
-            const response = await api.get(`/dashboard/station-history/${stationId}`);
+            const response = await api.get(`/dashboard/station-history/${stationId}`, { params });
             return { success: true, data: response.data.data };
-        } catch (error: any) {
+        } catch (error: any) { 
             console.error("Erro ao obter histórico das estações", error.message || error);
             return {
                 success: false,

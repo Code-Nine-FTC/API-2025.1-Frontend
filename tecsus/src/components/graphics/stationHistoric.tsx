@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import Highcharts, { GradientColorObject, PatternObject } from 'highcharts/highstock';
+import Highcharts, { AxisSetExtremesEventObject, GradientColorObject, PatternObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import 'highcharts/modules/boost';
 import React, { useMemo } from "react";
@@ -13,6 +13,7 @@ interface LineGraphicProps {
     title: string;
   }[];
   title: string;
+  onRangeChange?: (event: AxisSetExtremesEventObject) => void;
 }
 
 function getColorString(potentialColor: string | GradientColorObject | PatternObject | undefined, fallbackColor: string = '#333333'): string {
@@ -216,7 +217,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
             text: 'Todos',
             title: 'Visualizar tudo'
         }],
-        selected: 5,
+        selected: 3,
       },
       xAxis: {
         type: 'datetime',
@@ -226,6 +227,13 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
           text: 'Dados',
         },
         tickPixelInterval: 150,
+        events: {
+          setExtremes: function(e: AxisSetExtremesEventObject) {
+            if (props.onRangeChange) {
+              props.onRangeChange(e);
+            }
+          }
+        }
       },
       yAxis: yAxes.length > 0 ? yAxes : [{
         title: {
