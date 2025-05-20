@@ -248,11 +248,8 @@ export default function StationPage() {
                  setHistoricEndDate(new Date(event.max));
             }
         } else {
-            const today = new Date();
-            const oneYearAgo = new Date(today);
-            oneYearAgo.setFullYear(today.getFullYear() - 1);
-            setHistoricStartDate(oneYearAgo);
-            setHistoricEndDate(today);
+            setHistoricStartDate(null);
+            setHistoricEndDate(null);
         }
     }, []);
 
