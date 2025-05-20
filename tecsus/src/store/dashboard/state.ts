@@ -20,3 +20,11 @@ export interface MeasuresStatusResponse {
     name: string;
     total: number;
 }
+
+export interface LastMeasureResponse {
+    title: string;
+    type: string;
+    value: number;
+    measure_unit: string;
+    measure_date: number;
+}[]

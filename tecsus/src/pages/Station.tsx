@@ -11,30 +11,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AlertCard } from "../components/cards/alertCard";
 import GaugeGraphic from "../components/graphics/gaugeGraphic";
 import ThermometerGraphic from "../components/graphics/thermometerGraphic";
-import DashboardGetters from "../store/dashboard/getters";
+import dashboardGetters from "../store/dashboard/getters";
 import BucketGraphic from "../components/graphics/bucketGraphic";
 import VelocimeterGraphic from "../components/graphics/velocimeterGraphic";
 import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import LineGraphic from "../components/graphics/stationHistoric";
-
-const alertCounts = {
-    R: 0,
-    Y: 0,
-    G: 0,
-};
-
-const measureCounts = [
-    { name: 'Chuva forte', y: 3 },
-    { name: 'Chuva leve', y: 5 },
-    { name: 'Tempestade', y: 2 },
-    { name: 'Neve', y: 1 },
-    { name: 'Granizo', y: 0 },
-    { name: 'Vento forte', y: 3 },
-    { name: 'Vento leve', y: 2 },
-    { name: 'Neblina', y: 0 },
-    { name: 'Nevoeiro', y: 1 },
-    { name: 'Trovão', y: 0 },
-]
+import { AlertCountsResponse, LastMeasureResponse } from "../store/dashboard/state";
 
 // Helper function to generate random numbers in a range
 function getRandomValue(min: number, max: number): number {
@@ -48,6 +30,44 @@ interface Measure {
   measure_unit: string;
   title: string;
 }
+
+interface TemperatureProps {
+  min: number;
+  max: number;
+  unit: string;
+}
+
+
+const sampleLastMeasures: LastMeasureResponse[] = [
+  {
+    title: "Temperatura",
+    type: "temp",
+    value: 25.5,
+    measure_unit: "°C",
+    measure_date: Math.floor(Date.now() / 1000) - 300 
+  },
+  {
+    title: "Umidade",
+    type: "press",
+    value: 1012,
+    measure_unit: "hPa",
+    measure_date: Math.floor(Date.now() / 1000) - 300
+  },
+  {
+    title: "Pressão",
+    type: "umid",
+    value: 60,
+    measure_unit: "%",
+    measure_date: Math.floor(Date.now() / 1000) - 300
+  },
+  {
+    title: "Velocidade do Vento",
+    type: "velvent",
+    value: 5.2,
+    measure_unit: "m/s",
+    measure_date: Math.floor(Date.now() / 1000) - 300
+  }
+];
 
 function generateHistoricalData(): Measure[] {
   const historicalData: Measure[] = [];
@@ -96,7 +116,6 @@ function generateHistoricalData(): Measure[] {
         value = Math.max(mt.minVal, Math.min(mt.maxVal, value)); // Clamp within min/max
       }
 
-
       historicalData.push({
         measure_date: timestampInSeconds,
         value: parseFloat(value.toFixed(2)),
@@ -121,11 +140,10 @@ export default function StationPage() {
     const auth = useAuth();
     const navigate = useNavigate();
     
-    const [gaugeValue, setGaugeValue] = useState<number>(950); // Initial value for the gauge
-    const [temperature, setTemperature] = useState<number>(0); // Initial value for the thermometer
-    const [bucketValue, setBucketValue] = useState<number>(0); // Initial value for the bucket
-    const [velocidadeVento, setVelocidadeVento] = useState<number>(0); // Initial value for the wind speed
-    // const [measureCounts, setMeasureCounts] = useState<Map<string, number>>(new Map ()); // Initial value for the measure counts
+    const [alertCounts, setAlertCounts] = useState<AlertCountsResponse>();
+    const [measureStatus, setMeasureStatus] = useState<{ name: string; y: number }[]>([]);
+    const [lastMeasures, setLastMeasures] = useState<LastMeasureResponse[]>([]);
+    const [temperatureProps, setTemperatureProps] = useState<TemperatureProps | null>(null);
 
     useEffect(() => {
         const fetchStation = async () => {
@@ -140,35 +158,68 @@ export default function StationPage() {
             } catch (error) {
                 setError(error instanceof Error ? error.message : "Ocorreu um erro desconhecido");
             } finally {
+                fetchDashboard();
                 setLoading(false);
             }
         };
 
         const fetchDashboard = async () => {
+          try {
+            const [
+                alertCountsResponse,
+                measureStatusResponse,
+                lastMeasuresResponse
+            ] = await Promise.all([
+                dashboardGetters.getAlertCounts(),
+                dashboardGetters.getMeasuresStatus(),
+                dashboardGetters.getLastMeasures()
+            ]);
 
+            setAlertCounts(alertCountsResponse.data ?? {R: 0, Y: 0 , G: 0});
+            setLastMeasures(sampleLastMeasures ?? []);
+            
+            if (lastMeasuresResponse.data) {
+                lastMeasuresResponse.data.forEach((measure) => {
+                    if (measure.type === "temp") {
+                        const temperatureProps = getTemperatureProps(measure.measure_unit);
+                        setTemperatureProps(temperatureProps);
+                    }
+                });
+            };
+                      
+            const formattedData = measureStatusResponse.data?.map(item => ({
+                name: item.name,  
+                y: item.total  
+            }));
+            setMeasureStatus(formattedData ?? []);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Ocorreu um erro desconhecido");
+          }
         }
-
 
         if (id) {
             fetchStation();
         }
     }, []);
     
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const randomValue = Math.floor(Math.random() * (1050 - 950 + 1)) + 950;
-            const randomTemperature = Math.floor(Math.random() * (50 - (-10) + 1)) + (-10);
-            const randomBucket = Math.floor(Math.random() * (100 - 0 + 1)) + 0;
-            const randomVelocidadeVento = Math.floor(Math.random() * (100 - 0 + 1)) + 0;
-            setTemperature(randomTemperature);
-            setGaugeValue(randomValue);
-            setBucketValue(randomBucket);
-            setVelocidadeVento(randomVelocidadeVento);
 
-        }, 10000); // 30 seconds
-
-        return () => clearInterval(intervalId); // Cleanup interval on component unmount
-    }, []);
+    function getTemperatureProps(unitFromMeasure: string): TemperatureProps {
+      switch (unitFromMeasure?.toUpperCase()) {
+        case '°C':
+        case 'C':
+        case 'CELSIUS':
+          return { min: -30, max: 60, unit: '°C' };
+        case '°F':
+        case 'F':
+        case 'FAHRENHEIT':
+          return { min: -22, max: 140, unit: '°F' };
+        case 'K':
+        case 'KELVIN':
+          return { min: 243, max: 333, unit: 'K' }; 
+        default:
+          return { min: -30, max: 60, unit: '°C' };
+      }
+    }
 
     const content = (
         <Box sx={{
@@ -217,20 +268,34 @@ export default function StationPage() {
                     justifyContent="space-evenly" 
                     alignItems="center"
                     width= {{ xs: "100%", sm: '100%', md: "80%", lg: "100%" }}>
+                     {lastMeasures.map((measure, index) => {
+                      return (
+                        <>
+                        {measure.type === "temp" && temperatureProps && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <ThermometerGraphic title="Temperatura" value={measure.value ?? 0} min={temperatureProps.min} max={temperatureProps.max} unit={temperatureProps.unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "press" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <GaugeGraphic title="Pressão atmosférica" value={measure.value} min={950} max={1050} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "umid" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <BucketGraphic title="Umidade do ar" value={measure.value} min={0} max={100} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "velvent" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <VelocimeterGraphic title="Velocidade do vento" value={measure.value} min={0} max={100} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                      </>
+                      )}
+                    )}
                     <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <GaugeGraphic title="Pressão atmosférica" value={gaugeValue} min={950} max={1050} unit="hPa" measureDate="1747092258"/>
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <ThermometerGraphic title="Temperatura" value={temperature ?? 0} min={-30} max={60} unit="°C" measureDate="1747092258"/>
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <BucketGraphic title="Umidade do ar" value={bucketValue ?? 0} min={0} max={100} unit="%" measureDate="1747092258"/>
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <VelocimeterGraphic title="Velocidade do vento" value={velocidadeVento ?? 0} min={0} max={100} unit="m/s" measureDate="1747092258"/>
-                    </Box>
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <PizzaGraphic title="Alertas" data={measureCounts} />
+                      <PizzaGraphic title="Alertas" data={measureStatus} />
                     </Box>
                 </Stack>
 

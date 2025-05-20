@@ -1,5 +1,5 @@
 import api from "../globals";
-import { AlertCountsResponse, MeasuresStatusResponse, StationHistoricResponse, StationStatusResponse } from "./state";
+import { AlertCountsResponse, LastMeasureResponse, MeasuresStatusResponse, StationHistoricResponse, StationStatusResponse } from "./state";
 
 export default {
     async getStationStatus(): Promise<{ success: boolean; data?: StationStatusResponse; error?: string }> {
@@ -53,4 +53,17 @@ export default {
             };
         }
     },
+
+    async getLastMeasures(): Promise<{ success: boolean; data?: [LastMeasureResponse]; error?: string }> {
+        try {
+            const response = await api.get("/dashboard/last-measures");
+            return { success: true, data: response.data.data };
+        } catch (error: any) {
+            console.error("Erro ao obter últimas medidas:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter últimas medidas",
+            };
+        }
+    }
 }
