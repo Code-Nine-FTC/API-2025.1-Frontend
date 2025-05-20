@@ -186,7 +186,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
           {renderSelect("Sinal Matemático", "math_signal", [
             { value: ">", label: "Maior que (>)" },
             { value: "<", label: "Menor que (<)" },
-            { value: "=", label: "Igual a (=)" },
+            { value: "==", label: "Igual a (=)" },
             { value: "<=", label: "Menor ou igual a (<=)" },
             { value: ">=", label: "Maior ou igual a (>=)" },
           ])}

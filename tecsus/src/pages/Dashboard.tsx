@@ -235,7 +235,7 @@ const DashboardPage = () => {
                                     </MenuItem>
                                     {stations.map((station) => (
                                         <MenuItem key={station.id} value={station.id}>
-                                            {station.name_station}
+                                            {`${station.name_station} - ${station.uid}`}
                                         </MenuItem>
                                     ))}
                                 </Select>
