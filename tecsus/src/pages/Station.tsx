@@ -18,11 +18,6 @@ import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import LineGraphic from "../components/graphics/stationHistoric";
 import { AlertCountsResponse, LastMeasureResponse, StationHistoricResponse } from "../store/dashboard/state";
 
-// Helper function to generate random numbers in a range
-function getRandomValue(min: number, max: number): number {
-  return Math.random() * (max - min) + min;
-}
-
 interface Measure {
   measure_date: number; // Unix timestamp in seconds
   value: number;
@@ -37,100 +32,99 @@ interface TemperatureProps {
   unit: string;
 }
 
+// const sampleLastMeasures: LastMeasureResponse[] = [
+//   {
+//     title: "Temperatura",
+//     type: "temp",
+//     value: 25.5,
+//     measure_unit: "°C",
+//     measure_date: Math.floor(Date.now() / 1000) - 300 
+//   },
+//   {
+//     title: "Umidade",
+//     type: "press",
+//     value: 1012,
+//     measure_unit: "hPa",
+//     measure_date: Math.floor(Date.now() / 1000) - 300
+//   },
+//   {
+//     title: "Pressão",
+//     type: "umid",
+//     value: 60,
+//     measure_unit: "%",
+//     measure_date: Math.floor(Date.now() / 1000) - 300
+//   },
+//   {
+//     title: "Velocidade do Vento",
+//     type: "velvent",
+//     value: 5.2,
+//     measure_unit: "m/s",
+//     measure_date: Math.floor(Date.now() / 1000) - 300
+//   }
+// ];
 
-const sampleLastMeasures: LastMeasureResponse[] = [
-  {
-    title: "Temperatura",
-    type: "temp",
-    value: 25.5,
-    measure_unit: "°C",
-    measure_date: Math.floor(Date.now() / 1000) - 300 
-  },
-  {
-    title: "Umidade",
-    type: "press",
-    value: 1012,
-    measure_unit: "hPa",
-    measure_date: Math.floor(Date.now() / 1000) - 300
-  },
-  {
-    title: "Pressão",
-    type: "umid",
-    value: 60,
-    measure_unit: "%",
-    measure_date: Math.floor(Date.now() / 1000) - 300
-  },
-  {
-    title: "Velocidade do Vento",
-    type: "velvent",
-    value: 5.2,
-    measure_unit: "m/s",
-    measure_date: Math.floor(Date.now() / 1000) - 300
-  }
-];
+// function generateHistoricalData(): Measure[] {
+//   const historicalData: Measure[] = [];
+//   const measureTypes = [
+//     { title: 'Temperatura', type: 'temp', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
+//     { title: 'Umidade', type: 'umid', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
+//     { title: 'Pressão', type: 'press', unit: 'hPa', minVal: 980, maxVal: 1030 },
+//     { title: 'Velocidade do Vento', type: 'velvent', unit: 'm/s', minVal: 0, maxVal: 25 },
+//     { title: 'Precipitação Acumulada', type: 'precip', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true },
+//   ];
 
-function generateHistoricalData(): Measure[] {
-  const historicalData: Measure[] = [];
-  const measureTypes = [
-    { title: 'Temperatura', type: 'temp', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
-    { title: 'Umidade', type: 'umid', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
-    { title: 'Pressão', type: 'press', unit: 'hPa', minVal: 980, maxVal: 1030 },
-    { title: 'Velocidade do Vento', type: 'velvent', unit: 'm/s', minVal: 0, maxVal: 25 },
-    { title: 'Precipitação Acumulada', type: 'precip', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true },
-  ];
+//   const endDate = new Date();
+//   const startDate = new Date();
+//   startDate.setFullYear(endDate.getFullYear() - 1); // Data for one year
 
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setFullYear(endDate.getFullYear() - 1); // Data for one year
+//   let currentDate = new Date(startDate.getTime());
+//   const intervalMinutes = 15;
 
-  let currentDate = new Date(startDate.getTime());
-  const intervalMinutes = 15;
+//   while (currentDate <= endDate) {
+//     const timestampInSeconds = Math.floor(currentDate.getTime() / 1000);
+//     const hourOfDay = currentDate.getHours(); // For daily cycle simulation
 
-  while (currentDate <= endDate) {
-    const timestampInSeconds = Math.floor(currentDate.getTime() / 1000);
-    const hourOfDay = currentDate.getHours(); // For daily cycle simulation
+//     for (const mt of measureTypes) {
+//       let value;
+//       if (mt.isSparse) {
+//         // Make sparse data (like rainfall) mostly zero
+//         value = Math.random() < 0.05 ? getRandomValue(mt.minVal, mt.maxVal) : 0;
+//       } else {
+//         value = getRandomValue(mt.minVal, mt.maxVal);
+//       }
 
-    for (const mt of measureTypes) {
-      let value;
-      if (mt.isSparse) {
-        // Make sparse data (like rainfall) mostly zero
-        value = Math.random() < 0.05 ? getRandomValue(mt.minVal, mt.maxVal) : 0;
-      } else {
-        value = getRandomValue(mt.minVal, mt.maxVal);
-      }
-
-      // Simulate a simple daily cycle for temperature and humidity
-      if (mt.dailyCycle) {
-        const cycleFactor = Math.sin((hourOfDay / 24) * 2 * Math.PI - Math.PI / 2); // Peaks around midday
-        const range = mt.maxVal - mt.minVal;
-        const baseValue = mt.minVal + range / 2;
-        let cycleEffect = (cycleFactor * range) / 3; // Modulate effect strength
+//       // Simulate a simple daily cycle for temperature and humidity
+//       if (mt.dailyCycle) {
+//         const cycleFactor = Math.sin((hourOfDay / 24) * 2 * Math.PI - Math.PI / 2); // Peaks around midday
+//         const range = mt.maxVal - mt.minVal;
+//         const baseValue = mt.minVal + range / 2;
+//         let cycleEffect = (cycleFactor * range) / 3; // Modulate effect strength
         
-        if (mt.type === 'Temperatura') {
-            // Temperature higher during the day
-            value = baseValue + cycleEffect + (Math.random() - 0.5) * (range / 5);
-        } else if (mt.type === 'Umidade') {
-            // Humidity generally lower during warmer parts of the day
-             value = baseValue - cycleEffect + (Math.random() - 0.5) * (range / 5);
-        }
-        value = Math.max(mt.minVal, Math.min(mt.maxVal, value)); // Clamp within min/max
-      }
+//         if (mt.type === 'Temperatura') {
+//             // Temperature higher during the day
+//             value = baseValue + cycleEffect + (Math.random() - 0.5) * (range / 5);
+//         } else if (mt.type === 'Umidade') {
+//             // Humidity generally lower during warmer parts of the day
+//              value = baseValue - cycleEffect + (Math.random() - 0.5) * (range / 5);
+//         }
+//         value = Math.max(mt.minVal, Math.min(mt.maxVal, value)); // Clamp within min/max
+//       }
 
-      historicalData.push({
-        measure_date: timestampInSeconds,
-        value: parseFloat(value.toFixed(2)),
-        type: mt.type,
-        measure_unit: mt.unit,
-        title: mt.title,
-      });
-    }
-    currentDate.setMinutes(currentDate.getMinutes() + intervalMinutes);
-  }
+//       historicalData.push({
+//         measure_date: timestampInSeconds,
+//         value: parseFloat(value.toFixed(2)),
+//         type: mt.type,
+//         measure_unit: mt.unit,
+//         title: mt.title,
+//       });
+//     }
+//     currentDate.setMinutes(currentDate.getMinutes() + intervalMinutes);
+//   }
 
-  return historicalData;
-}
+//   return historicalData;
+// }
 
-const historicData: Measure[] = generateHistoricalData()
+// const historicData: Measure[] = generateHistoricalData()
 
 export default function StationPage() {
     const { id } = useParams();
@@ -152,7 +146,11 @@ export default function StationPage() {
     const [historicEndDate, setHistoricEndDate] = useState<Date | null>(null);
 
     const fetchStationHistoricData = useCallback(async (start?: Date, end?: Date) => {
-        if (!id) return;
+        if (!id) {
+          console.error("ID da estação não encontrado");
+          return;
+        }
+        console.log(`[StationPage] fetchStationHistoricData: Called with ID: ${id}, Start: ${start}, End: ${end}`);
         setHistoricDataLoading(true);
         setHistoricDataError(null);
         try {
@@ -160,7 +158,9 @@ export default function StationPage() {
                 startDate: start ? start.toISOString().split('T')[0] : undefined, 
                 endDate: end ? end.toISOString().split('T')[0] : undefined,    
             };
+            console.log('[StationPage] fetchStationHistoricData: Preparing to call API with params:', params);
             const response = await dashboardGetters.getStationHistoric(Number(id), params);
+            console.log('[StationPage] fetchStationHistoricData: API response received:', response);
             if (response.success && response.data) {
                 setHistoricData(response.data);
             } else {
@@ -168,6 +168,7 @@ export default function StationPage() {
                 setHistoricData([]); 
             }
         } catch (err) {
+            console.error('[StationPage] fetchStationHistoricData: Error during API call:', err);
             setHistoricDataError(err instanceof Error ? err.message : "Erro desconhecido ao buscar dados históricos");
             setHistoricData([]);
         } finally {
@@ -202,11 +203,11 @@ export default function StationPage() {
             ] = await Promise.all([
                 dashboardGetters.getAlertCounts(),
                 dashboardGetters.getMeasuresStatus(),
-                dashboardGetters.getLastMeasures()
+                dashboardGetters.getLastMeasures(Number(id))
             ]);
 
             setAlertCounts(alertCountsResponse.data ?? {R: 0, Y: 0 , G: 0});
-            setLastMeasures(sampleLastMeasures ?? []);
+            setLastMeasures(lastMeasuresResponse.data ?? []);
             
             if (lastMeasuresResponse.data) {
                 lastMeasuresResponse.data.forEach((measure) => {
@@ -233,20 +234,22 @@ export default function StationPage() {
     }, [id]);
 
     useEffect(() => {
-        if (historicStartDate && historicEndDate && id) {
-            fetchStationHistoricData(historicStartDate, historicEndDate);
+        if (id) { 
+            const today = new Date();
+            const endDateFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+            const oneWeekAgo = new Date(today);
+            oneWeekAgo.setDate(today.getDate() - 7);
+            const startDateFormatted = new Date(oneWeekAgo.getFullYear(), oneWeekAgo.getMonth(), oneWeekAgo.getDate(), 0, 0, 0, 0);
+        
+            fetchStationHistoricData(startDateFormatted, endDateFormatted);           
         }
-    }, [historicStartDate, historicEndDate, id, fetchStationHistoricData]);
+    }, [id]);
 
     const handleSetExtremes = useCallback((event: Highcharts.AxisSetExtremesEventObject) => {
         if (event.min !== undefined && event.max !== undefined) {
-            if (event.trigger === 'rangeSelectorButton' || event.trigger === 'rangeSelectorInput') {
-                setHistoricStartDate(new Date(event.min));
-                setHistoricEndDate(new Date(event.max));
-            } else if (!event.trigger) { 
-                 setHistoricStartDate(new Date(event.min));
-                 setHistoricEndDate(new Date(event.max));
-            }
+            setHistoricStartDate(new Date(event.min));
+            setHistoricEndDate(new Date(event.max));
         } else {
             setHistoricStartDate(null);
             setHistoricEndDate(null);

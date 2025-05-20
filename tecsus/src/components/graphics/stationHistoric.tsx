@@ -43,7 +43,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       'umid': 'line',
       'press': 'line',
       'precip': 'column',
-      'chuv': 'column',
+      'pluv': 'column',
       'velvent': 'line',
     };
     const defaultSeriesType = 'line';
@@ -139,6 +139,11 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       }, {} as Record<string, { name: string; type: string, data: [number, number][]; yAxis: number; tooltip: { valueDecimals: number }, color?: string }>);
       
       srs = Object.values(groupedData);
+
+      srs.forEach((series) => {
+        series.data.sort((a, b) => a[0] - b[0]);
+      });
+
       srs.sort((a, b) => {
         if (a.yAxis !== b.yAxis) {
           return a.yAxis - b.yAxis;
@@ -290,7 +295,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       plotOptions: {
         series: {
           findNearestPointBy: 'xy',
-          pointPlacement: 'between',
+          // pointPlacement: 'between',
           events: { 
             legendItemClick: function(this: Highcharts.Series): boolean {
               const series = this;
@@ -336,7 +341,8 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
         },
         column: {
           pointPadding: 0.1,
-          borderWidth: 0
+          borderWidth: 0,
+          pointPlacement: 'between',
         }
       },
       series: series as Highcharts.SeriesOptionsType[],

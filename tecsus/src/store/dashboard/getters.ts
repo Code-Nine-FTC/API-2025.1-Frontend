@@ -41,7 +41,7 @@ export default {
         }
     },
     
-    async getMeasuresStatus(): Promise<{ success: boolean; data?: [MeasuresStatusResponse]; error?: string }> {
+    async getMeasuresStatus(): Promise<{ success: boolean; data?: MeasuresStatusResponse[]; error?: string }> {
         try {
             const response = await api.get("/dashboard/alert-types");
             return { success: true, data: response.data.data };
@@ -54,9 +54,9 @@ export default {
         }
     },
 
-    async getLastMeasures(): Promise<{ success: boolean; data?: [LastMeasureResponse]; error?: string }> {
+    async getLastMeasures(stationId: number): Promise<{ success: boolean; data?: LastMeasureResponse[]; error?: string }> {
         try {
-            const response = await api.get("/dashboard/last-measures");
+            const response = await api.get(`/dashboard/last-measures/${stationId}`);
             return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter últimas medidas:", error.message || error);
