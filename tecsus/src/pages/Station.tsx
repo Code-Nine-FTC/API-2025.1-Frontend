@@ -142,12 +142,13 @@ export default function StationPage() {
     const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
     const [historicDataLoading, setHistoricDataLoading] = useState(true);
     const [historicDataError, setHistoricDataError] = useState<string | null>(null);
-    const [historicStartDate, setHistoricStartDate] = useState<Date | null>(null);
-    const [historicEndDate, setHistoricEndDate] = useState<Date | null>(null);
+    const [loadedRange, setLoadedRange] = useState<{start: Date, end: Date} | null>(null);
+    const [cachedData, setCachedData] = useState<Map<string, StationHistoricResponse[]>>(new Map());
 
     const fetchStationHistoricData = useCallback(async (start?: Date, end?: Date) => {
         if (!id) {
           console.error("ID da estação não encontrado");
+          setHistoricDataLoading(false);
           return;
         }
         console.log(`[StationPage] fetchStationHistoricData: Called with ID: ${id}, Start: ${start}, End: ${end}`);
@@ -163,6 +164,10 @@ export default function StationPage() {
             console.log('[StationPage] fetchStationHistoricData: API response received:', response);
             if (response.success && response.data) {
                 setHistoricData(response.data);
+                if (start && end) {
+                    setLoadedRange({ start, end });
+                }
+                setHistoricDataLoading(false);
             } else {
                 setHistoricDataError(response.error || "Falha ao carregar dados históricos");
                 setHistoricData([]); 
@@ -170,12 +175,13 @@ export default function StationPage() {
         } catch (err) {
             console.error('[StationPage] fetchStationHistoricData: Error during API call:', err);
             setHistoricDataError(err instanceof Error ? err.message : "Erro desconhecido ao buscar dados históricos");
+            setHistoricDataLoading(false);
             setHistoricData([]);
         } finally {
             setHistoricDataLoading(false);
         }
     }, [id]);
-
+    
     useEffect(() => {
         const fetchStation = async () => {
             try {
@@ -233,28 +239,76 @@ export default function StationPage() {
         }
     }, [id]);
 
-    useEffect(() => {
-        if (id) { 
-            const today = new Date();
-            const endDateFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+    const handleSetExtremes = useCallback(
+      async (event: Highcharts.AxisSetExtremesEventObject) => {
+        console.log('[StationPage] handleSetExtremes triggered:', event);
+        let newStart: Date | undefined = undefined;
+        let newEnd: Date | undefined = undefined;
 
-            const oneWeekAgo = new Date(today);
-            oneWeekAgo.setDate(today.getDate() - 7);
-            const startDateFormatted = new Date(oneWeekAgo.getFullYear(), oneWeekAgo.getMonth(), oneWeekAgo.getDate(), 0, 0, 0, 0);
-        
-            fetchStationHistoricData(startDateFormatted, endDateFormatted);           
-        }
-    }, [id]);
-
-    const handleSetExtremes = useCallback((event: Highcharts.AxisSetExtremesEventObject) => {
         if (event.min !== undefined && event.max !== undefined) {
-            setHistoricStartDate(new Date(event.min));
-            setHistoricEndDate(new Date(event.max));
+            newStart = new Date(event.min);
+            newEnd = new Date(event.max);
+
+          if (!loadedRange || newStart.getTime() !== loadedRange.start.getTime() || newEnd.getTime() !== loadedRange.end.getTime()) {
+
+            const cacheKey = `${newStart.toISOString()}_${newEnd.toISOString()}`;
+
+            if (cachedData.has(cacheKey)) {
+              const cachedResponse = cachedData.get(cacheKey);
+              setHistoricData(cachedResponse || []);
+              setHistoricDataLoading(false);
+            } else {
+                try {
+                  const params = {
+                  startDate: newStart.toISOString().split('T')[0],
+                  endDate: newEnd.toISOString().split('T')[0],
+                };
+                const response = await dashboardGetters.getStationHistoric(Number(id), params);
+                console.log('[StationPage] handleSetExtremes: API response received:', response);
+
+                if (response.success && response.data) {
+                  const fetchedData = response.data || [];
+                  setHistoricData(fetchedData);
+                  setCachedData((prev) => new Map(prev).set(cacheKey, fetchedData));
+                  setLoadedRange({ start: newStart, end: newEnd });
+                  console.log('historic data', historicData);
+                  console.log('xijinping', cachedData);
+                  setHistoricDataLoading(false);
+                } else {
+                  setHistoricDataError(response.error || 'Falha ao carregar dados históricos');
+                  setHistoricData([]);
+                  setHistoricDataLoading(false);
+                }
+              } catch (err) {
+                console.error('[StationPage] handleSetExtremes: Error during API call:', err);
+                setHistoricDataError(err instanceof Error ? err.message : 'Erro desconhecido ao buscar dados históricos');
+                setHistoricData([]);
+                setHistoricDataLoading(false);
+                }
+              }
+            }
         } else {
-            setHistoricStartDate(null);
-            setHistoricEndDate(null);
+            fetchStationHistoricData(undefined, undefined);
         }
-    }, []);
+    }, [fetchStationHistoricData, cachedData, loadedRange, id]);
+
+    useEffect(() => {
+      if (id) {
+        console.log('[StationPage] Initial load: Fetching 7-day range.');
+        const today = new Date();
+        const endDateFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);
+        const startDateFormatted = new Date(oneWeekAgo.getFullYear(), oneWeekAgo.getMonth(), oneWeekAgo.getDate(), 0, 0, 0, 0);
+
+        handleSetExtremes({
+          min: startDateFormatted.getTime(),
+          max: endDateFormatted.getTime(),
+        } as Highcharts.AxisSetExtremesEventObject);
+      }
+    }, [id, handleSetExtremes]);
+        
 
     function getTemperatureProps(unitFromMeasure: string): TemperatureProps {
       switch (unitFromMeasure?.toUpperCase()) {
@@ -273,6 +327,11 @@ export default function StationPage() {
           return { min: -30, max: 60, unit: '°C' };
       }
     }
+    
+    useEffect(() => {
+      console.log('historic data', historicData);
+      console.log('xijinping', cachedData);
+    }, [historicData, cachedData]);
 
     const content = (
         <Box sx={{
@@ -355,9 +414,7 @@ export default function StationPage() {
                 <Divider sx={{ margin: '16px 0' }} />
                 {historicDataLoading && <Box textAlign="center" my={2}><CircularProgress /></Box>}
                 {historicDataError && <Typography color="error" textAlign="center" my={2}>{historicDataError}</Typography>}
-                {!historicDataLoading && !historicDataError && (
-                  <LineGraphic title="Histórico de medições" measure={historicData} onRangeChange={handleSetExtremes}/>
-                )}
+                {!historicDataLoading && !historicDataError && <LineGraphic title="Histórico de medições" measure={historicData} onRangeChange={handleSetExtremes}/>}
               </Paper>
               <Paper
                   sx={{

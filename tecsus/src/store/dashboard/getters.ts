@@ -15,7 +15,7 @@ export default {
         }
     },
 
-    async getStationHistoric(stationId: number, params?: { startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+    async getStationHistoric(stationId: number, params?: { startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: StationHistoricResponse[]; error?: string }> {
         try {
             const response = await api.get(`/dashboard/station-history/${stationId}`, { params });
             return { success: true, data: response.data.data };
