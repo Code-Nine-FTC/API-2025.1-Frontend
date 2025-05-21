@@ -226,19 +226,27 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
       },
       xAxis: {
         type: 'datetime',
-        min: minTimestampMs,
-        max: maxTimestampMs,
+        // min: minTimestampMs,
+        // max: maxTimestampMs,
         title: {
           text: 'Dados',
         },
         tickPixelInterval: 150,
         events: {
-          setExtremes: function(e: AxisSetExtremesEventObject) {
-            if (props.onRangeChange) {
-              props.onRangeChange(e);
+          load() {
+            const chart = this as any;
+            if (chart.rangeSelector && chart.rangeSelector.buttons) {
+              chart.rangeSelector.buttons.forEach((button: any) => {
+                const originalClick = button.onclick;
+                button.onclick = function (...args: any[]) {
+                  if (originalClick) originalClick.apply(this, args);
+                  const extremes = chart.xAxis[0].getExtremes();
+                  chart.xAxis[0].setExtremes(extremes.min, extremes.max);
+                };
+              });
             }
           }
-        }
+        },
       },
       yAxis: yAxes.length > 0 ? yAxes : [{
         title: {
