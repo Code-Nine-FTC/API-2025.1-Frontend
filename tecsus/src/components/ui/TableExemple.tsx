@@ -31,6 +31,7 @@ const StatusTable: React.FC = () => {
             paginationModel: { pageSize: 5 },
           },
         }}
+        pageSizeOptions={[5, 10, 20]}
       />
     </div>
   );
