@@ -270,6 +270,7 @@ function TypeParametersList() {
           <GenericTable
             columns={columns}
             rows={typeParameters}
+            tableName="Tipos de Parâmetros"
             renderCell={(row, column) => {
               if (column.field === "offset") {
                 return row.offset !== undefined ? row.offset : "Não Definido";

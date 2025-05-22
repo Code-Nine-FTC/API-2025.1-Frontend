@@ -228,6 +228,7 @@ const TypeAlertsPage = () => {
           <GenericTable
             columns={columns}
             rows={filteredTypeAlerts}
+            tableName="Tipos de Alertas"
             renderCell={(row, column) => {
               if (column.field === "create_date") {
                 const timestamp = Number(row[column.field]);

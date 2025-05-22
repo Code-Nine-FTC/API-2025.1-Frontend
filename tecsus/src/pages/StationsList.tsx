@@ -244,6 +244,7 @@ export default function StationsListPage({onlyView = false} : {onlyView: boolean
         <GenericTable
           columns={columns}
           rows={stations}
+          tableName="Estações Meteorológicas"
           renderCell={(row, column) => {
             if (column.field === "address") {
               const address = row.address;

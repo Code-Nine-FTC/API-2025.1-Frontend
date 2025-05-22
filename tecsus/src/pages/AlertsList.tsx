@@ -205,6 +205,7 @@ export default function AlertsListPage({
         <GenericTable
           columns={columns}
           rows={alerts}
+          tableName="Alertas"
           renderCell={(row, column) => {
             if (column.field === "create_date") {
               const date = new Date(row[column.field] as string);
