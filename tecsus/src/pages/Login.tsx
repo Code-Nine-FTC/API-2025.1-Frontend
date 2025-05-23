@@ -35,7 +35,7 @@ export default function LoginPage() {
     <div className="login-page">
       <Container maxWidth="xs" className="container">
         <Box component="form" className="login-box" onSubmit={handleLogin}>
-          <img src="src/assets/tecsus_logo.png" alt="Logo" />
+          <img src="/assets/tecsus_logo.png" alt="Logo" />
 
           <TextField
             fullWidth

@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: url('src/assets/background-login-hd.png') no-repeat center center;
+  background: url('/assets/background-login-hd.png') no-repeat center center;
   background-size: cover;
 }
 
