@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Box,
   Typography,
   Button,
   Paper,
-  Switch,
-  TextField,
 } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { LoggedLayout } from "../layout/layoutLogged";
@@ -17,6 +16,7 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authContext";
+import FilterBox, { FilterField } from "../components/ui/FilterBox";
 
 function TypeParametersList() {
   const navigate = useNavigate();
@@ -36,15 +36,40 @@ function TypeParametersList() {
     { field: "detect_type", headerName: "Sigla" },
   ];
 
+  const filterFields: FilterField[] = [
+    {
+      name: "name",
+      label: "Pesquisar Tipo de Parâmetro",
+      type: "text",
+      value: name,
+      onChange: (value) => setName(value),
+      options: typeParameters.map((type) => ({
+        value: type.name,
+        label: type.name,
+      })),
+      fullWidth: true
+    },
+    {
+      name: "showInactive",
+      label: showInactive ? "Exibir Ativos" : "Exibir Inativos",
+      type: "checkbox",
+      value: showInactive,
+      onChange: (value) => {
+        setShowInactive(value);
+        handleFilter();
+      },
+    }
+  ];
+
   const handleFilter = useCallback(async () => {
     try {
-      const filters: ListParameterTypesFilters = {};
+      const filtersObj: ListParameterTypesFilters = {};
       if (name && name.trim() !== "") {
-        filters.name = name;
+        filtersObj.name = name;
       }
-      filters.is_active = showInactive;
-      setFilters(filters);
-      const response = await typeParameterGetters.listParameterTypes(filters);
+      filtersObj.is_active = showInactive;
+      setFilters(filtersObj);
+      const response = await typeParameterGetters.listParameterTypes(filtersObj);
       if (response.success) {
         setTypeParameters(response.data as ParameterTypesResponse[]);
       } else {
@@ -58,203 +83,69 @@ function TypeParametersList() {
   useEffect(() => {
     handleFilter();
   }, [handleFilter]);
+  
+  const handleReset = () => {
+    setName("");
+    setShowInactive(true);
+    handleFilter();
+  };
 
   return (
     <LoggedLayout>
       <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
-        <Box
-          display="flex"
-          flexDirection={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-          gap={2}
-        >
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              color: "var(--purple-maincolor)",
-              fontWeight: "bold",
-              textAlign: { xs: "center", sm: "left" },
-            }}
-          >
-            Tipos de Parâmetros
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
-            onClick={() => navigate("/register-parameter-type")}
-            sx={{
-              minHeight: 42,
-              borderRadius: "8px",
-              px: 3,
-              py: 1.2,
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              background:
-                "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
-              color: "#fff",
-              textAlign: "center",
-              "&:hover": {
-                background:
-                  "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
-              },
-            }}
-          >
-            Novo Cadastro
-          </Button>
-        </Box>
-
-        <Paper sx={{ p: 2 }}>
-          <Typography
-            variant="h6"
-            mb={2}
-            sx={{
-              color: "gray",
-              textAlign: { xs: "center", sm: "left" },
-            }}
-          >
-            Filtros de Busca
-          </Typography>
+        <Paper sx={{ p: 3, mb: 3 }}>
           <Box
             display="flex"
-            flexDirection={{ xs: "column", sm: "row" }}
             justifyContent="space-between"
             alignItems="center"
-            gap={3}
-            sx={{ mb: 2 }}
-          >
-            <TextField
-              label="Pesquisar Tipo de Parâmetro"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              variant="outlined"
-              fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                  backgroundColor: "rgb(146, 123, 230)",
-                  "&:hover": {
-                    backgroundColor: "rgb(146, 123, 230)",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "rgb(146, 123, 230)",
-                  },
-                },
-              }}
-            />
-
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid",
-                borderColor: "rgba(146, 123, 230, 0.5)",
-                borderRadius: "8px",
-                px: 2,
-                py: 0.8,
-                height: "56px",
-                backgroundColor: "rgba(146, 123, 230, 0.05)",
-                backdropFilter: "blur(8px)",
-                boxShadow: (theme) => theme.shadows[1],
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  borderColor: "rgba(146, 123, 230, 0.5)",
-                  boxShadow: (theme) => theme.shadows[1],
-                },
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  mr: 1.5,
-                  color: "text.secondary",
-                  fontWeight: 500,
-                  fontSize: "0.9rem",
-                  whiteSpace: "nowrap",
-                  minWidth: "100px",
-                  textAlign: "center",
-                }}
-              >
-                {showInactive ? "Exibir Ativos" : "Exibir Inativos"}
-              </Typography>
-              <Switch
-                checked={showInactive}
-                onChange={(e) => {
-                  const newShowInactive = e.target.checked;
-                  setShowInactive(newShowInactive);
-                  handleFilter();
-                }}
-                color="primary"
-                size="medium"
-                sx={{
-                  "& .MuiSwitch-track": {
-                    borderRadius: 20,
-                    backgroundColor: "rgba(0, 0, 0, 0.1)",
-                  },
-                  "& .MuiSwitch-thumb": {
-                    width: 16,
-                    height: 16,
-                    backgroundColor: "rgb(146, 123, 230)",
-                    boxShadow: (theme) => theme.shadows[1],
-                  },
-                  "&.Mui-checked": {
-                    "& .MuiSwitch-thumb": {
-                      backgroundColor: "rgb(146, 123, 230)",
-                    },
-                    "& + .MuiSwitch-track": {
-                      backgroundColor: "rgba(146, 123, 230, 0.3)",
-                    },
-                  },
-                }}
-              />
-            </Box>
-          </Box>
-          <Box
-            display="flex"
-            gap={2}
-            justifyContent={{ xs: "center", sm: "flex-end" }}
+            mb={3}
             sx={{
-              width: "100%",
-              mt: { xs: 2, sm: 0 },
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
             }}
           >
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setName("");
-                handleFilter();
-              }}
+            <Typography
+              variant="h4"
+              gutterBottom
               sx={{
-                borderRadius: "8px",
+                color: "var(--purple-maincolor)",
                 fontWeight: "bold",
-                color: "rgb(146, 123, 230)",
-                borderColor: "rgb(146, 123, 230)",
-                "&:hover": {
-                  backgroundColor: "rgba(146, 123, 230, 0.1)",
-                  borderColor: "rgb(146, 123, 230)",
-                },
+                textAlign: { xs: "center", sm: "left" },
+                mb: { sm: 0 }
               }}
             >
-              Limpar
-            </Button>
+              Tipos de Parâmetros
+            </Typography>
             <Button
               variant="contained"
-              onClick={handleFilter}
+              startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
+              onClick={() => navigate("/register-parameter-type")}
               sx={{
+                minHeight: 42,
                 borderRadius: "8px",
-                fontWeight: "bold",
-                backgroundColor: "rgb(146, 123, 230)",
-                color: "white",
+                px: 3,
+                py: 1.2,
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                background:
+                  "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
+                color: "#fff",
+                textAlign: "center",
                 "&:hover": {
-                  backgroundColor: "rgb(126, 103, 210)",
+                  background:
+                    "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
                 },
               }}
             >
-              Buscar
+              Novo Cadastro
             </Button>
           </Box>
+
+          <FilterBox
+            filters={filterFields}
+            onSearch={handleFilter}
+            onReset={handleReset}
+          />
         </Paper>
 
         {typeParameters.length === 0 ? (
@@ -270,6 +161,7 @@ function TypeParametersList() {
           <GenericTable
             columns={columns}
             rows={typeParameters}
+            tableName="Tipos de Parâmetros"
             renderCell={(row, column) => {
               if (column.field === "offset") {
                 return row.offset !== undefined ? row.offset : "Não Definido";
