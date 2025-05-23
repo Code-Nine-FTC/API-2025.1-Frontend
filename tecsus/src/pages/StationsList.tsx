@@ -27,7 +27,7 @@ export default function StationsListPage({onlyView = false} : {onlyView: boolean
     {
       name: "name",
       label: "Nome da Estação",
-      type: "select",
+      type: "autocomplete",
       value: name,
       onChange: (value) => setName(value),
       options: stations.map(station => ({ value: station.name_station, label: station.name_station })),
@@ -36,7 +36,7 @@ export default function StationsListPage({onlyView = false} : {onlyView: boolean
     {
       name: "uid",
       label: "UID",
-      type: "text",
+      type: "autocomplete",
       value: uid,
       onChange: (value) => setUid(value),
       options: stations.map(station => ({ value: station.uid, label: station.uid })),

@@ -11,6 +11,8 @@ import {
   FormControl,
   InputLabel,
   SelectChangeEvent,
+  TextField,
+  Autocomplete
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -26,7 +28,7 @@ export interface FilterOption {
 export interface FilterField {
   name: string;
   label: string;
-  type: "select" | "checkbox" | "date" | "text";
+  type: "select" | "checkbox" | "date" | "text" | "autocomplete";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -204,7 +206,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "8px",
                         "&:hover": {
-                          backgroundColor: "#f5f5f5",
+                          backgroundColor: "white",
                         },
                         "&:focus-within": {
                           backgroundColor: "white",
@@ -219,7 +221,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({
                         },
                       },
                       "& .MuiInputLabel-root": {
-                        color: "#666",
+                        color: "white",
                         "&.Mui-focused": {
                           color: "rgb(146, 123, 230)",
                         }
@@ -253,6 +255,77 @@ const FilterBox: React.FC<FilterBoxProps> = ({
                 }}
               />
             </LocalizationProvider>
+          </Box>
+        );
+      case "autocomplete":
+        return (
+          <Box 
+            key={filter.name} 
+            sx={{ 
+              padding: 1, 
+              flexBasis: flexBasis,
+              minWidth: { xs: '100%', sm: flexBasis.sm, md: flexBasis.md, lg: flexBasis.lg }
+            }}
+          >
+            <Autocomplete
+              options={filter.options || []}
+              getOptionLabel={(option) => 
+                typeof option === 'string' ? option : option.label
+              }
+              value={filter.value}
+              onChange={(_, newValue) => {
+                filter.onChange(newValue ? newValue : "");
+              }}
+              inputValue={typeof filter.value === 'string' ? filter.value : (filter.value?.label || "")}
+              onInputChange={(_, newInputValue) => {
+                if (typeof filter.value !== 'object') {
+                  filter.onChange(newInputValue);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={filter.label}
+                  fullWidth
+                  size="small"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "8px",
+                      backgroundColor: "white",
+                      height: "46px",
+                      border: '1px solid #ddd',
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                        borderColor: "rgb(146, 123, 230)",
+                      },
+                      "&:focus-within": {
+                        borderColor: "rgb(146, 123, 230)",
+                        backgroundColor: "white",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: "#666",
+                      "&.Mui-focused": {
+                        color: "rgb(146, 123, 230)",
+                      }
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#ddd",
+                    },
+                    "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "rgb(146, 123, 230) !important",
+                    }
+                  }}
+                />
+              )}
+              freeSolo
+              filterOptions={(options, params) => {
+                const filtered = options.filter(option =>
+                  option.label.toLowerCase().includes(params.inputValue.toLowerCase())
+                );
+                return filtered;
+              }}
+            />
           </Box>
         );
       default:
