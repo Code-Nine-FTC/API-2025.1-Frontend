@@ -51,7 +51,7 @@ const DashboardPage = () => {
     const [alertCounts, setAlertCounts] = useState<AlertCountsResponse>();
     const [stationStatus, setStationStatus] = useState<StationStatusResponse>();
     const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
-    const [formattedMeasure, setFormattedMeasure] = useState<{ label: string; value: number }[]>([]);
+    const [formattedMeasure, setFormattedMeasure] = useState<{ name: string; y: number }[]>([]);
     const [error, setError] = useState<string | null>(null);
     
     const [stations, setStations] = useState<ListStationsResponse[]>([]);
@@ -95,8 +95,8 @@ const DashboardPage = () => {
             setStations(stationsResponse.data ?? []);
 
             const formattedData = measureStatusResponse.data?.map(item => ({
-                label: item.name,  
-                value: item.total  
+                name: item.name,  
+                y: item.total  
             }));
             setFormattedMeasure(formattedData ?? []);
 
@@ -218,7 +218,7 @@ const DashboardPage = () => {
                         justifyContent: { xs: "flex-start", md: "flex-start" }
                     }}
                 >
-                    <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
+                    {/* <Card sx={{ boxShadow: 3, minWidth: 320, borderRadius: 3, p: 1, width: { xs: "100%", md: "90%", lg: "100%" } }}>
                         <CardHeader title={<Typography variant="h6">Histórico de parâmetros</Typography>}
                          action={
                             <FormControl sx={{ m: 1, minWidth: 180 }} size="small">
@@ -243,12 +243,13 @@ const DashboardPage = () => {
                         }/>
                         {/* <CardContent>
                             <StationHistoric data={historicData} />
-                        </CardContent> */}
+                        </CardContent>
                     </Card>
                     
                     <Title>
                         Listagem de medidas por timestamp
                     </Title>
+                     */}
                 </Box>
             </Box>
         </LoggedLayout>

@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
-import Highcharts, { AxisSetExtremesEventObject, GradientColorObject, PatternObject } from 'highcharts/highstock';
+import Highcharts, { GradientColorObject, PatternObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import 'highcharts/modules/boost';
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 interface LineGraphicProps {
   measure: {
@@ -13,7 +13,7 @@ interface LineGraphicProps {
     title: string;
   }[];
   title: string;
-  onRangeChange?: (event: AxisSetExtremesEventObject) => void;
+  isLoading?: boolean;
 }
 
 function getColorString(potentialColor: string | GradientColorObject | PatternObject | undefined, fallbackColor: string = '#333333'): string {
@@ -29,6 +29,20 @@ function getColorString(potentialColor: string | GradientColorObject | PatternOb
 }
 
 const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
+
+  const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
+  useEffect(() => {
+    const chart = chartComponentRef.current?.chart;
+    if (chart) {
+      if (props.isLoading) {
+        chart.showLoading('Carregando dados...');
+      } else {
+        chart.hideLoading();
+      }
+    }
+  }, [props.isLoading]);
+
 
    const { minTimestampMs, maxTimestampMs, series, yAxes } = useMemo(() => {
     let minTs: number | undefined = undefined;
@@ -222,31 +236,15 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
             text: 'Todos',
             title: 'Visualizar tudo'
         }],
-        selected: 3,
       },
       xAxis: {
         type: 'datetime',
-        // min: minTimestampMs,
-        // max: maxTimestampMs,
+        min: minTimestampMs,
+        max: maxTimestampMs,
         title: {
           text: 'Dados',
         },
         tickPixelInterval: 150,
-        events: {
-          load() {
-            const chart = this as any;
-            if (chart.rangeSelector && chart.rangeSelector.buttons) {
-              chart.rangeSelector.buttons.forEach((button: any) => {
-                const originalClick = button.onclick;
-                button.onclick = function (...args: any[]) {
-                  if (originalClick) originalClick.apply(this, args);
-                  const extremes = chart.xAxis[0].getExtremes();
-                  chart.xAxis[0].setExtremes(extremes.min, extremes.max);
-                };
-              });
-            }
-          }
-        },
       },
       yAxis: yAxes.length > 0 ? yAxes : [{
         title: {
@@ -359,7 +357,7 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
 
   return (
     <Box style={{ width: '100%', height: '500px', margin: '0 auto' }}>
-      <HighchartsReact highcharts={Highcharts} options={options} constructorType={'stockChart'} containerProps={{ style: { height: '100%'} }}/>
+      <HighchartsReact highcharts={Highcharts} options={options} constructorType={'stockChart'} containerProps={{ style: { height: '100%'} }} ref={chartComponentRef}/>
     </Box>
   );
 });

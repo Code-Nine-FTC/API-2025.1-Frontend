@@ -28,9 +28,13 @@ export default {
         }
     },
 
-    async getAlertCounts(): Promise<{ success: boolean; data?: AlertCountsResponse; error?: string }> {
+    async getAlertCounts(stationId?: number): Promise<{ success: boolean; data?: AlertCountsResponse; error?: string }> {
         try {
-            const response = await api.get("/dashboard/alert-counts");
+            const queryParams: { station_id?: number } = {};
+            if (stationId !== undefined) {
+                queryParams.station_id = stationId;
+            }
+            const response = await api.get("/dashboard/alert-counts", { params: queryParams });
             return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter contagem de alertas:", error.message || error);
@@ -41,9 +45,13 @@ export default {
         }
     },
     
-    async getMeasuresStatus(): Promise<{ success: boolean; data?: MeasuresStatusResponse[]; error?: string }> {
+    async getMeasuresStatus(stationId?: number): Promise<{ success: boolean; data?: MeasuresStatusResponse[]; error?: string }> {
         try {
-            const response = await api.get("/dashboard/alert-types");
+            const queryParams: { station_id?: number } = {};
+            if (stationId !== undefined) {
+                queryParams.station_id = stationId;
+            }
+            const response = await api.get("/dashboard/alert-types", { params: queryParams });
             return { success: true, data: response.data.data };
         } catch (error: any) {
             console.error("Erro ao obter status das medidas:", error.message || error);
