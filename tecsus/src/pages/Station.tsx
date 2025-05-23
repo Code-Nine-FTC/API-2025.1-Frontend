@@ -365,7 +365,7 @@ export default function StationPage() {
                     {selectedRangeKey === "custom" && (
                         <>
                             <TextField
-                                label="Start Date"
+                                label="Data inicial"
                                 type="date"
                                 value={customStartDate}
                                 onChange={(e) => setCustomStartDate(e.target.value)}
@@ -374,7 +374,7 @@ export default function StationPage() {
                                 size="small"
                             />
                             <TextField
-                                label="End Date"
+                                label="Data final"
                                 type="date"
                                 value={customEndDate}
                                 onChange={(e) => setCustomEndDate(e.target.value)}
