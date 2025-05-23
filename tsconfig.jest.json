@@ -1,0 +1,9 @@
+// This file is used to configure TypeScript for Jest testing
+{
+  "extends": "./tecsus/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "commonjs"
+  },
+  "include": ["tecsus/src", "tecsus/tests"]
+}

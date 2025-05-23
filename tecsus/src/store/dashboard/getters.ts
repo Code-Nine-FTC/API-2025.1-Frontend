@@ -1,5 +1,5 @@
 import api from "../globals";
-import { AlertCountsResponse, MeasuresStatusResponse, StationHistoricResponse, StationStatusResponse } from "./state";
+import { AlertCountsResponse, LastMeasureResponse, MeasuresStatusResponse, StationHistoricResponse, StationStatusResponse } from "./state";
 
 export default {
     async getStationStatus(): Promise<{ success: boolean; data?: StationStatusResponse; error?: string }> {
@@ -15,11 +15,11 @@ export default {
         }
     },
 
-    async getStationHistoric(stationId: number): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
+    async getStationHistoric(stationId: number, params?: { startDate?: string; endDate?: string }): Promise<{ success: boolean; data?: [StationHistoricResponse]; error?: string }> {
         try {
-            const response = await api.get(`/dashboard/station-history/${stationId}`);
+            const response = await api.get(`/dashboard/station-history/${stationId}`, { params });
             return { success: true, data: response.data.data };
-        } catch (error: any) {
+        } catch (error: any) { 
             console.error("Erro ao obter histórico das estações", error.message || error);
             return {
                 success: false,
@@ -41,7 +41,7 @@ export default {
         }
     },
     
-    async getMeasuresStatus(): Promise<{ success: boolean; data?: [MeasuresStatusResponse]; error?: string }> {
+    async getMeasuresStatus(): Promise<{ success: boolean; data?: MeasuresStatusResponse[]; error?: string }> {
         try {
             const response = await api.get("/dashboard/alert-types");
             return { success: true, data: response.data.data };
@@ -53,4 +53,17 @@ export default {
             };
         }
     },
+
+    async getLastMeasures(stationId: number): Promise<{ success: boolean; data?: LastMeasureResponse[]; error?: string }> {
+        try {
+            const response = await api.get(`/dashboard/last-measures/${stationId}`);
+            return { success: true, data: response.data.data };
+        } catch (error: any) {
+            console.error("Erro ao obter últimas medidas:", error.message || error);
+            return {
+                success: false,
+                error: error.message || "Erro ao obter últimas medidas",
+            };
+        }
+    }
 }
