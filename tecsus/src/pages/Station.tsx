@@ -6,7 +6,7 @@ import StationHeader from "../components/ui/stationHeader";
 import { useAuth } from "../components/authContext";
 import { LoggedLayout } from "../layout/layoutLogged";
 import DefaultLayout from "../layout/layoutNotLogged";
-import { Box, Button, CircularProgress, Divider, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AlertCard } from "../components/cards/alertCard";
 import GaugeGraphic from "../components/graphics/gaugeGraphic";
@@ -18,113 +18,17 @@ import PizzaGraphic from "../components/graphics/pizzaGraphic";
 import LineGraphic from "../components/graphics/stationHistoric";
 import { AlertCountsResponse, LastMeasureResponse, StationHistoricResponse } from "../store/dashboard/state";
 
-interface Measure {
-  measure_date: number; // Unix timestamp in seconds
-  value: number;
-  type: string;
-  measure_unit: string;
-  title: string;
-}
+type PredefinedRangeKey = "7d" | "30d" | "3m" | "6m" | "1y" | "all" | "custom";
 
+interface RangeOption {
+    key: PredefinedRangeKey;
+    label: string;
+}
 interface TemperatureProps {
   min: number;
   max: number;
   unit: string;
 }
-
-// const sampleLastMeasures: LastMeasureResponse[] = [
-//   {
-//     title: "Temperatura",
-//     type: "temp",
-//     value: 25.5,
-//     measure_unit: "°C",
-//     measure_date: Math.floor(Date.now() / 1000) - 300 
-//   },
-//   {
-//     title: "Umidade",
-//     type: "press",
-//     value: 1012,
-//     measure_unit: "hPa",
-//     measure_date: Math.floor(Date.now() / 1000) - 300
-//   },
-//   {
-//     title: "Pressão",
-//     type: "umid",
-//     value: 60,
-//     measure_unit: "%",
-//     measure_date: Math.floor(Date.now() / 1000) - 300
-//   },
-//   {
-//     title: "Velocidade do Vento",
-//     type: "velvent",
-//     value: 5.2,
-//     measure_unit: "m/s",
-//     measure_date: Math.floor(Date.now() / 1000) - 300
-//   }
-// ];
-
-// function generateHistoricalData(): Measure[] {
-//   const historicalData: Measure[] = [];
-//   const measureTypes = [
-//     { title: 'Temperatura', type: 'temp', unit: '°C', minVal: -5, maxVal: 35, dailyCycle: true },
-//     { title: 'Umidade', type: 'umid', unit: '%', minVal: 30, maxVal: 90, dailyCycle: true, inverseDailyCycle: true },
-//     { title: 'Pressão', type: 'press', unit: 'hPa', minVal: 980, maxVal: 1030 },
-//     { title: 'Velocidade do Vento', type: 'velvent', unit: 'm/s', minVal: 0, maxVal: 25 },
-//     { title: 'Precipitação Acumulada', type: 'precip', unit: 'mm', minVal: 0, maxVal: 5, isSparse: true },
-//   ];
-
-//   const endDate = new Date();
-//   const startDate = new Date();
-//   startDate.setFullYear(endDate.getFullYear() - 1); // Data for one year
-
-//   let currentDate = new Date(startDate.getTime());
-//   const intervalMinutes = 15;
-
-//   while (currentDate <= endDate) {
-//     const timestampInSeconds = Math.floor(currentDate.getTime() / 1000);
-//     const hourOfDay = currentDate.getHours(); // For daily cycle simulation
-
-//     for (const mt of measureTypes) {
-//       let value;
-//       if (mt.isSparse) {
-//         // Make sparse data (like rainfall) mostly zero
-//         value = Math.random() < 0.05 ? getRandomValue(mt.minVal, mt.maxVal) : 0;
-//       } else {
-//         value = getRandomValue(mt.minVal, mt.maxVal);
-//       }
-
-//       // Simulate a simple daily cycle for temperature and humidity
-//       if (mt.dailyCycle) {
-//         const cycleFactor = Math.sin((hourOfDay / 24) * 2 * Math.PI - Math.PI / 2); // Peaks around midday
-//         const range = mt.maxVal - mt.minVal;
-//         const baseValue = mt.minVal + range / 2;
-//         let cycleEffect = (cycleFactor * range) / 3; // Modulate effect strength
-        
-//         if (mt.type === 'Temperatura') {
-//             // Temperature higher during the day
-//             value = baseValue + cycleEffect + (Math.random() - 0.5) * (range / 5);
-//         } else if (mt.type === 'Umidade') {
-//             // Humidity generally lower during warmer parts of the day
-//              value = baseValue - cycleEffect + (Math.random() - 0.5) * (range / 5);
-//         }
-//         value = Math.max(mt.minVal, Math.min(mt.maxVal, value)); // Clamp within min/max
-//       }
-
-//       historicalData.push({
-//         measure_date: timestampInSeconds,
-//         value: parseFloat(value.toFixed(2)),
-//         type: mt.type,
-//         measure_unit: mt.unit,
-//         title: mt.title,
-//       });
-//     }
-//     currentDate.setMinutes(currentDate.getMinutes() + intervalMinutes);
-//   }
-
-//   return historicalData;
-// }
-
-// const historicData: Measure[] = generateHistoricalData()
 
 export default function StationPage() {
     const { id } = useParams();
@@ -142,40 +46,138 @@ export default function StationPage() {
     const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
     const [historicDataLoading, setHistoricDataLoading] = useState(true);
     const [historicDataError, setHistoricDataError] = useState<string | null>(null);
-    const [historicStartDate, setHistoricStartDate] = useState<Date | null>(null);
-    const [historicEndDate, setHistoricEndDate] = useState<Date | null>(null);
+    const [loadedRange, setLoadedRange] = useState<{start: Date, end: Date} | null>(null);
+    const [cachedData, setCachedData] = useState<Map<string, StationHistoricResponse[]>>(new Map());
+    
+    const [selectedRangeKey, setSelectedRangeKey] = useState<PredefinedRangeKey>("7d");
+    const [customStartDate, setCustomStartDate] = useState<string>("");
+    const [customEndDate, setCustomEndDate] = useState<string>("");
 
-    const fetchStationHistoricData = useCallback(async (start?: Date, end?: Date) => {
+    const rangeOptions: RangeOption[] = [
+      { key: "7d", label: "Ultima semana" },
+      { key: "30d", label: "Ultimo mês" },
+      { key: "3m", label: "Ultimos 3 meses" },
+      { key: "6m", label: "Ultimos 6 meses" },
+      { key: "1y", label: "Ultimo ano" },
+      { key: "all", label: "Todo o tempo" },
+      { key: "custom", label: "Customizado" },
+    ];
+
+    const fetchHistoricDataWithCaching = useCallback(async (start?: Date, end?: Date) => {
         if (!id) {
           console.error("ID da estação não encontrado");
+          setHistoricDataLoading(false);
           return;
         }
-        console.log(`[StationPage] fetchStationHistoricData: Called with ID: ${id}, Start: ${start}, End: ${end}`);
         setHistoricDataLoading(true);
         setHistoricDataError(null);
+
+        const cacheKey = (start && end) 
+            ? `${start.toISOString()}_${end.toISOString()}` 
+            : (!start && !end) ? "all_time" : `start_${start?.toISOString()}_end_${end?.toISOString()}`; 
+
+        if (cachedData.has(cacheKey)) {
+            const cachedResponse = cachedData.get(cacheKey);
+            setHistoricData(cachedResponse || []);
+            if (start && end) setLoadedRange({ start, end });
+            else setLoadedRange(null);
+            setHistoricDataLoading(false);
+            return;
+        }
+
         try {
             const params = {
                 startDate: start ? start.toISOString().split('T')[0] : undefined, 
                 endDate: end ? end.toISOString().split('T')[0] : undefined,    
             };
-            console.log('[StationPage] fetchStationHistoricData: Preparing to call API with params:', params);
             const response = await dashboardGetters.getStationHistoric(Number(id), params);
-            console.log('[StationPage] fetchStationHistoricData: API response received:', response);
             if (response.success && response.data) {
-                setHistoricData(response.data);
+                const fetchedData = response.data || [];
+                setHistoricData(fetchedData);
+                setCachedData((prev) => new Map(prev).set(cacheKey, fetchedData));
+                if (start && end) {
+                    setLoadedRange({ start, end });
+                } else {
+                    setLoadedRange(null); 
+                }
             } else {
                 setHistoricDataError(response.error || "Falha ao carregar dados históricos");
                 setHistoricData([]); 
             }
         } catch (err) {
-            console.error('[StationPage] fetchStationHistoricData: Error during API call:', err);
             setHistoricDataError(err instanceof Error ? err.message : "Erro desconhecido ao buscar dados históricos");
             setHistoricData([]);
         } finally {
             setHistoricDataLoading(false);
         }
-    }, [id]);
+    }, [id, cachedData]);
+    
+    const calculateDatesFromRange = useCallback((
+        rangeKey: PredefinedRangeKey, 
+        customStartStr?: string, 
+        customEndStr?: string
+    ): { start?: Date, end?: Date } => {
+        const today = new Date();
+        let startDate: Date | undefined = new Date(today); 
+        let endDate: Date | undefined = new Date(today);
 
+        endDate.setHours(23, 59, 59, 999);
+
+        switch (rangeKey) {
+            case "7d":
+                startDate.setDate(today.getDate() - 7);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "30d":
+                startDate.setDate(today.getDate() - 30);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "3m":
+                startDate.setMonth(today.getMonth() - 3);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "6m":
+                startDate.setMonth(today.getMonth() - 6);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "1y":
+                startDate.setFullYear(today.getFullYear() - 1);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "all":
+                startDate = undefined;
+                endDate = undefined;
+                break;
+            case "custom":
+                if (customStartStr) {
+                    startDate = new Date(customStartStr + "T00:00:00");
+                } else {
+                    startDate = undefined;
+                }
+                if (customEndStr) {
+                    endDate = new Date(customEndStr + "T23:59:59"); 
+                } else {
+                    endDate = undefined;
+                }
+                break;
+            default: 
+                startDate.setDate(today.getDate() - 7);
+                startDate.setHours(0, 0, 0, 0);
+        }
+        return { start: startDate, end: endDate };
+    }, []);
+
+    const handleApplyDateRange = useCallback(() => {
+        if (!id) return;
+        const { start, end } = calculateDatesFromRange(selectedRangeKey, customStartDate, customEndDate);
+        
+        if (selectedRangeKey === "custom" && (!start || !end)) {
+            setHistoricDataError("Para um período customizado, ambas datas de início e fim devem ser selecionadas.");
+            return;
+        }
+        fetchHistoricDataWithCaching(start, end);
+    }, [id, selectedRangeKey, customStartDate, customEndDate, calculateDatesFromRange, fetchHistoricDataWithCaching]);
+    
     useEffect(() => {
         const fetchStation = async () => {
             try {
@@ -201,8 +203,8 @@ export default function StationPage() {
                 measureStatusResponse,
                 lastMeasuresResponse
             ] = await Promise.all([
-                dashboardGetters.getAlertCounts(),
-                dashboardGetters.getMeasuresStatus(),
+                dashboardGetters.getAlertCounts(Number(id)),
+                dashboardGetters.getMeasuresStatus(Number(id)),
                 dashboardGetters.getLastMeasures(Number(id))
             ]);
 
@@ -223,6 +225,8 @@ export default function StationPage() {
                 y: item.total  
             }));
             setMeasureStatus(formattedData ?? []);
+            
+            handleApplyDateRange();
         } catch (error) {
             setError(error instanceof Error ? error.message : "Ocorreu um erro desconhecido");
           }
@@ -232,29 +236,6 @@ export default function StationPage() {
             fetchStation();
         }
     }, [id]);
-
-    useEffect(() => {
-        if (id) { 
-            const today = new Date();
-            const endDateFormatted = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
-
-            const oneWeekAgo = new Date(today);
-            oneWeekAgo.setDate(today.getDate() - 7);
-            const startDateFormatted = new Date(oneWeekAgo.getFullYear(), oneWeekAgo.getMonth(), oneWeekAgo.getDate(), 0, 0, 0, 0);
-        
-            fetchStationHistoricData(startDateFormatted, endDateFormatted);           
-        }
-    }, [id]);
-
-    const handleSetExtremes = useCallback((event: Highcharts.AxisSetExtremesEventObject) => {
-        if (event.min !== undefined && event.max !== undefined) {
-            setHistoricStartDate(new Date(event.min));
-            setHistoricEndDate(new Date(event.max));
-        } else {
-            setHistoricStartDate(null);
-            setHistoricEndDate(null);
-        }
-    }, []);
 
     function getTemperatureProps(unitFromMeasure: string): TemperatureProps {
       switch (unitFromMeasure?.toUpperCase()) {
@@ -347,17 +328,73 @@ export default function StationPage() {
                       </>
                       )}
                     )}
-                    <Box sx={{ minWidth: 260, flex: 1 }}>
-                      <PizzaGraphic title="Alertas" data={measureStatus} />
-                    </Box>
+                    {measureStatus.length > 0 ? (
+                      <Box sx={{ minWidth: 260, flex: 1 }}>
+                        <PizzaGraphic title="Alertas" data={measureStatus} />
+                      </Box>
+                    ) : (
+                      <Box sx={{ minWidth: 260, flex: 1 }}>
+                        <Typography variant="h6" color="text.secondary" textAlign="center">
+                          Nenhum alerta encontrado
+                        </Typography>
+                      </Box>
+                    )}
                 </Stack>
 
                 <Divider sx={{ margin: '16px 0' }} />
-                {historicDataLoading && <Box textAlign="center" my={2}><CircularProgress /></Box>}
+                <Typography variant="h6" gutterBottom sx={{color: "rgb(146, 123, 230)", fontWeight:'bold'}}>
+                    Escolha um período para visualizar o histórico
+                </Typography>
+                  <Stack direction={{xs: "column", sm: "row"}} spacing={2} alignItems="center" mb={2}>
+                    <FormControl sx={{ minWidth: 180, flexGrow: {sm: 1} }} size="small">
+                        <InputLabel id="range-select-label">Períodos pré-determinados</InputLabel>
+                        <Select
+                            labelId="range-select-label"
+                            value={selectedRangeKey}
+                            label="Predefined Range"
+                            onChange={(e) => setSelectedRangeKey(e.target.value as PredefinedRangeKey)}
+                        >
+                            {rangeOptions.map(option => (
+                                <MenuItem key={option.key} value={option.key}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {selectedRangeKey === "custom" && (
+                        <>
+                            <TextField
+                                label="Start Date"
+                                type="date"
+                                value={customStartDate}
+                                onChange={(e) => setCustomStartDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                sx={{flexGrow: {sm: 1}}}
+                                size="small"
+                            />
+                            <TextField
+                                label="End Date"
+                                type="date"
+                                value={customEndDate}
+                                onChange={(e) => setCustomEndDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                sx={{flexGrow: {sm: 1}}}
+                                size="small"
+                            />
+                        </>
+                    )}
+                    <Button 
+                        variant="contained" 
+                        onClick={handleApplyDateRange} 
+                        sx={{height: '40px', backgroundColor: "rgb(146, 123, 230)", '&:hover': {backgroundColor: "rgb(120, 100, 200)"}}}
+                    >
+                        Buscar dados
+                    </Button>
+                  </Stack>
+                {/* {historicDataLoading && <Box textAlign="center" my={2}><CircularProgress /></Box>} */}
                 {historicDataError && <Typography color="error" textAlign="center" my={2}>{historicDataError}</Typography>}
-                {!historicDataLoading && !historicDataError && (
-                  <LineGraphic title="Histórico de medições" measure={historicData} onRangeChange={handleSetExtremes}/>
-                )}
+                <LineGraphic title="Histórico de medições" measure={historicData} isLoading={historicDataLoading}/>
               </Paper>
               <Paper
                   sx={{
