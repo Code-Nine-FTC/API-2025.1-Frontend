@@ -57,7 +57,7 @@ export default function StationPage() {
       { key: "7d", label: "Ultima semana" },
       { key: "30d", label: "Ultimo mês" },
       { key: "3m", label: "Ultimos 3 meses" },
-      { key: "6m", label: "Ultimos  meses" },
+      { key: "6m", label: "Ultimos 6 meses" },
       { key: "1y", label: "Ultimo ano" },
       { key: "all", label: "Todo o tempo" },
       { key: "custom", label: "Customizado" },
