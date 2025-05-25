@@ -13,7 +13,7 @@ export const LoggedLayout = ({ children }: { children: React.ReactNode }) => {
           minHeight: "100vh",
           width: "100vw",
           bgcolor: "#f5f5f5",
-          py: 5,
+          // py: 5,
           flexGrow: 1
         }}
       >

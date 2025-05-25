@@ -11,6 +11,7 @@ import RegisterParameterType from "../RegisterParameterType";// Importe o compon
 import ProfilePage from "../Profile";
 import RegisterAlertType from "../RegisterTypeAlert";
 import AlertTypePage from "../AlertType";
+import EditStationPage from "../EditStation";
 
 const AuthenticatedRoutes: React.FC = () => {
   return (
@@ -27,7 +28,14 @@ const AuthenticatedRoutes: React.FC = () => {
         path="/list-station"
         element={
           <ProtectedRoute>
-            <StationsListPage />
+            <StationsListPage/>
+          </ProtectedRoute>
+        }></Route>
+      <Route
+        path="/edit-station/:id"
+        element={
+          <ProtectedRoute>
+            <EditStationPage />
           </ProtectedRoute>
         }></Route>
       <Route

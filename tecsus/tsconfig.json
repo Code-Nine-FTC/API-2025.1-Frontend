@@ -9,6 +9,16 @@
     "paths": {
       "@components/*": ["src/components/*"]
     },
+
+    "jsx": "react-jsx",
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src", "tests", "jest.config.ts"]
+}
+
 	"noEmitOnError": false,
   }
 }
+
