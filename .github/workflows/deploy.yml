@@ -1,0 +1,36 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/API-2025.1-Frontend/tecsus
+
+            echo "Parando container antigo..."
+            docker container stop frontend-app || true
+            docker container rm frontend-app || true
+            docker image prune -f || true
+            docker system prune -f || true
+
+            echo "Construindo nova imagem..."
+            docker build -t frontend-img:${{ github.sha }} .
+
+            echo "Subindo novo container..."
+            docker run -d \
+              --name frontend-app \
+              -p 4173:4173 \
+              --restart unless-stopped \
+              frontend-img
