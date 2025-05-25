@@ -1,479 +1,480 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { LoggedLayout } from "../layout/layoutLogged";
-import { 
-  Box, 
-  Button, 
-  CircularProgress, 
-  Paper, 
-  Typography,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  SelectChangeEvent
-} from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ListStationsResponse } from "../store/station/state";
 import stationGetters from "../store/station/getters";
-import { ListStationsResponse, UpdateStation } from "../store/station/state";
-import parameterGetters from "../store/typeparameters/getters";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+import StationHeader from "../components/ui/stationHeader";
 import { useAuth } from "../components/authContext";
-import { BlockOutlined, Check } from "@mui/icons-material";
+import { LoggedLayout } from "../layout/layoutLogged";
 import DefaultLayout from "../layout/layoutNotLogged";
+import { Box, Button, CircularProgress, Divider, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { AlertCard } from "../components/cards/alertCard";
+import GaugeGraphic from "../components/graphics/gaugeGraphic";
+import ThermometerGraphic from "../components/graphics/thermometerGraphic";
+import dashboardGetters from "../store/dashboard/getters";
+import BucketGraphic from "../components/graphics/bucketGraphic";
+import VelocimeterGraphic from "../components/graphics/velocimeterGraphic";
+import PizzaGraphic from "../components/graphics/pizzaGraphic";
+import LineGraphic from "../components/graphics/stationHistoric";
+import { AlertCountsResponse, LastMeasureResponse, StationHistoricResponse } from "../store/dashboard/state";
 
-const StationPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [station, setStation] = useState<ListStationsResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState<boolean>(false);
+type PredefinedRangeKey = "7d" | "30d" | "3m" | "6m" | "1y" | "all" | "custom";
 
-  const[name, setName] = useState<string>("")
-  const[uid, setUid] = useState<string>("")
-  const[city, setCity] = useState<string>("")
-  const[state, setState] = useState<string>("")
-  const[country, setCountry] = useState<string>("")
-  const[latitude, setLatitude] = useState<number>(0)
-  const[longitude, setLongitude] = useState<number>(0)
-  const[status, setStatus] = useState<boolean>(true)
-  const[parameters, setParameters] = useState<Array<{
-    parameter_id: number;
-    name_parameter: string;
-    parameter_type_id: number;
-  }>>([]);
+interface RangeOption {
+    key: PredefinedRangeKey;
+    label: string;
+}
+interface TemperatureProps {
+  min: number;
+  max: number;
+  unit: string;
+}
 
-  const [allParameters, setAllParameters] = useState<Array<{
-    id: number; 
-    name: string;
-  }>>([]);
+export default function StationPage() {
+    const { id } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [station, setStation] = useState<ListStationsResponse | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const auth = useAuth();
+    const navigate = useNavigate();
+    
+    const [alertCounts, setAlertCounts] = useState<AlertCountsResponse>();
+    const [measureStatus, setMeasureStatus] = useState<{ name: string; y: number }[]>([]);
+    const [lastMeasures, setLastMeasures] = useState<LastMeasureResponse[]>([]);
+    const [temperatureProps, setTemperatureProps] = useState<TemperatureProps | null>(null);
+    
+    const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
+    const [historicDataLoading, setHistoricDataLoading] = useState(true);
+    const [historicDataError, setHistoricDataError] = useState<string | null>(null);
+    const [loadedRange, setLoadedRange] = useState<{start: Date, end: Date} | null>(null);
+    const [cachedData, setCachedData] = useState<Map<string, StationHistoricResponse[]>>(new Map());
+    
+    const [selectedRangeKey, setSelectedRangeKey] = useState<PredefinedRangeKey>("7d");
+    const [customStartDate, setCustomStartDate] = useState<string>("");
+    const [customEndDate, setCustomEndDate] = useState<string>("");
 
-  const [selectedParameters, setSelectedParameters] = useState<number[]>([]);
+    const rangeOptions: RangeOption[] = [
+      { key: "7d", label: "Ultima semana" },
+      { key: "30d", label: "Ultimo mês" },
+      { key: "3m", label: "Ultimos 3 meses" },
+      { key: "6m", label: "Ultimos 6 meses" },
+      { key: "1y", label: "Ultimo ano" },
+      { key: "all", label: "Todo o tempo" },
+      { key: "custom", label: "Customizado" },
+    ];
 
-  const auth = useAuth();
-
-  useEffect(() => {
-    async function fetchStationDetails() {
-      try {
-        setLoading(true);
-
-        const response = await stationGetters.getStation(Number(id));
-        
-        if (response.success && response.data) {
-            setStation(response.data);
-            setName(response.data.name_station);
-            setUid(response.data.uid);
-            setStatus(response.data.is_active);
-            setCity(response.data.address?.city || "");
-            setState(response.data.address?.state || "");
-            setCountry(response.data.address?.country || "");
-            setLatitude(response.data.latitude);
-            setLongitude(response.data.longitude);
-
-            if (response.data.parameters) {
-              setParameters(response.data.parameters);
-              setSelectedParameters(response.data.parameters.map((param) => param.parameter_type_id));
-            }
-
-            setStation(response.data);
-            
-        } else {
-          setError("Não foi possível carregar os detalhes da estação.");
+    const fetchHistoricDataWithCaching = useCallback(async (start?: Date, end?: Date) => {
+        if (!id) {
+          console.error("ID da estação não encontrado");
+          setHistoricDataLoading(false);
+          return;
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
-      } finally {
-        setLoading(false);
+        setHistoricDataLoading(true);
+        setHistoricDataError(null);
+
+        const cacheKey = (start && end) 
+            ? `${start.toISOString()}_${end.toISOString()}` 
+            : (!start && !end) ? "all_time" : `start_${start?.toISOString()}_end_${end?.toISOString()}`; 
+
+        if (cachedData.has(cacheKey)) {
+            const cachedResponse = cachedData.get(cacheKey);
+            setHistoricData(cachedResponse || []);
+            if (start && end) setLoadedRange({ start, end });
+            else setLoadedRange(null);
+            setHistoricDataLoading(false);
+            return;
+        }
+
+        try {
+            const params = {
+                startDate: start ? start.toISOString().split('T')[0] : undefined, 
+                endDate: end ? end.toISOString().split('T')[0] : undefined,    
+            };
+            const response = await dashboardGetters.getStationHistoric(Number(id), params);
+            if (response.success && response.data) {
+                const fetchedData = response.data || [];
+                setHistoricData(fetchedData);
+                setCachedData((prev) => new Map(prev).set(cacheKey, fetchedData));
+                if (start && end) {
+                    setLoadedRange({ start, end });
+                } else {
+                    setLoadedRange(null); 
+                }
+            } else {
+                setHistoricDataError(response.error || "Falha ao carregar dados históricos");
+                setHistoricData([]); 
+            }
+        } catch (err) {
+            setHistoricDataError(err instanceof Error ? err.message : "Erro desconhecido ao buscar dados históricos");
+            setHistoricData([]);
+        } finally {
+            setHistoricDataLoading(false);
+        }
+    }, [id, cachedData]);
+    
+    const calculateDatesFromRange = useCallback((
+        rangeKey: PredefinedRangeKey, 
+        customStartStr?: string, 
+        customEndStr?: string
+    ): { start?: Date, end?: Date } => {
+        const today = new Date();
+        let startDate: Date | undefined = new Date(today); 
+        let endDate: Date | undefined = new Date(today);
+
+        endDate.setHours(23, 59, 59, 999);
+
+        switch (rangeKey) {
+            case "7d":
+                startDate.setDate(today.getDate() - 7);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "30d":
+                startDate.setDate(today.getDate() - 30);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "3m":
+                startDate.setMonth(today.getMonth() - 3);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "6m":
+                startDate.setMonth(today.getMonth() - 6);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "1y":
+                startDate.setFullYear(today.getFullYear() - 1);
+                startDate.setHours(0, 0, 0, 0);
+                break;
+            case "all":
+                startDate = undefined;
+                endDate = undefined;
+                break;
+            case "custom":
+                if (customStartStr) {
+                    startDate = new Date(customStartStr + "T00:00:00");
+                } else {
+                    startDate = undefined;
+                }
+                if (customEndStr) {
+                    endDate = new Date(customEndStr + "T23:59:59"); 
+                } else {
+                    endDate = undefined;
+                }
+                break;
+            default: 
+                startDate.setDate(today.getDate() - 7);
+                startDate.setHours(0, 0, 0, 0);
+        }
+        return { start: startDate, end: endDate };
+    }, []);
+
+    const handleApplyDateRange = useCallback(() => {
+        if (!id) return;
+        const { start, end } = calculateDatesFromRange(selectedRangeKey, customStartDate, customEndDate);
+        
+        if (selectedRangeKey === "custom" && (!start || !end)) {
+            setHistoricDataError("Para um período customizado, ambas datas de início e fim devem ser selecionadas.");
+            return;
+        }
+        fetchHistoricDataWithCaching(start, end);
+    }, [id, selectedRangeKey, customStartDate, customEndDate, calculateDatesFromRange, fetchHistoricDataWithCaching]);
+    
+    useEffect(() => {
+        const fetchStation = async () => {
+            try {
+                const response = await stationGetters.getStation(Number(id));
+                if (response.success && response.data) {
+                    setStation(response.data);
+                }
+                else {
+                    setError("Não foi possível carregar os dados da estação");
+                }
+            } catch (error) {
+                setError(error instanceof Error ? error.message : "Ocorreu um erro desconhecido");
+            } finally {
+                fetchDashboard();
+                setLoading(false);
+            }
+        };
+
+        const fetchDashboard = async () => {
+          try {
+            const [
+                alertCountsResponse,
+                measureStatusResponse,
+                lastMeasuresResponse
+            ] = await Promise.all([
+                dashboardGetters.getAlertCounts(Number(id)),
+                dashboardGetters.getMeasuresStatus(Number(id)),
+                dashboardGetters.getLastMeasures(Number(id))
+            ]);
+
+            setAlertCounts(alertCountsResponse.data ?? {R: 0, Y: 0 , G: 0});
+            setLastMeasures(lastMeasuresResponse.data ?? []);
+            
+            if (lastMeasuresResponse.data) {
+                lastMeasuresResponse.data.forEach((measure) => {
+                    if (measure.type === "temp") {
+                        const temperatureProps = getTemperatureProps(measure.measure_unit);
+                        setTemperatureProps(temperatureProps);
+                    }
+                });
+            };
+                      
+            const formattedData = measureStatusResponse.data?.map(item => ({
+                name: item.name,  
+                y: item.total  
+            }));
+            setMeasureStatus(formattedData ?? []);
+            
+            handleApplyDateRange();
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Ocorreu um erro desconhecido");
+          }
+        }
+
+        if (id) {
+            fetchStation();
+        }
+    }, [id]);
+
+    function getTemperatureProps(unitFromMeasure: string): TemperatureProps {
+      switch (unitFromMeasure?.toUpperCase()) {
+        case '°C':
+        case 'C':
+        case 'CELSIUS':
+          return { min: -30, max: 60, unit: '°C' };
+        case '°F':
+        case 'F':
+        case 'FAHRENHEIT':
+          return { min: -22, max: 140, unit: '°F' };
+        case 'K':
+        case 'KELVIN':
+          return { min: 243, max: 333, unit: 'K' }; 
+        default:
+          return { min: -30, max: 60, unit: '°C' };
       }
     }
 
-    if (id) {
-      fetchStationDetails();
-    }
-  }, []);
-
-  async function fetchAllParameters() {
-    try {
-      const response = await parameterGetters.listParameterTypes({ is_active: true });
-      if (response.success) {
-        setAllParameters(response.data || []);
-      } else {
-        setError("Erro ao carregar parâmetros.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
-    }
-  }
-
-  useEffect(() => {
-    if (editMode) {
-      fetchAllParameters()
-    }
-  }, [editMode]);
-
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-
-      const updatedStation: UpdateStation = {}
-
-      const address: {city?: string; state?: string; country?: string} = {}
-
-      if (name != station?.name_station) updatedStation.name = name;
-      if (uid != station?.uid) updatedStation.uid = uid;
-      if (latitude != station?.latitude) updatedStation.latitude = latitude;
-      if (longitude != station?.longitude) updatedStation.longitude = longitude;
-      if (city != station?.address?.city) address.city = city;
-      if (state != station?.address?.state) address.state = state;
-      if (country != station?.address?.country) address.country = country;
-
-      if (Object.keys(address).length > 0) updatedStation.address = address;
-      
-      updatedStation.parameter_types = selectedParameters;
-
-      console.log(updatedStation)
-
-      const response = await stationGetters.updateStation(Number(id), updatedStation);
-      
-      if (response.success) {
-        setEditMode(false);
-        setLoading(false);
-        setError(null);
-        location.reload()
-      } else {
-        setError("Erro ao atualizar a estação.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocorreu um erro ao salvar as alterações");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  async function handleDeactivate() {
-    try {
-      setLoading(true);
-      const response = await stationGetters.deactivateStation(Number(id));
-      if (response.success) {
-        setEditMode(false);
-        setLoading(false);
-        location.reload()
-
-      } else {
-        setError("Erro ao desativar a estação.");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocorreu um erro ao desativar a estação");
-    }
-  };
-
-  function handleParameterChange(event: SelectChangeEvent<number[]>) {
-    const value = event.target.value as number[];
-    setSelectedParameters(value);
-  }
-
-  if (loading) {
-    return (
-      <LoggedLayout>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-          <CircularProgress />
-        </Box>
-      </LoggedLayout>
-    );
-  }
-
-  if (error || !station) {
-    return (
-      <LoggedLayout>
-        <Box margin={2}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h5" color="error" gutterBottom>
-              {error || "Estação não encontrada"}
-            </Typography>
-            <Button 
-              variant="contained" 
-              startIcon={<ArrowBackIcon />}
-              onClick={() => navigate("/list-station")}
-            >
-              Voltar
-            </Button>
-          </Paper>
-        </Box>
-      </LoggedLayout>
-    );
-  }
-
-  const content = (
-      <Box className="estacao-wrapper">
-        <Paper className="estacao-card">
-          <Typography variant="h4" align="center" className="estacao-title">
-            {editMode ? "Editar Estação" : "Detalhes da Estação"}
-          </Typography>
-          <form
-            className="estacao-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSave();
+    const content = (
+        <Box sx={{
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
             }}
-          >
-            <div className={"input-group-wrapper"}>
-              <div className="input-group">
-                <label className="input-label">
-                  <strong>Nome da estação</strong>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={!editMode}
-                  className="input-field"
-                />
-              </div>
-            </div>
-            <div className={"input-group-wrapper"}>
-              <div className="input-group">
-                <label className="input-label">
-                  <strong>UID</strong>
-                </label>
-                <input
-                  type="text"
-                  name="uid"
-                  value={uid}
-                  onChange={(e) => setUid(e.target.value)}
-                  disabled={!editMode}
-                  className="input-field"
-                />
-              </div>
-            </div>
-            <div className="row">
-              <div className={"input-group-wrapper input-bairro"}>
-                <div className="input-group">
-                  <label className="input-label">
-                    <strong>País</strong>
-                  </label>
-                  <input
-                    type="text"
-                    name="country"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    disabled={!editMode}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-              <div className={"input-group-wrapper input-cidade"}>
-                <div className="input-group">
-                  <label className="input-label">
-                    <strong>Cidade</strong>
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    disabled={!editMode}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-              <div className={"input-group-wrapper input-tiny"}>
-                <div className="input-group">
-                  <label className="input-label">
-                    <strong>Estado</strong>
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    disabled={!editMode}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className={"input-group-wrapper input-coord"}>
-                <div className="input-group">
-                  <label className="input-label">
-                    <strong>Latitude</strong>
-                  </label>
-                  <input
-                    type="text"
-                    name="latitude"
-                    value={latitude}
-                    onChange={(e) => setLatitude(Number(e.target.value))}
-                    disabled={!editMode}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-              <div className={"input-group-wrapper input-coord"}>
-                <div className="input-group">
-                  <label className="input-label">
-                    <strong>Longitude</strong>
-                  </label>
-                  <input
-                    type="text"
-                    name="longitude"
-                    value={longitude}
-                    onChange={(e) => setLongitude(Number(e.target.value))}
-                    disabled={!editMode}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-              
-                <div className={"input-group-wrapper"} style={{ width: "100%" }}>
-                  <div className="input-group">
-                    <label className="input-label">
-                      <strong>Parâmetros</strong>
-                    </label>
-                    
-                    {!editMode && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                        {parameters.length > 0 ? (
-                          parameters.map((param) => (
-                            <Chip
-                              key={param.parameter_id}
-                              label={param.name_parameter}
-                              sx={{ 
-                                backgroundColor: "#5f5cd9",
-                                color: "white",
-                              }}
-                            />
-                          ))
-                        ) : (
-                          <Typography sx={{ color: '#666' }}>Nenhum parâmetro vinculado</Typography>
-                        )}
-                      </div>
-                    )}
-                    
-                    {editMode && (
-                      <>
-                        <FormControl fullWidth sx={{ mt: 1, mb: 2 }}>
-                          <InputLabel id="parameter-select-label">Selecione os parâmetros</InputLabel>
-                          <Select
-                            labelId="parameter-select-label"
-                            id="parameter-select"
-                            multiple
-                            value={selectedParameters}
-                            onChange={handleParameterChange}
-                            input={<OutlinedInput label="Selecione os parâmetros" />}
-                            renderValue={(selected) => (
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {selected.map((paramTypeId) => {
-                                  const param = allParameters.find(p => p.id === paramTypeId);
-                                  return (
-                                    <Chip 
-                                      key={paramTypeId} 
-                                      label={param?.name || `Parâmetro ${paramTypeId}`} 
-                                      sx={{ backgroundColor: "#5f5cd9", color: "white" }}
-                                    />
-                                  );
-                                })}
-                              </Box>
-                            )}
-                          >
-                            {allParameters.map((param) => (
-                              <MenuItem key={param.id} value={param.id}>
-                                {param.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+        >
+            <StationHeader station={station}/>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "stretch",
+                justifyContent: "center",
+                width: "100%",
+                padding: 2,
+                gap: 2,
+                paddingTop: { xs: 6, sm: 6, md: 2, lg: 2 },
+              }}
+              flexDirection={{ xs: "column", sm: "column", md: "row", lg: "row" }}
+            >
 
-            {auth.isAuthenticated && (
-              
-          <Box mt={3} textAlign="center">
-            {!editMode ? (
-              <>
-                <Button
-                  variant="contained"
-                  startIcon={<EditIcon />}
-                  onClick={() => setEditMode(true)}
-                  className="estacao-btn"
-                  sx={{ 
-                    backgroundColor: "#5f5cd9", 
-                    color: "white", 
-                    marginRight: 2 
+              <Paper
+                  sx={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '16px',
+                    padding: '48px',   
+                    width: { xs: "100%", md: "80%", lg: "80%" },
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                    boxSizing: 'border-box',
+                    flexGrow: 3,
                   }}
                 >
-                  Editar
-                </Button>
+                  <Typography 
+                    variant="h4" 
+                    fontWeight='bold' 
+                    color="rgb(146, 123, 230)"
+                  >
+                    Dashboard da Estação
+                  </Typography>
+                  <Divider sx={{ margin: '16px 0' }} />
+                  
+                  <Stack 
+                    direction={{ xs: 'column', sm: 'column', md: 'row' }} 
+                    spacing={4} flexWrap="wrap" 
+                    justifyContent="space-evenly" 
+                    alignItems="center"
+                    width= {{ xs: "100%", sm: '100%', md: "80%", lg: "100%" }}>
+                     {lastMeasures.map((measure, index) => {
+                      return (
+                        <>
+                        {measure.type === "temp" && temperatureProps && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <ThermometerGraphic title="Temperatura" value={measure.value ?? 0} min={temperatureProps.min} max={temperatureProps.max} unit={temperatureProps.unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "press" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <GaugeGraphic title="Pressão atmosférica" value={measure.value} min={950} max={1050} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "umid" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <BucketGraphic title="Umidade do ar" value={measure.value} min={0} max={100} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                        {measure.type === "velvent" && (
+                          <Box sx={{ minWidth: 260, flex: 1 }}>
+                            <VelocimeterGraphic title="Velocidade do vento" value={measure.value} min={0} max={100} unit={measure.measure_unit} measureDate={measure.measure_date.toString()}/>
+                          </Box>
+                        )}
+                      </>
+                      )}
+                    )}
+                    {measureStatus.length > 0 ? (
+                      <Box sx={{ minWidth: 260, flex: 1 }}>
+                        <PizzaGraphic title="Alertas" data={measureStatus} />
+                      </Box>
+                    ) : (
+                      <Box sx={{ minWidth: 260, flex: 1 }}>
+                        <Typography variant="h6" color="text.secondary" textAlign="center">
+                          Nenhum alerta encontrado
+                        </Typography>
+                      </Box>
+                    )}
+                </Stack>
+
+                <Divider sx={{ margin: '16px 0' }} />
+                <Typography variant="h6" gutterBottom sx={{color: "rgb(146, 123, 230)", fontWeight:'bold'}}>
+                    Escolha um período para visualizar o histórico
+                </Typography>
+                  <Stack direction={{xs: "column", sm: "row"}} spacing={2} alignItems="center" mb={2}>
+                    <FormControl sx={{ minWidth: 180, flexGrow: {sm: 1} }} size="small">
+                        <InputLabel id="range-select-label">Períodos pré-determinados</InputLabel>
+                        <Select
+                            labelId="range-select-label"
+                            value={selectedRangeKey}
+                            label="Predefined Range"
+                            onChange={(e) => setSelectedRangeKey(e.target.value as PredefinedRangeKey)}
+                        >
+                            {rangeOptions.map(option => (
+                                <MenuItem key={option.key} value={option.key}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    {selectedRangeKey === "custom" && (
+                        <>
+                            <TextField
+                                label="Data inicial"
+                                type="date"
+                                value={customStartDate}
+                                onChange={(e) => setCustomStartDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                sx={{flexGrow: {sm: 1}}}
+                                size="small"
+                            />
+                            <TextField
+                                label="Data final"
+                                type="date"
+                                value={customEndDate}
+                                onChange={(e) => setCustomEndDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                sx={{flexGrow: {sm: 1}}}
+                                size="small"
+                            />
+                        </>
+                    )}
+                    <Button 
+                        variant="contained" 
+                        onClick={handleApplyDateRange} 
+                        sx={{height: '40px', backgroundColor: "rgb(146, 123, 230)", '&:hover': {backgroundColor: "rgb(120, 100, 200)"}}}
+                    >
+                        Buscar dados
+                    </Button>
+                  </Stack>
+                {/* {historicDataLoading && <Box textAlign="center" my={2}><CircularProgress /></Box>} */}
+                {historicDataError && <Typography color="error" textAlign="center" my={2}>{historicDataError}</Typography>}
+                <LineGraphic title="Histórico de medições" measure={historicData} isLoading={historicDataLoading}/>
+              </Paper>
+              <Paper
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: { xs: "100%", sm: "100%", md: 'fit-content', lg: 'fit-content' },
+                    flexGrow: 1,
+                    paddingTop: '10px',
+                    borderRadius: '16px',
+                  }}
+                >
+                  <Typography 
+                    variant="h5" 
+                    sx={{ mb: 2, fontWeight: 600 }} 
+                    align="center"
+                    color="rgb(146, 123, 230)"
+                  >
+                      Alertas
+                  </Typography>
+                  <Stack
+                      direction="column"
+                      spacing={2}
+                      width= {{ xs: "90%", md: "80%", lg: "80%" }} 
+                      sx={{ mb: 4 }}
+                      alignItems="stretch"
+                  >
+                      <Box>
+                          <AlertCard type="R" count={alertCounts?.R ?? 0} />
+                      </Box>
+                      <Box>
+                          <AlertCard type="Y" count={alertCounts?.Y ?? 0} />
+                      </Box>
+                      <Box>
+                          <AlertCard type="G" count={alertCounts?.G ?? 0} />
+                      </Box>
+                  </Stack>
+              </Paper>
+          </Box>
+        </Box>
+    )
+    
+    if (loading) {
+        return (
+          <LoggedLayout>
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+              <CircularProgress />
+            </Box>
+          </LoggedLayout>
+        );
+      }
+
+    if (error || !station) {
+        return (
+          <LoggedLayout>
+            <Box margin={2}>
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="h5" color="error" gutterBottom>
+                  {error || "Estação não encontrada"}
+                </Typography>
                 <Button
-                  variant="outlined"
+                  variant="contained" 
                   startIcon={<ArrowBackIcon />}
-                  onClick={() => window.history.back()}
-                  className="estacao-btn"
+                  onClick={() => navigate("/list-station")}
                 >
                   Voltar
                 </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outlined"
-                  startIcon={<CancelIcon />}
-                  onClick={() => setEditMode(false)}
-                  className="estacao-btn"
-                  sx={{ marginRight: "10px", "&:hover": { color: "white" } }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant="contained"
-                  color={status ? "error" : "success"}
-                  startIcon={status ? <BlockOutlined /> : <Check />}
-                  onClick={() => handleDeactivate()}
-                  className="estacao-btn"
-                  sx={{
-                    "&:hover": { backgroundColor: status ? "#c9302c" : "rgb(45, 186, 2)" },
-                    mr: "10px",
-                    color: "white"
-                  }}
-                >
-                  {status ? "Desativar" : "Ativar"}
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<SaveIcon />}
-                  type="submit"
-                  className="estacao-btn"
-                  style={{ backgroundColor: "#5f5cd9", color: "white" }}
-                >
-                  Salvar
-                </Button>
-              </>
-            )}
-          </Box>
-          )}
-          </form>
-        </Paper>
-      </Box>
-  );
-  
-  return auth.isAuthenticated ? (
-      <LoggedLayout>
-        {content}
-      </LoggedLayout>
-    ):
-    (
-      <DefaultLayout>
-        {content}
-      </DefaultLayout>
-    )
-};
+              </Paper>
+            </Box>
+          </LoggedLayout>
+        );
+      }
 
-export default StationPage;
+    return auth.isAuthenticated ? (
+        <LoggedLayout>
+            {content}
+        </LoggedLayout>
+    ) : (
+        <DefaultLayout>
+            {content}
+        </DefaultLayout>
+    )
+}

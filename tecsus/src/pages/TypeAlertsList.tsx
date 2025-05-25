@@ -4,16 +4,15 @@ import {
   Button,
   CircularProgress,
   Paper,
-  TextField,
   Typography,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import GenericTable, { Column } from "../components/table";
 import typeAlertGetters from "../store/typealerts/getters";
 import { AlertTypeResponse } from "../store/typealerts/state";
 import { LoggedLayout } from "../layout/layoutLogged";
 import { useNavigate } from "react-router-dom";
+import FilterBox, { FilterField } from "../components/ui/FilterBox";
 
 const TypeAlertsPage = () => {
   const [typeAlerts, setTypeAlerts] = useState<AlertTypeResponse[]>([]);
@@ -77,131 +76,89 @@ const TypeAlertsPage = () => {
     { field: "create_date", headerName: "Data de Criação" },
   ];
 
+  const filters: FilterField[] = [
+    {
+      name: "nameFilter",
+      label: "Pesquisar Tipo de Alerta",
+      type: "text",
+      value: nameFilter,
+      onChange: (value) => setNameFilter(value),
+      options: typeAlerts.map((alert) => ({
+        value: alert.name,
+        label: alert.name,
+      })),
+      fullWidth: true
+    },
+    {
+      name: "statusFilter",
+      label: "Status",
+      type: "select",
+      value: statusFilter,
+      onChange: (value) => setStatusFilter(value),
+      options: [
+        { value: "G", label: "Seguro" },
+        { value: "Y", label: "Risco Moderado" },
+        { value: "R", label: "Risco Alto" }
+      ],
+      fullWidth: true
+    }
+  ];
+
   return (
     <LoggedLayout>
       <Box display={"flex"} flexDirection="column" gap={2} p={2} m={5}>
-        <Box
-          display="flex"
-          flexDirection={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-          gap={2}
-        >
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              color: "var(--purple-maincolor)",
-              fontWeight: "bold",
-              textAlign: { xs: "center", sm: "left" },
-            }}
-          >
-            Tipos de Alertas
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
-            onClick={() => navigate("/register-type-alert")}
-            sx={{
-              minHeight: 42,
-              borderRadius: "8px",
-              px: 3,
-              py: 1.2,
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              background:
-                "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
-              color: "#fff",
-              "&:hover": {
-                background:
-                  "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
-              },
-            }}
-          >
-            Novo Cadastrar
-          </Button>
-        </Box>
-
-        <Paper sx={{ p: 2 }}>
-          <Typography
-            variant="h6"
-            mb={2}
-            sx={{
-              color: "gray",
-              textAlign: { xs: "center", sm: "left" },
-            }}
-          >
-            Filtros de Busca
-          </Typography>
+        <Paper sx={{ p: 3, mb: 3 }}>
           <Box
             display="flex"
-            flexDirection={{ xs: "column", sm: "row" }}
-            gap={2}
-            width="100%"
-            sx={{ mb: 2 }}
+            justifyContent="space-between"
+            alignItems="center"
+            mb={3}
+            sx={{
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+            }}
           >
-            <TextField
-              label="Pesquisar Tipo de Alerta"
-              name="nameFilter"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
-              variant="outlined"
-              fullWidth
+            <Typography
+              variant="h4"
+              gutterBottom
               sx={{
-                flex: 1,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                  backgroundColor: "rgb(146, 123, 230)",
-                  "&:hover": {
-                    backgroundColor: "rgb(146, 123, 230)",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "rgb(146, 123, 230)",
-                  },
+                color: "var(--purple-maincolor)",
+                fontWeight: "bold",
+                textAlign: { xs: "center", sm: "left" },
+                mb: { sm: 0 }
+              }}
+            >
+              Tipos de Alertas
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleOutlineIcon sx={{ fontSize: 22 }} />}
+              onClick={() => navigate("/register-type-alert")}
+              sx={{
+                minHeight: 42,
+                borderRadius: "8px",
+                px: 3,
+                py: 1.2,
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                background:
+                  "linear-gradient(45deg, rgb(146, 123, 230) 30%, rgb(126, 103, 210) 90%)",
+                color: "#fff",
+                "&:hover": {
+                  background:
+                    "linear-gradient(45deg, rgb(126, 103, 210) 30%, rgb(106, 83, 190) 90%)",
                 },
               }}
-            />
-
-            <Box
-              display="flex"
-              flexDirection={{ xs: "column", sm: "row" }}
-              gap={2}
-              flexShrink={0}
             >
-              <Button
-                variant="outlined"
-                onClick={handleResetFilters}
-                sx={{
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  color: "rgb(146, 123, 230)",
-                  borderColor: "rgb(146, 123, 230)",
-                  "&:hover": {
-                    backgroundColor: "rgba(146, 123, 230, 0.1)",
-                    borderColor: "rgb(146, 123, 230)",
-                  },
-                }}
-              >
-                Limpar
-              </Button>
-              <Button
-                variant="contained"
-                onClick={applyFilters}
-                startIcon={<SearchIcon />}
-                sx={{
-                  borderRadius: "8px",
-                  fontWeight: "bold",
-                  backgroundColor: "rgb(146, 123, 230)",
-                  color: "white",
-                  "&:hover": {
-                    backgroundColor: "rgb(126, 103, 210)",
-                  },
-                }}
-              >
-                Buscar
-              </Button>
-            </Box>
+              Novo Cadastrar
+            </Button>
           </Box>
+
+          <FilterBox
+            filters={filters}
+            onSearch={applyFilters}
+            onReset={handleResetFilters}
+          />
         </Paper>
 
         {loading ? (
@@ -228,6 +185,7 @@ const TypeAlertsPage = () => {
           <GenericTable
             columns={columns}
             rows={filteredTypeAlerts}
+            tableName="Tipos de Alertas"
             renderCell={(row, column) => {
               if (column.field === "create_date") {
                 const timestamp = Number(row[column.field]);
@@ -254,8 +212,8 @@ const TypeAlertsPage = () => {
                     gap={1}
                   >
                     <Box
-                      width={15}
-                      height={15}
+                      width={20}
+                      height={20}
                       borderRadius="50%"
                       sx={{ backgroundColor: color }}
                     />

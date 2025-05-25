@@ -4,7 +4,8 @@ export interface StationStatusResponse {
 }
 
 export interface StationHistoricResponse {
-    name: string;
+    title: string;
+    type: string;
     value: number;
     measure_unit: string;
     measure_date: number;
@@ -19,4 +20,12 @@ export interface AlertCountsResponse {
 export interface MeasuresStatusResponse {
     name: string;
     total: number;
+}
+
+export interface LastMeasureResponse {
+    title: string;
+    type: string;
+    value: number;
+    measure_unit: string;
+    measure_date: number;
 }
