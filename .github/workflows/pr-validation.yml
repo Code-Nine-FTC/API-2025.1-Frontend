@@ -1,0 +1,76 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+jobs:
+  pr-check-develop:
+    name: PR to Develop - Basic Check
+    if: github.base_ref == 'develop'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './tecsus/package.json'
+
+      - name: Install dependencies
+        working-directory: ./tecsus
+        run: npm install
+
+      - name: Run Linting
+        working-directory: ./tecsus
+        run: npm run lint
+
+
+  pr-check-develop-release-main:
+    name: PR to Release/Main - Full Pipeline
+    if: github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'release'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './tecsus/package.json'
+
+      - name: Install dependencies
+        working-directory: ./tecsus
+        run: npm install
+
+      - name: Run Linting
+        working-directory: ./tecsus
+        run: npm run lint
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run Unit Tests
+        working-directory: ./tecsus
+        run: npm run test
