@@ -17,7 +17,7 @@ export default {
             });
 
             if (response.data && Array.isArray(response.data.data)) {
-                const parameterTypes = response.data.data.map((parameterType: any) => ({
+                const parameterTypes = response.data.data.map((parameterType: ParameterTypesResponse) => ({
                   id: parameterType.id,
                   name: parameterType.name,
                   measure_unit: parameterType.measure_unit,
@@ -30,11 +30,12 @@ export default {
                 return { success: true, data: parameterTypes };
               }
             return { success: true, data: response.data };
-        } catch (error: any) {
-            console.error("Erro ao listar tipos de parâmetros:", error.message || error);
+        } catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao listar tipos de parâmetros:", errorMsg);
             return {
                 success: false,
-                error: error.message || "Erro ao listar tipos de parâmetros",
+                error: errorMsg || "Erro ao listar tipos de parâmetros",
             };
         }
     },
@@ -45,11 +46,12 @@ export default {
                 return { success: true };
             } 
             return { success: false, error: "Erro ao deletar tipo de parâmetro" };
-        } catch (error: any) {
-            console.error("Erro ao deletar tipo de parâmetro:", error.message || error);
+        } catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao deletar tipo de parâmetro:", errorMsg);
             return {
                 success: false,
-                error: error.message || "Erro ao deletar tipo de parâmetro",
+                error: errorMsg || "Erro ao deletar tipo de parâmetro",
             };
         }
     },
@@ -60,11 +62,12 @@ export default {
                 return { success: true };
             } 
             return { success: false, error: "Erro ao criar tipo de parâmetro" };
-        } catch (error: any) {
-            console.error("Erro ao criar tipo de parâmetro:", error.message || error);
+        } catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao criar tipo de parâmetro:", errorMsg);
             return {
                 success: false,
-                error: error.message || "Erro ao criar tipo de parâmetro",
+                error: errorMsg || "Erro ao criar tipo de parâmetro",
             };
         }
     },
@@ -76,13 +79,14 @@ export default {
 			}
 			return {success: false, error: "Erro ao listar tipo de parâmetro"};
 		}
-		catch (error: any) {
-			console.error("Erro ao listar tipo de parâmetro", error.message || error);
-			return {
-				success: false,
-				error: error.message || "Erro ao listar tipo de parâmetro",
-			};
-		}
+        catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao listar tipo de parâmetro", errorMsg);
+            return {
+                success: false,
+                error: errorMsg || "Erro ao listar tipo de parâmetro",
+            };
+        }
 	},
     async updateParameterType(id: number, typeParameter: UpdatedParameterType): Promise<{ success: boolean; error?: string}> {
         try {
@@ -96,11 +100,12 @@ export default {
             }
             return { success: false, error: "Erro ao atualizar tipo de parâmetro"};
         }
-        catch (error: any) {
-            console.error("Erro ao atualizar tipo de parâmetro", error.message || error);
+        catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao atualizar tipo de parâmetro", errorMsg);
             return {
                 success: false,
-                error: error.message || "Erro ao atualizar tipo de parâmetro",
+                error: errorMsg || "Erro ao atualizar tipo de parâmetro",
             }
         }
     }    

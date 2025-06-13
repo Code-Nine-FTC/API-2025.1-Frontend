@@ -95,7 +95,7 @@ const StationPage = () => {
     if (id) {
       fetchStationDetails();
     }
-  }, []);
+  }, [id]);
 
   async function fetchAllParameters() {
     try {

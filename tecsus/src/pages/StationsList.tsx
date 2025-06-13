@@ -16,6 +16,7 @@ import { Search, AddCircleOutline as AddCircleOutlineIcon } from "@mui/icons-mat
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authContext";
 import { LoggedLayout } from "../layout/layoutLogged"; // Layout com sidebar
+import { useCallback } from "react";
 
 export default function StationsListPage({onlyView = false} : {onlyView: boolean}) {
   const [stations, setStations] = useState<ListStationsResponse[]>([]);
@@ -35,7 +36,8 @@ export default function StationsListPage({onlyView = false} : {onlyView: boolean
     { field: "create_date", headerName: "Data de criação" },
   ];
 
-  async function getListStations() {
+
+  const getListStations = useCallback(async () => {
     try {
       const filters: ListStationsFilters = {};
       if (name.trim()) filters.name = name;
@@ -51,11 +53,11 @@ export default function StationsListPage({onlyView = false} : {onlyView: boolean
     } catch (err) {
       console.error(err instanceof Error ? err.message : "Ocorreu um erro desconhecido");
     }
-  }
+  }, [name, uid, isActive]);
 
   useEffect(() => {
     getListStations();
-  }, []);
+  }, [getListStations]);
 
   function handleSearch() {
     getListStations();

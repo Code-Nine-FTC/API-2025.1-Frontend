@@ -12,11 +12,26 @@ export default {
       });
   
       return { success: true, data: response.data.data };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao buscar tipo de alerta:", error);
+      let errorMessage = "Erro ao buscar tipo de alerta";
+      type ErrorWithResponse = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+        message?: string;
+      };
+      const err = error as ErrorWithResponse;
+      if (typeof err === "object" && err !== null && "response" in err && typeof err.response === "object") {
+        errorMessage = err.response?.data?.detail || err.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao buscar tipo de alerta",
+        error: errorMessage,
       };
     }
   },
@@ -40,11 +55,26 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao atualizar tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao atualizar tipo de alerta:", error);
+      let errorMessage = "Erro ao atualizar tipo de alerta";
+      type ErrorWithResponse = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+        message?: string;
+      };
+      const err = error as ErrorWithResponse;
+      if (typeof err === "object" && err !== null && "response" in err && typeof err.response === "object") {
+        errorMessage = err.response?.data?.detail || err.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao atualizar tipo de alerta",
+        error: errorMessage,
       };
     }
   },
@@ -64,7 +94,7 @@ export default {
       });
 
       const alertTypes = Array.isArray(response.data.data)
-        ? response.data.data.map((item: any) => ({
+        ? response.data.data.map((item: AlertTypeResponse) => ({
             id: item.id,
             parameter_id: item.parameter_id,
             name: item.name,
@@ -78,12 +108,20 @@ export default {
         : [];
 
       return { success: true, data: alertTypes };
-    } catch (error: any) {
-      console.error("Erro ao buscar alertas:", error.message || error);
-      return {
-        success: false,
-        error: error.response?.data?.detail || "Erro ao buscar alertas",
-      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Erro ao buscar alertas:", error.message);
+        return {
+          success: false,
+          error: (error as unknown & { response?: { data?: { detail?: string } } }).response?.data?.detail || error.message || "Erro ao buscar alertas",
+        };
+      } else {
+        console.error("Erro ao buscar alertas:", error);
+        return {
+          success: false,
+          error: "Erro ao buscar alertas",
+        };
+      }
     }
   },
   
@@ -116,14 +154,26 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao criar o tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao criar o tipo de alerta:", error);
+      let errorMessage = "Erro ao criar o tipo de alerta";
+      type ErrorWithResponse = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+        message?: string;
+      };
+      const err = error as ErrorWithResponse;
+      if (typeof err === "object" && err !== null && "response" in err && typeof err.response === "object") {
+        errorMessage = err.response?.data?.detail || err.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
       return {
         success: false,
-        error:
-          error.response?.data?.detail ||
-          error.message ||
-          "Erro ao criar o tipo de alerta",
+        error: errorMessage,
       };
     }
   },
@@ -159,15 +209,24 @@ export default {
       }
 
       throw new Error("Resposta inválida do servidor");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(
         "Erro ao buscar parâmetros da estação:",
-        error.message || error
+        error instanceof Error ? error.message : error
       );
+      type ErrorWithResponse = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+        message?: string;
+      };
+      const err = error as ErrorWithResponse;
       return {
         success: false,
         error:
-          error.response?.data?.detail ||
+          err.response?.data?.detail ||
           "Erro ao buscar parâmetros da estação",
       };
     }
@@ -190,11 +249,26 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao alterar status do tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao alterar status do tipo de alerta:", error);
+      let errorMessage = "Erro ao alterar status do tipo de alerta";
+      type ErrorWithResponse = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+        message?: string;
+      };
+      const err = error as ErrorWithResponse;
+      if (typeof err === "object" && err !== null && "response" in err && typeof err.response === "object") {
+        errorMessage = err.response?.data?.detail || err.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao alterar status do tipo de alerta",
+        error: errorMessage,
       };
     }
   },  

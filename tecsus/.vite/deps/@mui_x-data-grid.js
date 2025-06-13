@@ -1315,7 +1315,7 @@ var FinalizationRegistryBasedCleanupTracking = class {
   unregister(unregisterToken) {
     this.registry.unregister(unregisterToken);
   }
-  // eslint-disable-next-line class-methods-use-this
+   
   reset() {
   }
 };

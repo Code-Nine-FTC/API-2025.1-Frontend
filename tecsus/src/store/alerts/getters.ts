@@ -20,7 +20,7 @@ export default {
             console.log("Dados brutos da API:", response.data); // Log dos dados brutos da API
 
             if (response.data && Array.isArray(response.data.data)) {
-                const alerts: Alert[] = response.data.data.map((item: any) => ({
+                const alerts: Alert[] = response.data.data.map((item: Alert) => ({
                     id: item.id,
                     measure_value: item.measure_value,
                     type_alert_name: item.type_alert_name,
@@ -31,12 +31,22 @@ export default {
             }
 
             throw new Error("Resposta inválida do servidor");
-        } catch (error: any) {
-            console.error("Erro ao buscar alertas filtrados:", error.message || error);
-            return {
-                success: false,
-                error: error.response?.data?.detail || "Erro ao buscar alertas filtrados",
-            };
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("Erro ao buscar alertas filtrados:", error.message);
+                return {
+                    success: false,
+                    error: (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { data?: { detail?: string } } }).response?.data?.detail === "string")
+                        ? (error as { response?: { data?: { detail?: string } } }).response!.data!.detail!
+                        : "Erro ao buscar alertas filtrados",
+                };
+            } else {
+                console.error("Erro ao buscar alertas filtrados:", error);
+                return {
+                    success: false,
+                    error: "Erro ao buscar alertas filtrados",
+                };
+            }
         }
     },
 
@@ -45,12 +55,20 @@ export default {
         try {
             const response = await api.get(`/alert/${id}`);
             return { success: true, data: response.data };
-        } catch (error: any) {
-            console.error("Erro ao obter alerta:", error.message || error);
-            return {
-                success: false,
-                error: error.message || "Erro ao obter alerta",
-            };
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("Erro ao obter alerta:", error.message);
+                return {
+                    success: false,
+                    error: error.message || "Erro ao obter alerta",
+                };
+            } else {
+                console.error("Erro ao obter alerta:", error);
+                return {
+                    success: false,
+                    error: "Erro ao obter alerta",
+                };
+            }
         }
     },
 
@@ -75,12 +93,22 @@ export default {
             }
 
             throw new Error("Erro ao deletar o alerta");
-        } catch (error: any) {
-            console.error("Erro ao deletar o alerta:", error.message || error);
-            return {
-                success: false,
-                error: error.response?.data?.detail || "Erro ao deletar o alerta",
-            };
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("Erro ao deletar o alerta:", error.message);
+                return {
+                    success: false,
+                    error: (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { data?: { detail?: string } } }).response?.data?.detail === "string")
+                        ? (error as { response?: { data?: { detail?: string } } }).response!.data!.detail!
+                        : "Erro ao deletar o alerta",
+                };
+            } else {
+                console.error("Erro ao deletar o alerta:", error);
+                return {
+                    success: false,
+                    error: "Erro ao deletar o alerta",
+                };
+            }
         }
     },
 };

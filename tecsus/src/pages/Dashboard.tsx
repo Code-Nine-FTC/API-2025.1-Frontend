@@ -117,7 +117,7 @@ const DashboardPage = () => {
         if (!isLoading) {
             fetchHistoricData();
         }
-    }, [selectedStation]);
+    }, [selectedStation, fetchHistoricData, isLoading]);
 
     if (isLoading) {
         return (
