@@ -302,7 +302,7 @@ export default function StationPage() {
                     justifyContent="space-evenly" 
                     alignItems="center"
                     width= {{ xs: "100%", sm: '100%', md: "80%", lg: "100%" }}>
-                     {lastMeasures.map((measure, index) => {
+                     {lastMeasures.map((measure) => {
                       return (
                         <>
                         {measure.type === "temp" && temperatureProps && (

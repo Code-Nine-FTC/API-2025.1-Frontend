@@ -19,6 +19,13 @@ import typeAlertGetters from "../store/typealerts/getters";
 import stationGetters from "../store/station/getters";
 import { AlertTypeForm } from "../components/ui/AlertTypeForm";
 import { AlertTypeResponse, AlertTypeUpdate } from "../store/typealerts/state";
+import { ListStationsResponse } from "../store/station/state";
+
+interface Parameter {
+  parameter_id: number;
+  name_parameter: string;
+  parameter_type_id: number;
+}
 
 const AlertTypePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,8 +38,8 @@ const AlertTypePage = () => {
   type ExtendedAlertType = AlertTypeResponse & { station_id?: number };
   const [initialValues, setInitialValues] = useState<ExtendedAlertType | null>(null);
 
-  const [stations, setStations] = useState<any[]>([]);
-  const [parameters, setParameters] = useState<any[]>([]);
+  const [stations, setStations] = useState<ListStationsResponse[]>([]);
+  const [parameters, setParameters] = useState<{id: number, name_parameter: string}[]>([]);
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -46,14 +53,14 @@ const AlertTypePage = () => {
         if (stationRes.success && alertRes.success && stationRes.data && alertRes.data) {
           const alert = alertRes.data;
 
-          const station = stationRes.data.find((s: any) =>
-            s.parameters?.some((p: any) => p.parameter_id === alert.parameter_id)
+          const station = stationRes.data.find((s: ListStationsResponse) =>
+            s.parameters?.some((p: Parameter) => p.parameter_id === alert.parameter_id)
           );
 
           const stationId = station?.id;
 
           const paramList = station
-            ? station.parameters.map((p: any) => ({
+            ? station.parameters.map((p: Parameter) => ({
                 id: p.parameter_id,
                 name_parameter: p.name_parameter,
               }))
@@ -70,6 +77,7 @@ const AlertTypePage = () => {
           setError("Não foi possível carregar as informações do tipo de alerta. Verifique a existência da estação e dos parâmetros vinculados.");
         }
       } catch (err) {
+        console.error("Erro ao carregar dados do tipo de alerta", err)
         setError("Ocorreu um erro inesperado ao tentar carregar os dados. Tente novamente mais tarde.");
       } finally {
         setLoading(false);

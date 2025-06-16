@@ -3,19 +3,6 @@ import { useEffect, useState } from "react"
 import "../pages/styles/registerstation.css";
 import { links } from "../services/api"
 
-interface Station {
-    name: string
-    uid: string
-    latitude: string
-    longitude: string
-    address: {
-        country: string
-        city: string
-        state: string
-    }
-    parameter_types: number[]
-}
-
 export default function StationFormComponent() {
     const [name, setName] = useState<string>("")
     const [uid, setUid] = useState<string>("")
@@ -63,7 +50,8 @@ export default function StationFormComponent() {
             } else {
                 alert("Erro ao cadastrar estação")
             }
-        } catch (err: any) {
+        } catch (err) {
+            console.error("Erro ao cadastrar estação:", err)
             alert(`Erro ao cadastrar estação`)
         }
     }
