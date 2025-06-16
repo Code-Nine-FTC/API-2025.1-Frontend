@@ -64,7 +64,7 @@ export default function RegisterStationForm() {
       } else {
         alert("Erro ao cadastrar estação");
       }
-    } catch (err: any) {
+    } catch (err) {
       alert(`Erro ao cadastrar estação`);
     }
   }
