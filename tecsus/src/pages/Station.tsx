@@ -46,7 +46,6 @@ export default function StationPage() {
     const [historicData, setHistoricData] = useState<StationHistoricResponse[]>([]);
     const [historicDataLoading, setHistoricDataLoading] = useState(true);
     const [historicDataError, setHistoricDataError] = useState<string | null>(null);
-    const [loadedRange, setLoadedRange] = useState<{start: Date, end: Date} | null>(null);
     const [cachedData, setCachedData] = useState<Map<string, StationHistoricResponse[]>>(new Map());
     
     const [selectedRangeKey, setSelectedRangeKey] = useState<PredefinedRangeKey>("7d");
@@ -79,8 +78,6 @@ export default function StationPage() {
         if (cachedData.has(cacheKey)) {
             const cachedResponse = cachedData.get(cacheKey);
             setHistoricData(cachedResponse || []);
-            if (start && end) setLoadedRange({ start, end });
-            else setLoadedRange(null);
             setHistoricDataLoading(false);
             return;
         }
@@ -95,11 +92,6 @@ export default function StationPage() {
                 const fetchedData = response.data || [];
                 setHistoricData(fetchedData);
                 setCachedData((prev) => new Map(prev).set(cacheKey, fetchedData));
-                if (start && end) {
-                    setLoadedRange({ start, end });
-                } else {
-                    setLoadedRange(null); 
-                }
             } else {
                 setHistoricDataError(response.error || "Falha ao carregar dados históricos");
                 setHistoricData([]); 

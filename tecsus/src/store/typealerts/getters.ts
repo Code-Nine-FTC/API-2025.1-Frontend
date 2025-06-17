@@ -1,6 +1,16 @@
 import api from "../globals"
 import { AlertTypeResponse, AlertTypeUpdate } from "./state";
 
+function isAxiosError(error: unknown): error is { response: { data: { detail?: string } } } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: { data?: unknown } }).response?.data !== undefined
+  );
+}
+
 export default {
   getAlertType: async (
     id: number
@@ -12,11 +22,16 @@ export default {
       });
   
       return { success: true, data: response.data.data };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao buscar tipo de alerta:", error);
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao buscar tipo de alerta",
+        error:
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : error instanceof Error
+            ? error.message
+            : "Erro ao buscar tipo de alerta",
       };
     }
   },
@@ -40,11 +55,16 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao atualizar tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao atualizar tipo de alerta:", error);
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao atualizar tipo de alerta",
+        error:
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : error instanceof Error
+            ? error.message
+            : "Erro ao atualizar tipo de alerta",
       };
     }
   },
@@ -64,7 +84,7 @@ export default {
       });
 
       const alertTypes = Array.isArray(response.data.data)
-        ? response.data.data.map((item: any) => ({
+        ? response.data.data.map((item: AlertTypeResponse) => ({
             id: item.id,
             parameter_id: item.parameter_id,
             name: item.name,
@@ -78,11 +98,14 @@ export default {
         : [];
 
       return { success: true, data: alertTypes };
-    } catch (error: any) {
-      console.error("Erro ao buscar alertas:", error.message || error);
+    } catch (error: unknown) {
+      console.error("Erro ao buscar alertas:", error instanceof Error ? error.message : error);
       return {
         success: false,
-        error: error.response?.data?.detail || "Erro ao buscar alertas",
+        error:
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : "Erro ao buscar alertas",
       };
     }
   },
@@ -116,14 +139,16 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao criar o tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao criar o tipo de alerta:", error);
       return {
         success: false,
         error:
-          error.response?.data?.detail ||
-          error.message ||
-          "Erro ao criar o tipo de alerta",
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : error instanceof Error
+            ? error.message
+            : "Erro ao criar o tipo de alerta",
       };
     }
   },
@@ -159,16 +184,17 @@ export default {
       }
 
       throw new Error("Resposta inválida do servidor");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(
         "Erro ao buscar parâmetros da estação:",
-        error.message || error
+        error instanceof Error ? error.message : error
       );
       return {
         success: false,
         error:
-          error.response?.data?.detail ||
-          "Erro ao buscar parâmetros da estação",
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : "Erro ao buscar parâmetros da estação",
       };
     }
   },
@@ -190,11 +216,16 @@ export default {
         success: false,
         error: response.data?.detail || "Erro ao alterar status do tipo de alerta",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao alterar status do tipo de alerta:", error);
       return {
         success: false,
-        error: error.response?.data?.detail || error.message || "Erro ao alterar status do tipo de alerta",
+        error:
+          isAxiosError(error) && typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : error instanceof Error
+            ? error.message
+            : "Erro ao alterar status do tipo de alerta",
       };
     }
   },  
