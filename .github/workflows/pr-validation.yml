@@ -1,6 +1,5 @@
 name: PR Pipeline Main/Develop/Release
 
-
 on:
   pull_request:
     branches:
@@ -44,4 +43,4 @@ jobs:
       run: |
         echo "Executando testes..."
         cd tecsus
-        npm test
+        npx jest --coverage --coverageReporters=clover

@@ -186,14 +186,17 @@ jobs:
     - name: Install dependencies
       run: |
         echo "Instalando dependências..."
+        cd tecsus
         npm install
 
     - name: Run Linter
       run: |
         echo "Executando linter..."
+        cd tecsus
         npm run lint
 
     - name: Run tests
       run: |
         echo "Executando testes..."
+        cd tecsus
         npm test
