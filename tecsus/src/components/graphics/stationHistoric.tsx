@@ -304,19 +304,19 @@ const LineGraphic = React.memo(function LineGraphic (props: LineGraphicProps) {
           // pointPlacement: 'between',
           events: { 
             legendItemClick: function(this: Highcharts.Series): boolean {
-              const series = this;
-              const chart = series.chart;
 
               setTimeout(() => {
+                const chart = this.chart;
+
                 chart.yAxis.forEach((axis: Highcharts.Axis) => {
                   const associatedSeries = chart.series.filter(s => s.yAxis === axis);
                   
                   let futureVisibilityForAxis = false;
-                  if (associatedSeries.includes(series)) { 
-                    if (series.visible) {
+                  if (associatedSeries.includes(this)) { 
+                    if (this.visible) {
                       futureVisibilityForAxis = true; 
                     } else { 
-                      futureVisibilityForAxis = associatedSeries.some(s => s !== series && s.visible);
+                      futureVisibilityForAxis = associatedSeries.some(s => s !== this && s.visible);
                     }
                   } else {
                      futureVisibilityForAxis = associatedSeries.some(s => s.visible);

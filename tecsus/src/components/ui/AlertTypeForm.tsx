@@ -149,7 +149,7 @@ export const AlertTypeForm: React.FC<AlertTypeFormProps> = ({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const { station_id, ...safeData } = form;
+    const { ...safeData } = form;
 
     if (!form.parameter_id || !form.name || !form.value || !form.math_signal || !form.status) {
       alert("Por favor, preencha todos os campos obrigatórios.");
