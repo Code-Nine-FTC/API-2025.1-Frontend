@@ -61,7 +61,7 @@ export default function GaugeGraphic(props: GaugeGraphicProps) {
               [0, '#cccccc'],
               [1, '#e8e8e8'],
             ],
-          } as any,
+          }  as Highcharts.GradientColorObject,
           borderWidth: 0,
           borderRadius: '50%',
         },

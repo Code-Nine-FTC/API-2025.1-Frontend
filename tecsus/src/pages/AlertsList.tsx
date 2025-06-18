@@ -172,6 +172,7 @@ export default function AlertsListPage({
             >
               {auth.isAuthenticated && (
                 <IconButton
+                  aria-label="Check"
                   sx={{
                     color: "rgb(146, 123, 230)",
                     "&:hover": {

@@ -1,0 +1,46 @@
+name: PR Pipeline Main/Develop/Release
+
+on:
+  pull_request:
+    branches:
+    - main
+    - develop
+    - release
+
+jobs:
+  pr-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Debug directory structure
+      run: |
+        echo "Estrutura de diretórios:"
+        ls -la
+        echo "Conteúdo da pasta tecsus:"
+        ls -la tecsus/
+
+    - name: Install dependencies
+      run: |
+        echo "Instalando dependências..."
+        cd tecsus
+        npm install
+
+    - name: Run Linter
+      run: |
+        echo "Executando linter..."
+        cd tecsus
+        npm run lint
+
+    - name: Run tests
+      run: |
+        echo "Executando testes..."
+        cd tecsus
+        npx jest --coverage --coverageReporters=clover

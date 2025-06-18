@@ -12,7 +12,7 @@ export default {
   },
 
   login: async function (
-    this: any,
+    this: { setToken: (token: string) => void },
     email: string,
     password: string
   ): Promise<{ success: boolean; token?: string; error?: string }> {
@@ -36,9 +36,18 @@ export default {
       this.setToken(fullToken);
 
       return { success: true, token: fullToken };
-    } catch (error: any) {
-      console.error("Erro ao autenticar:", error.response?.data || error.message || error);
-      const errorMessage = error.response?.data?.message || "Erro ao autenticar";
+    } catch (error) {
+      let errorMessage = "Erro ao autenticar";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const err = error as { response?: { data?: { message?: string } } };
+        errorMessage = err.response?.data?.message || errorMessage;
+        console.error("Erro ao autenticar:", err.response?.data || errorMessage);
+      } else {
+        console.error("Erro ao autenticar:", errorMessage);
+      }
       return { success: false, error: errorMessage };
     }
   },
