@@ -1,4 +1,4 @@
-name: CI Principal Frontend
+name: CI Principal Frontend Hotfix/Feature
 
 on:
   push:
