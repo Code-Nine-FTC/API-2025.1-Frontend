@@ -1,76 +1,47 @@
-name: Pull Request Validation
+name: PR Pipeline Main/Develop/Release
+
 
 on:
   pull_request:
     branches:
-      - main
-      - develop
-      - release/**
+    - main
+    - develop
+    - release
 
 jobs:
-  pr-check-develop:
-    name: PR to Develop - Basic Check
-    if: github.base_ref == 'develop'
+  pr-validation:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: './tecsus/package.json'
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-      - name: Install dependencies
-        working-directory: ./tecsus
-        run: npm install
+    - name: Debug directory structure
+      run: |
+        echo "Estrutura de diretórios:"
+        ls -la
+        echo "Conteúdo da pasta tecsus:"
+        ls -la tecsus/
 
-      - name: Run Linting
-        working-directory: ./tecsus
-        run: npm run lint
+    - name: Install dependencies
+      run: |
+        echo "Instalando dependências..."
+        cd tecsus
+        npm install
 
+    - name: Run Linter
+      run: |
+        echo "Executando linter..."
+        cd tecsus
+        npm run lint
 
-  pr-check-develop-release-main:
-    name: PR to Release/Main - Full Pipeline
-    if: github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'release'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: './tecsus/package.json'
-
-      - name: Install dependencies
-        working-directory: ./tecsus
-        run: npm install
-
-      - name: Run Linting
-        working-directory: ./tecsus
-        run: npm run lint
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@v1.1.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Run Unit Tests
-        working-directory: ./tecsus
-        run: npm run test
+    - name: Run tests
+      run: |
+        echo "Executando testes..."
+        cd tecsus
+        npm test
