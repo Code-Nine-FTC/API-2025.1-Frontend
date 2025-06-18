@@ -1,5 +1,4 @@
 {
-  "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
@@ -7,18 +6,15 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@components/*": ["src/components/*"]
+      "@components/*": ["components/*"]
     },
 
     "jsx": "react-jsx",
     "types": ["jest", "node"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noEmitOnError": false
   },
   "include": ["src", "tests", "jest.config.ts"]
-}
-
-	"noEmitOnError": false,
-  }
 }
 

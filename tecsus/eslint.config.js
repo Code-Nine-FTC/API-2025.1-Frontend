@@ -1,28 +1,54 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+// eslint.config.js
+import js from "@eslint/js";
+import pluginReact from "eslint-plugin-react";
+import tseslint from "typescript-eslint";
+import globals from "globals";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+export default defineConfig([
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{js,jsx}"],
+    plugins: { react: pluginReact },
     languageOptions: {
-      ecmaVersion: 2020,
       globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+      parserOptions: { ecmaFeatures: { jsx: true } },
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      "react/react-in-jsx-scope": "off",
     },
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+    extends: [js.configs.recommended],
   },
-)
+  {
+    files: ["**/*.{ts,tsx}"],
+    plugins: {
+      react: pluginReact,
+      "@typescript-eslint": tseslint.plugin,
+    },
+    languageOptions: {
+      globals: globals.browser,
+      parser: tseslint.parser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+      // Outras regras específicas do TS podem ser adicionadas aqui
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+    extends: [
+      tseslint.configs.recommended,
+      pluginReact.configs.flat.recommended,
+    ],
+  },
+]);
+
+function exemplo(valor) { /* ... */ }
+// const _err = null; // ou remova se não usar

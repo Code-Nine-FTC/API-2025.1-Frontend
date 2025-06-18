@@ -6,11 +6,12 @@ export default {
         try {
             const response = await api.get("/dashboard/station-status");
             return { success: true, data: response.data.data };
-        } catch (error: any) {
-            console.error("Erro ao obter status das estações:", error.message || error);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao obter status das estações:", message);
             return {
                 success: false,
-                error: error.message || "Erro ao obter status das estações",
+                error: message || "Erro ao obter status das estações",
             };
         }
     },
@@ -19,11 +20,12 @@ export default {
         try {
             const response = await api.get(`/dashboard/station-history/${stationId}`, { params });
             return { success: true, data: response.data.data };
-        } catch (error: any) { 
-            console.error("Erro ao obter histórico das estações", error.message || error);
+        } catch (error: unknown) { 
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao obter histórico das estações", message);
             return {
                 success: false,
-                error: error.message || "Erro ao obter histórico das estações",
+                error: message || "Erro ao obter histórico das estações",
             };
         }
     },
@@ -36,11 +38,12 @@ export default {
             }
             const response = await api.get("/dashboard/alert-counts", { params: queryParams });
             return { success: true, data: response.data.data };
-        } catch (error: any) {
-            console.error("Erro ao obter contagem de alertas:", error.message || error);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao obter contagem de alertas:", message);
             return {
                 success: false,
-                error: error.message || "Erro ao obter contagem de alertas",
+                error: message || "Erro ao obter contagem de alertas",
             };
         }
     },
@@ -53,11 +56,12 @@ export default {
             }
             const response = await api.get("/dashboard/alert-types", { params: queryParams });
             return { success: true, data: response.data.data };
-        } catch (error: any) {
-            console.error("Erro ao obter status das medidas:", error.message || error);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao obter status das medidas:", message);
             return {
                 success: false,
-                error: error.message || "Erro ao obter status das medidas",
+                error: message || "Erro ao obter status das medidas",
             };
         }
     },
@@ -66,11 +70,12 @@ export default {
         try {
             const response = await api.get(`/dashboard/last-measures/${stationId}`);
             return { success: true, data: response.data.data };
-        } catch (error: any) {
-            console.error("Erro ao obter últimas medidas:", error.message || error);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            console.error("Erro ao obter últimas medidas:", message);
             return {
                 success: false,
-                error: error.message || "Erro ao obter últimas medidas",
+                error: message || "Erro ao obter últimas medidas",
             };
         }
     }
