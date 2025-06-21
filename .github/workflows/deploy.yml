@@ -25,6 +25,8 @@ jobs:
             docker image prune -f || true
             docker system prune -f || true
 
+            fuser -k 4173/tcp || true
+
             echo "Construindo nova imagem..."
             docker build -t frontend-img:${{ github.sha }} .
 
